@@ -59,48 +59,33 @@
     aria-hidden="true"
   >
 
-    <a
-      href="{% url 'explore' %}"
-      class="navbar__mobile-link"
-    >
-      Explore
+    <p class="navbar__mobile-section-label">MI CUENTA</p>
+
+    <a href="/perfil/" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">person</span>
+      Mi perfil
     </a>
 
-    <a
-      href="/mapa/"
-      class="navbar__mobile-link"
-    >
-      Mapa
+    <a href="/mis-reservas/" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">confirmation_number</span>
+      Mis reservaciones
     </a>
 
-    <a
-      href="/mis-reservas/"
-      class="navbar__mobile-link"
-    >
-      Mis reservas
+    <a href="/metodos-de-pago/" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">credit_card</span>
+      Métodos de pago
     </a>
 
     <hr class="navbar__mobile-divider" />
 
-    <a
-      href="/cuenta/"
-      class="navbar__mobile-link"
-    >
-      Mi cuenta
-    </a>
-
-    <a
-      href="{% url 'register' %}"
-      class="navbar__mobile-link"
-    >
-      Registrarse
-    </a>
-
-    <a
-      href="/configuracion/"
-      class="navbar__mobile-link"
-    >
+    <a href="/configuracion/" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">settings</span>
       Configuración
+    </a>
+
+    <a href="{% url 'register' %}" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">how_to_reg</span>
+      Registrarse
     </a>
 
   </nav>

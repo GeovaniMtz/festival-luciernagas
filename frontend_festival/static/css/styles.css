@@ -339,3 +339,35 @@ img {
 .site-footer p {
   margin: 0;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE MENU — sección label e iconos
+═══════════════════════════════════════════════════════════════════ */
+
+.navbar__mobile-section-label {
+  padding: 4px 8px 8px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--color-text-label);
+  opacity: 0.80;
+}
+
+.navbar__mobile-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar__mobile-link-icon {
+  font-size: 18px;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+  transition: color var(--transition);
+}
+
+.navbar__mobile-link:hover .navbar__mobile-link-icon {
+  color: var(--color-success);
+}
