@@ -1,0 +1,1422 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mapa Interactivo — Lumia{% endblock %}
+
+{% block extra_css %}
+<style>
+
+/* ═══════════════════════════════════════════════════
+   MAPA PAGE — layout raíz
+═══════════════════════════════════════════════════ */
+.mapa-page {
+  display: flex;
+  height: 100vh;
+  padding-top: var(--navbar-h);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ═══════════════════════════════════════════════════
+   PANEL LATERAL IZQUIERDO
+═══════════════════════════════════════════════════ */
+.map-sidebar {
+  width: 400px;
+  flex-shrink: 0;
+  background: #1A1C1C;
+  border-right: 1px solid rgba(65, 72, 71, 0.30);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.map-sidebar__head {
+  padding: 16px 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* ── Buscador de parques ── */
+.map-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.map-search__icon {
+  position: absolute;
+  left: 14px;
+  color: var(--color-text-secondary);
+  font-size: 18px;
+  pointer-events: none;
+  display: flex;
+}
+.map-search__input {
+  width: 100%;
+  height: 40px;
+  padding: 0 16px 0 42px;
+  background: #282A2B;
+  border: 1px solid rgba(65, 72, 71, 0.30);
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.map-search__input::placeholder { color: #6B7280; }
+.map-search__input:focus {
+  border-color: rgba(170, 206, 201, 0.40);
+  box-shadow: 0 0 0 3px rgba(170, 206, 201, 0.08);
+}
+
+/* ── Filtros ── */
+.map-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 4px;
+}
+.map-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border-radius: var(--radius-full);
+  border: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  white-space: nowrap;
+  background: #282A2B;
+  color: var(--color-text-secondary);
+}
+.map-filter-btn .material-symbols-outlined { font-size: 15px; }
+.map-filter-btn:hover { background: #333535; color: var(--color-text-primary); }
+.map-filter-btn.is-active { background: #155155; color: var(--color-text-secondary); }
+
+/* ── Origen de viaje ── */
+.map-origin {
+  padding: 0 24px 12px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(65, 72, 71, 0.20);
+  margin-bottom: 4px;
+}
+.map-origin__label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+  display: block;
+}
+.map-origin__row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.map-origin__search {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.map-origin__icon {
+  position: absolute;
+  left: 12px;
+  color: var(--color-text-label);
+  font-size: 16px;
+  pointer-events: none;
+  display: flex;
+}
+.map-origin__input {
+  width: 100%;
+  height: 38px;
+  padding: 0 14px 0 36px;
+  background: #282A2B;
+  border: 1px solid rgba(65, 72, 71, 0.50);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.map-origin__input::placeholder { color: #6B7280; }
+.map-origin__input:focus {
+  border-color: rgba(170, 206, 201, 0.50);
+  box-shadow: 0 0 0 3px rgba(170, 206, 201, 0.08);
+}
+.map-origin__locate {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  background: rgba(21, 81, 85, 0.40);
+  border: 1px solid rgba(170, 206, 201, 0.20);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-label);
+  transition: background var(--transition), border-color var(--transition);
+}
+.map-origin__locate:hover {
+  background: rgba(21, 81, 85, 0.70);
+  border-color: rgba(170, 206, 201, 0.40);
+}
+.map-origin__locate .material-symbols-outlined { font-size: 18px; }
+
+.map-origin__chip {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 5px 10px;
+  background: rgba(21, 81, 85, 0.25);
+  border: 1px solid rgba(170, 206, 201, 0.15);
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-label);
+}
+.map-origin__chip.is-visible { display: flex; }
+.map-origin__chip .material-symbols-outlined { font-size: 14px; flex-shrink: 0; }
+.map-origin__chip-clear {
+  margin-left: auto;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  display: flex;
+  padding: 0;
+  transition: color var(--transition);
+}
+.map-origin__chip-clear:hover { color: var(--color-error); }
+.map-origin__chip-clear .material-symbols-outlined { font-size: 14px; }
+
+/* ── Autocomplete dropdown ── */
+.origin-autocomplete {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  background: #1E2020;
+  border: 1px solid rgba(65, 72, 71, 0.50);
+  border-radius: var(--radius-lg);
+  list-style: none;
+  padding: 6px;
+  z-index: 200;
+  max-height: 240px;
+  overflow-y: auto;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  display: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(65,72,71,0.40) transparent;
+}
+.origin-autocomplete.is-open {
+  display: block;
+  animation: acDrop 0.15s ease both;
+}
+@keyframes acDrop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.origin-ac-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition);
+  list-style: none;
+}
+.origin-ac-item:hover,
+.origin-ac-item.is-focused { background: #282A2B; }
+.origin-ac-item__icon { color: var(--color-text-label); font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+.origin-ac-item__main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.origin-ac-item__name {
+  font-family: var(--font-body);
+  font-size: 13px; font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 18px;
+}
+.origin-ac-item__name mark { background: none; color: var(--color-text-label); font-weight: 700; }
+.origin-ac-item__addr {
+  font-family: var(--font-body);
+  font-size: 11px; font-weight: 500;
+  color: var(--color-text-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.origin-ac-state {
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-body); font-size: 13px; color: var(--color-text-muted);
+}
+.mini-spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(170,206,201,0.20);
+  border-top-color: var(--color-green-soft);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Modos de transporte ── */
+.transport-modes {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 24px 14px;
+  border-bottom: 1px solid rgba(65,72,71,0.20);
+  flex-shrink: 0;
+}
+.transport-modes.is-visible {
+  display: flex;
+  animation: acDrop 0.2s ease both;
+}
+.transport-modes__label {
+  font-family: var(--font-body);
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.transport-modes__btns { display: flex; gap: 8px; }
+.transport-mode-btn {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 10px 6px 8px;
+  background: #282A2B;
+  border: 1px solid rgba(65,72,71,0.30);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+  color: var(--color-text-muted);
+}
+.transport-mode-btn .material-symbols-outlined { font-size: 20px; }
+.transport-mode-btn__time {
+  font-family: var(--font-body); font-size: 11px; font-weight: 700; line-height: 1.2;
+  color: var(--color-text-secondary);
+}
+.transport-mode-btn__dist {
+  font-family: var(--font-body); font-size: 10px; font-weight: 500; color: var(--color-text-muted);
+}
+.transport-mode-btn:hover { background: #333535; color: var(--color-text-secondary); }
+.transport-mode-btn.is-active {
+  background: rgba(21,81,85,0.40);
+  border-color: rgba(170,206,201,0.30);
+  color: var(--color-text-label);
+}
+.transport-mode-btn.is-active .transport-mode-btn__time { color: var(--color-text-label); }
+.transport-mode-btn.is-loading .material-symbols-outlined { animation: spin 1s linear infinite; }
+
+/* ── Contador y lista ── */
+.map-results-count {
+  padding: 8px 24px 0;
+  font-family: var(--font-body); font-size: 12px; font-weight: 500;
+  color: var(--color-text-muted); flex-shrink: 0;
+}
+.map-park-list {
+  flex: 1; overflow-y: auto;
+  padding: 8px 24px 16px;
+  display: flex; flex-direction: column; gap: 8px;
+  scrollbar-width: thin; scrollbar-color: rgba(65,72,71,0.40) transparent;
+}
+.map-park-list::-webkit-scrollbar { width: 4px; }
+.map-park-list::-webkit-scrollbar-track { background: transparent; }
+.map-park-list::-webkit-scrollbar-thumb { background: rgba(65,72,71,0.40); border-radius: 4px; }
+
+/* ── Park card ── */
+.map-park-item {
+  padding: 12px; background: #1E2020;
+  border-radius: 12px; border: 1px solid transparent;
+  display: flex; flex-direction: column; gap: 8px;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+  text-decoration: none;
+}
+.map-park-item:hover { background: #232525; border-color: rgba(170, 206, 201, 0.12); }
+.map-park-item.is-active { background: rgba(21, 81, 85, 0.20); border-color: rgba(153, 208, 212, 0.10); }
+.map-park-item__header { display: flex; justify-content: space-between; align-items: flex-start; }
+.map-park-item__name {
+  font-family: var(--font-body); font-size: 16px; font-weight: 400;
+  line-height: 24px; color: var(--color-text-primary);
+}
+.map-park-item.is-active .map-park-item__name { color: var(--color-text-label); }
+.map-park-item__rating { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.rating-star { font-size: 10px; color: var(--color-yellow-glow); display: flex; align-items: center; }
+.rating-star svg { width: 10px; height: 10px; fill: var(--color-yellow-glow); }
+.map-park-item__score {
+  font-family: var(--font-body); font-size: 12px; font-weight: 400;
+  line-height: 16px; color: var(--color-yellow-glow);
+}
+.map-park-item__desc {
+  font-family: var(--font-body); font-size: 12px; font-weight: 500;
+  line-height: 16px; color: var(--color-text-secondary);
+}
+.map-status-badge {
+  display: inline-flex; padding: 2px 8px; border-radius: 4px;
+  font-family: var(--font-body); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px; line-height: 15px; width: fit-content;
+}
+.map-status-badge--available { background: rgba(34, 197, 94, 0.20); color: var(--color-success); }
+.map-status-badge--few { background: rgba(245, 158, 11, 0.20); color: var(--color-warning); }
+.map-status-badge--full { background: rgba(239, 68, 68, 0.20); color: var(--color-error); }
+
+/* ── Sin resultados ── */
+.map-no-results {
+  display: none; flex-direction: column; align-items: center;
+  justify-content: center; gap: 8px; padding: 40px 24px; text-align: center;
+  color: var(--color-text-muted);
+}
+.map-no-results.is-visible { display: flex; }
+.map-no-results .material-symbols-outlined { font-size: 40px; opacity: 0.4; }
+.map-no-results__text { font-family: var(--font-body); font-size: 14px; font-weight: 500; }
+
+/* ═══════════════════════════════════════════════════
+   ÁREA DEL MAPA
+═══════════════════════════════════════════════════ */
+.map-area { flex: 1; position: relative; overflow: hidden; background: #0A2E2B; }
+#mapContainer { width: 100%; height: 100%; }
+
+/* ── Controles zoom ── */
+.map-controls {
+  position: absolute; top: 16px; right: 16px; z-index: 500;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.map-ctrl-btn {
+  width: 40px; height: 40px;
+  background: rgba(40, 42, 43, 0.90);
+  border: 1px solid rgba(65, 72, 71, 0.30);
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--color-text-primary);
+  transition: background var(--transition), border-color var(--transition), transform 0.15s ease;
+}
+.map-ctrl-btn:hover {
+  background: rgba(51, 53, 53, 0.95);
+  border-color: rgba(170, 206, 201, 0.25);
+  transform: scale(1.05);
+}
+.map-ctrl-btn .material-symbols-outlined { font-size: 18px; }
+.map-ctrl-btn--locate { margin-top: 8px; }
+
+/* ── Popup ── */
+.map-popup {
+  position: absolute; z-index: 600; width: 256px;
+  background: #282A2B; border-radius: 16px;
+  border: 1px solid rgba(65, 72, 71, 0.30);
+  padding: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.50);
+  backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+  display: flex; flex-direction: column; gap: 8px;
+  transform: translate(-50%, calc(-100% - 28px));
+  pointer-events: all;
+  animation: popupIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes popupIn {
+  from { opacity: 0; transform: translate(-50%, calc(-100% - 20px)) scale(0.92); }
+  to   { opacity: 1; transform: translate(-50%, calc(-100% - 28px)) scale(1); }
+}
+.map-popup.is-hidden { display: none; }
+.map-popup::after {
+  content: ''; position: absolute; bottom: -8px; left: 50%;
+  transform: translateX(-50%); width: 16px; height: 8px;
+  background: #282A2B; clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.map-popup__header { display: flex; justify-content: space-between; align-items: flex-start; }
+.map-popup__name {
+  font-family: var(--font-body); font-size: 16px; font-weight: 700;
+  line-height: 24px; color: var(--color-text-label);
+}
+.map-popup__rating { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.map-popup__desc {
+  font-family: var(--font-body); font-size: 12px; font-weight: 500;
+  line-height: 16px; color: var(--color-text-secondary); padding-bottom: 4px;
+}
+.map-popup__btn {
+  display: block; width: 100%; padding: 8px;
+  background: var(--color-success); border: none; border-radius: 8px;
+  font-family: var(--font-body); font-size: 14px; font-weight: 700;
+  line-height: 20px; color: #133633; text-align: center; cursor: pointer;
+  transition: background var(--transition), transform 0.15s ease; text-decoration: none;
+}
+.map-popup__btn:hover { background: #16a34a; transform: translateY(-1px); }
+
+/* ── Overlay de carga ── */
+.map-loading {
+  position: absolute; inset: 0; background: #0A2E2B;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 400; transition: opacity 0.4s ease;
+}
+.map-loading.is-done { opacity: 0; pointer-events: none; }
+.map-loading__spinner {
+  width: 40px; height: 40px;
+  border: 3px solid rgba(163, 230, 53, 0.15);
+  border-top-color: var(--color-lime);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+
+/* ── Banner de ruta ── */
+.route-banner {
+  position: absolute; bottom: 24px; left: 50%;
+  transform: translateX(-50%); z-index: 500;
+  background: rgba(28, 30, 30, 0.95);
+  border: 1px solid rgba(163, 230, 53, 0.30);
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(8px);
+  padding: 10px 20px;
+  display: none; align-items: center; gap: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.45), 0 0 20px rgba(163,230,53,0.08);
+  white-space: nowrap;
+}
+.route-banner.is-visible {
+  display: flex;
+  animation: bannerIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes bannerIn {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+.route-banner__dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #A3E635; box-shadow: 0 0 8px #A3E635; flex-shrink: 0;
+}
+.route-banner__stat { display: flex; flex-direction: column; align-items: center; }
+.route-banner__value {
+  font-family: var(--font-body); font-size: 16px; font-weight: 700;
+  color: var(--color-text-primary); line-height: 1;
+}
+.route-banner__unit {
+  font-family: var(--font-body); font-size: 10px; font-weight: 500;
+  color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px;
+}
+.route-banner__sep { width: 1px; height: 28px; background: rgba(65, 72, 71, 0.60); }
+.route-banner--loading .route-banner__dot { animation: routePulse 1s ease-in-out infinite; }
+@keyframes routePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .mapa-page   { flex-direction: column; position: relative; }
+  .map-sidebar { width: 100%; height: 100%; flex: 1; border-right: none; overflow-y: auto; }
+
+  /* Controles superiores */
+  .map-controls { top: 12px; right: 12px; }
+
+  /* Mapa minimizado: Cuadrado perfecto en la esquina inferior izquierda */
+  .map-area {
+    position: fixed;
+    bottom: 84px;          /* sobre el FAB de WhatsApp */
+    right: 16px;            /* Pegado a la izquierda */
+    left: auto;
+    width: 110px;
+    height: 110px;
+    min-height: auto;      /* IMPORTANTE: Anula el conflicto que lo hacía alto */
+    border-radius: 12px;
+    border: 2px solid rgba(163, 230, 53, 0.50);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.55), 0 0 16px rgba(163,230,53,0.20);
+    z-index: 50;
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.34, 1.2, 0.64, 1);
+    cursor: pointer;
+  }
+
+  /* Desactivar acciones y ocultar elementos en la previsualización */
+  .map-area:not(.is-expanded) #mapContainer { pointer-events: none; }
+  .map-area:not(.is-expanded) .map-popup,
+  .map-area:not(.is-expanded) .route-banner,
+  .map-area:not(.is-expanded) .map-controls { display: none !important; }
+
+  /* Tooltip "Ver mapa" */
+  .map-area::before {
+    content: 'Ver mapa';
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: rgba(18,20,20,0.80); color: var(--color-text-label);
+    font-family: var(--font-body); font-size: 11px; font-weight: 600;
+    padding: 4px 8px; border-radius: 20px; pointer-events: none; z-index: 2;
+    white-space: nowrap; transition: opacity 0.2s ease;
+  }
+  .map-area.is-expanded::before { opacity: 0; }
+
+  /* Mapa expandido a pantalla completa */
+  .map-area.is-expanded {
+    inset: var(--navbar-h) 0 0 0;
+    width: 100%; height: calc(100vh - var(--navbar-h));
+    border-radius: 0; border: none; bottom: auto; right: auto;
+    z-index: 150; cursor: default;
+  }
+
+  /* Botón para cerrar mapa */
+  .map-expand-btn {
+    display: flex; position: absolute; top: 12px; left: 12px; z-index: 10;
+    width: 40px; height: 40px; background: rgba(28, 30, 30, 0.90);
+    border: 1px solid rgba(65, 72, 71, 0.50); border-radius: var(--radius-full);
+    align-items: center; justify-content: center; cursor: pointer;
+    color: var(--color-text-primary); backdrop-filter: blur(6px);
+    opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+  }
+  .map-area.is-expanded .map-expand-btn { opacity: 1; pointer-events: all; }
+  .map-expand-btn .material-symbols-outlined { font-size: 20px; }
+
+  /* Banner de ruta en móvil */
+  .route-banner { bottom: 16px; font-size: 13px; padding: 8px 14px; gap: 10px; }
+}
+
+/* ── Botón secundario del popup (Cómo llegar) ── */
+.map-popup__btn--secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+  background: rgba(21, 81, 85, 0.40);
+  border: 1px solid rgba(170, 206, 201, 0.20);
+  color: var(--color-text-label);
+}
+.map-popup__btn--secondary:hover {
+  background: rgba(21, 81, 85, 0.70);
+  border-color: rgba(170, 206, 201, 0.40);
+  color: var(--color-text-primary);
+  transform: translateY(-1px);
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mapa-page">
+
+  <!-- ══════════════ PANEL LATERAL ══════════════ -->
+  <aside class="map-sidebar" id="mapSidebar" aria-label="Lista de parques">
+
+    <div class="map-sidebar__head">
+
+      <!-- Buscador de parques -->
+      <div class="map-search">
+        <span class="map-search__icon material-symbols-outlined">search</span>
+        <input type="search" id="parkSearch" class="map-search__input"
+          placeholder="Buscar parques..." autocomplete="off" aria-label="Buscar parques" />
+      </div>
+
+      <!-- Filtros -->
+      <div class="map-filters" role="group" aria-label="Filtrar por tipo">
+        <button class="map-filter-btn is-active" data-filter="all" type="button">
+          <span class="material-symbols-outlined">forest</span> Todos
+        </button>
+        <button class="map-filter-btn" data-filter="camping" type="button">
+          <span class="material-symbols-outlined">camping</span> Zonas de camping
+        </button>
+        <button class="map-filter-btn" data-filter="cabana" type="button">
+          <span class="material-symbols-outlined">cabin</span> Cabañas
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Origen de viaje -->
+    <div class="map-origin" id="mapOrigin">
+      <span class="map-origin__label">¿Desde dónde sales?</span>
+      <div class="map-origin__row">
+        <div class="map-origin__search">
+          <span class="map-origin__icon material-symbols-outlined">near_me</span>
+          <input type="text" id="originInput" class="map-origin__input"
+            placeholder="Escribe tu dirección..."
+            autocomplete="off" aria-label="Dirección de origen"
+            aria-autocomplete="list" aria-controls="originAutocomplete" />
+          <ul class="origin-autocomplete" id="originAutocomplete" role="listbox"></ul>
+        </div>
+        <button class="map-origin__locate" id="originLocateBtn" type="button"
+          title="Usar mi ubicación actual" aria-label="Usar mi ubicación actual">
+          <span class="material-symbols-outlined">my_location</span>
+        </button>
+      </div>
+      <div class="map-origin__chip" id="originChip">
+        <span class="material-symbols-outlined">location_on</span>
+        <span id="originChipText">Mi ubicación</span>
+        <button class="map-origin__chip-clear" id="originClear" aria-label="Limpiar origen">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Modos de transporte -->
+    <div class="transport-modes" id="transportModes">
+      <span class="transport-modes__label">Modo de viaje</span>
+      <div class="transport-modes__btns">
+        <button class="transport-mode-btn is-active" data-mode="driving" type="button" aria-label="En auto">
+          <span class="material-symbols-outlined">directions_car</span>
+          <span class="transport-mode-btn__time" id="modeTime-driving">—</span>
+          <span class="transport-mode-btn__dist" id="modeDist-driving"></span>
+        </button>
+        <button class="transport-mode-btn" data-mode="walking" type="button" aria-label="Caminando">
+          <span class="material-symbols-outlined">directions_walk</span>
+          <span class="transport-mode-btn__time" id="modeTime-walking">—</span>
+          <span class="transport-mode-btn__dist" id="modeDist-walking"></span>
+        </button>
+        <button class="transport-mode-btn" data-mode="cycling" type="button" aria-label="En bicicleta">
+          <span class="material-symbols-outlined">directions_bike</span>
+          <span class="transport-mode-btn__time" id="modeTime-cycling">—</span>
+          <span class="transport-mode-btn__dist" id="modeDist-cycling"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Contador -->
+    <p class="map-results-count" id="resultsCount">3 parques encontrados</p>
+
+    <!-- Lista de parques -->
+    <div class="map-park-list" id="parkList" role="list">
+
+      <div class="map-no-results" id="noResults" role="status" aria-live="polite">
+        <span class="material-symbols-outlined">search_off</span>
+        <span class="map-no-results__text">No se encontraron parques</span>
+      </div>
+
+      <div class="map-park-item is-active" role="listitem" data-park-id="bosque-esmeralda"
+        data-type="camping" tabindex="0" aria-label="Bosque Esmeralda, disponible">
+        <div class="map-park-item__header">
+          <span class="map-park-item__name">Bosque Esmeralda</span>
+          <div class="map-park-item__rating">
+            <span class="rating-star"><svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg></span>
+            <span class="map-park-item__score">4.9</span>
+          </div>
+        </div>
+        <p class="map-park-item__desc">Lugar privilegiado con acceso profundo al bosque.</p>
+        <span class="map-status-badge map-status-badge--available">Disponible</span>
+      </div>
+
+      <div class="map-park-item" role="listitem" data-park-id="parque-amecameca"
+        data-type="cabana" tabindex="0" aria-label="Parque Central Amecameca, disponible">
+        <div class="map-park-item__header">
+          <span class="map-park-item__name">Parque Central<br>Amecameca</span>
+          <div class="map-park-item__rating">
+            <span class="rating-star"><svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg></span>
+            <span class="map-park-item__score">4.7</span>
+          </div>
+        </div>
+        <p class="map-park-item__desc">Zona tranquila ideal para entusiastas de la fotografía.</p>
+        <span class="map-status-badge map-status-badge--available">Disponible</span>
+      </div>
+
+      <div class="map-park-item" role="listitem" data-park-id="rancho-del-valle"
+        data-type="cabana" tabindex="0" aria-label="Rancho del Valle, agotado">
+        <div class="map-park-item__header">
+          <span class="map-park-item__name">Rancho del Valle</span>
+          <div class="map-park-item__rating">
+            <span class="rating-star"><svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg></span>
+            <span class="map-park-item__score">4.8</span>
+          </div>
+        </div>
+        <p class="map-park-item__desc">Cabañas familiares cerca de la orilla del lago.</p>
+        <span class="map-status-badge map-status-badge--full">Agotado</span>
+      </div>
+
+    </div>
+
+  </aside>
+
+  <!-- ══════════════ ÁREA DEL MAPA ══════════════ -->
+  <div class="map-area" id="mapArea">
+
+    <button class="map-expand-btn" id="mapExpandBtn" type="button" aria-label="Cerrar mapa">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+
+    <div class="map-loading" id="mapLoading" aria-hidden="true">
+      <div class="map-loading__spinner"></div>
+    </div>
+
+    <!-- Contenedor Google Maps (renombrado para evitar confusión) -->
+    <div id="mapContainer" aria-label="Mapa interactivo de parques"></div>
+
+    <!-- Popup custom -->
+    <div class="map-popup is-hidden" id="mapPopup" role="dialog" aria-label="Información del parque">
+      <div class="map-popup__header">
+        <span class="map-popup__name" id="popupName"></span>
+        <div class="map-popup__rating">
+          <span class="rating-star">
+            <svg viewBox="0 0 10 10" width="10" height="10">
+              <path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z" fill="#FEE715"/>
+            </svg>
+          </span>
+          <span class="map-park-item__score" id="popupScore"></span>
+        </div>
+      </div>
+      <p class="map-popup__desc" id="popupDesc"></p>
+      <a href="#" id="popupBtn" class="map-popup__btn">Reservar Ahora</a>
+      <button type="button" id="popupRouteBtn" class="map-popup__btn map-popup__btn--secondary">
+        <span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">directions</span>
+        Cómo llegar
+      </button>
+    </div>
+
+    <!-- Controles zoom / ubicación -->
+    <div class="map-controls" aria-label="Controles del mapa">
+      <button class="map-ctrl-btn" id="zoomIn" type="button" aria-label="Acercar">
+        <span class="material-symbols-outlined">add</span>
+      </button>
+      <button class="map-ctrl-btn" id="zoomOut" type="button" aria-label="Alejar">
+        <span class="material-symbols-outlined">remove</span>
+      </button>
+      <button class="map-ctrl-btn map-ctrl-btn--locate" id="locateBtn" type="button" aria-label="Mi ubicación">
+        <span class="material-symbols-outlined">my_location</span>
+      </button>
+    </div>
+
+    <!-- Banner de info de ruta -->
+    <div class="route-banner" id="routeBanner" aria-live="polite">
+      <div class="route-banner__dot"></div>
+      <span class="material-symbols-outlined" id="routeModeIcon"
+        style="font-size:18px;color:var(--color-text-label);">directions_car</span>
+      <div class="route-banner__stat">
+        <span class="route-banner__value" id="routeDist">—</span>
+        <span class="route-banner__unit">km</span>
+      </div>
+      <div class="route-banner__sep"></div>
+      <div class="route-banner__stat">
+        <span class="route-banner__value" id="routeTime">—</span>
+        <span class="route-banner__unit" id="routeTimeUnit">min en auto</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function initLumiaMap() {
+  'use strict';
+
+  /* ════════════════════════════════════════
+     UTILIDADES
+  ════════════════════════════════════════ */
+  function debounce(fn, ms) {
+    var t;
+    return function () { clearTimeout(t); t = setTimeout(function () { fn.apply(null, arguments); }, ms); };
+  }
+  function fmtMin(min) {
+    min = Math.round(min);
+    if (min < 60) return min + ' min';
+    var h = Math.floor(min / 60), m = min % 60;
+    return m > 0 ? h + 'h ' + m + 'm' : h + 'h';
+  }
+
+  /* ════════════════════════════════════════
+     DATOS
+  ════════════════════════════════════════ */
+  var PARKS = [
+    { id: 'bosque-esmeralda', name: 'Bosque Esmeralda',
+      desc: 'El corazón del festival. Avistamiento premium.',
+      score: '4.9', status: 'available', type: 'camping',
+      lat: 19.0700, lng: -98.7650, href: '/explore/parques/bosque-esmeralda/', color: '#A3E635' },
+    { id: 'parque-amecameca', name: 'Parque Central Amecameca',
+      desc: 'Zona tranquila ideal para entusiastas de la fotografía.',
+      score: '4.7', status: 'available', type: 'cabana',
+      lat: 19.1200, lng: -98.7700, href: '/explore/parques/amecameca/', color: '#FEE715' },
+    { id: 'rancho-del-valle', name: 'Rancho del Valle',
+      desc: 'Cabañas familiares cerca de la orilla del lago.',
+      score: '4.8', status: 'full', type: 'cabana',
+      lat: 19.0500, lng: -98.7400, href: '/explore/parques/rancho-del-valle/', color: '#22C55E' },
+  ];
+
+  var MODE_COLORS = { driving: '#A3E635', walking: '#AACEC9', cycling: '#FEE715' };
+  var MODE_ICONS  = { driving: 'directions_car', walking: 'directions_walk', cycling: 'directions_bike' };
+  var MODE_LABELS = { driving: 'min en auto',    walking: 'min caminando',    cycling: 'min en bici' };
+
+  /* ════════════════════════════════════════
+     ESTILO OSCURO (Lumia)
+  ════════════════════════════════════════ */
+  var LUMIA_STYLE = [
+    { elementType: 'geometry',           stylers: [{ color: '#121414' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#121414' }] },
+    { elementType: 'labels.text.fill',   stylers: [{ color: '#E2E2E2' }] },
+    { featureType: 'administrative',
+      elementType: 'geometry',           stylers: [{ color: '#414847', lightness: -20 }] },
+    { featureType: 'landscape.natural',
+      elementType: 'geometry',           stylers: [{ color: '#0A2E2B' }] },
+    { featureType: 'poi',
+      elementType: 'geometry',           stylers: [{ color: '#1E2020' }] },
+    { featureType: 'poi',
+      elementType: 'labels.text.fill',   stylers: [{ color: '#AACEC9' }] },
+    { featureType: 'poi.park',
+      elementType: 'geometry',           stylers: [{ color: '#04474B' }] },
+    { featureType: 'poi.park',
+      elementType: 'labels.text.fill',   stylers: [{ color: '#B7E4C7' }] },
+    { featureType: 'road',
+      elementType: 'geometry',           stylers: [{ color: '#1E2020' }] },
+    { featureType: 'road',
+      elementType: 'geometry.stroke',    stylers: [{ color: '#333535' }] },
+    { featureType: 'road',
+      elementType: 'labels.text.fill',   stylers: [{ color: '#C1C8C6' }] },
+    { featureType: 'road.highway',
+      elementType: 'geometry',           stylers: [{ color: '#282A2B' }] },
+    { featureType: 'road.highway',
+      elementType: 'labels.text.fill',   stylers: [{ color: '#E2E2E2' }] },
+    { featureType: 'transit',
+      elementType: 'geometry',           stylers: [{ color: '#1E2020' }] },
+    { featureType: 'water',
+      elementType: 'geometry',           stylers: [{ color: '#051A18' }] },
+    { featureType: 'water',
+      elementType: 'labels.text.fill',   stylers: [{ color: '#155155' }] },
+  ];
+
+  /* ════════════════════════════════════════
+     INICIALIZAR MAPA
+  ════════════════════════════════════════ */
+  var map = new google.maps.Map(document.getElementById('mapContainer'), {
+    center: { lat: 19.085, lng: -98.758 },
+    zoom: 13,
+    disableDefaultUI: true,
+    styles: LUMIA_STYLE,
+    gestureHandling: 'greedy',
+  });
+
+  map.addListener('tilesloaded', function () {
+    var loader = document.getElementById('mapLoading');
+    if (loader) loader.classList.add('is-done');
+  });
+
+  /* ════════════════════════════════════════
+     ESTADO DE ROUTING
+  ════════════════════════════════════════ */
+  var routeLines   = [];
+  var routeData    = {};
+  var originLatLng = null;
+  var originMarker = null;
+  var activeParkId = null;
+  var currentMode  = 'driving';
+
+  function drawNeonRoute(coords, color) {
+    clearRouteLines();
+    color = color || '#A3E635';
+    var base = { path: coords, map: map, clickable: false };
+    routeLines.push(new google.maps.Polyline({ path: coords, map: map, clickable: false,
+      strokeColor: color,     strokeWeight: 14, strokeOpacity: 0.15 }));
+    routeLines.push(new google.maps.Polyline({ path: coords, map: map, clickable: false,
+      strokeColor: color,     strokeWeight: 6,  strokeOpacity: 0.50 }));
+    routeLines.push(new google.maps.Polyline({ path: coords, map: map, clickable: false,
+      strokeColor: '#CDFF4F', strokeWeight: 2,  strokeOpacity: 1.00 }));
+  }
+
+  function clearRouteLines() {
+    routeLines.forEach(function (l) { l.setMap(null); });
+    routeLines = [];
+  }
+
+  function clearRoute() {
+    clearRouteLines();
+    document.getElementById('routeBanner').classList.remove('is-visible');
+    document.getElementById('transportModes').classList.remove('is-visible');
+  }
+
+  /* OSRM — solo driving real, walking/cycling se estiman de la distancia */
+  function fetchOSRMRoute(fromLat, fromLng, toLat, toLng) {
+    var url = 'https://router.project-osrm.org/route/v1/driving/' +
+      fromLng + ',' + fromLat + ';' + toLng + ',' + toLat +
+      '?overview=full&geometries=geojson';
+    return fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.code !== 'Ok' || !data.routes.length) throw new Error('sin ruta');
+        var route = data.routes[0];
+        return {
+          coords:   route.geometry.coordinates.map(function (c) {
+                      return new google.maps.LatLng(c[1], c[0]);
+                    }),
+          distance: (route.distance / 1000).toFixed(1),
+          duration: Math.round(route.duration / 60),
+        };
+      });
+  }
+
+  function routeAllModes(park) {
+    if (!originLatLng) return;
+    var fromLat    = originLatLng.lat();
+    var fromLng    = originLatLng.lng();
+    var banner     = document.getElementById('routeBanner');
+    var modesPanel = document.getElementById('transportModes');
+
+    banner.classList.add('is-visible', 'route-banner--loading');
+    modesPanel.classList.add('is-visible');
+    document.getElementById('routeDist').textContent = '…';
+    document.getElementById('routeTime').textContent = '…';
+    ['driving', 'walking', 'cycling'].forEach(function (m) {
+      var btn = document.querySelector('[data-mode="' + m + '"]');
+      if (btn) btn.classList.add('is-loading');
+      document.getElementById('modeTime-' + m).textContent = '…';
+      document.getElementById('modeDist-' + m).textContent = '';
+    });
+
+    fetchOSRMRoute(fromLat, fromLng, park.lat, park.lng)
+      .then(function (driving) {
+        var dist = parseFloat(driving.distance);
+        routeData.driving = driving;
+        routeData.walking = { coords: driving.coords, distance: driving.distance,
+                              duration: Math.round((dist / 5) * 60) };
+        routeData.cycling = { coords: driving.coords, distance: driving.distance,
+                              duration: Math.round((dist / 15) * 60) };
+
+        ['driving', 'walking', 'cycling'].forEach(function (m) {
+          var btn = document.querySelector('[data-mode="' + m + '"]');
+          if (btn) btn.classList.remove('is-loading');
+          document.getElementById('modeTime-' + m).textContent = fmtMin(routeData[m].duration);
+          document.getElementById('modeDist-' + m).textContent = routeData[m].distance + ' km';
+        });
+        applyMode(currentMode);
+      })
+      .catch(function (err) {
+        console.warn('Error calculando ruta:', err);
+        ['driving', 'walking', 'cycling'].forEach(function (m) {
+          var btn = document.querySelector('[data-mode="' + m + '"]');
+          if (btn) btn.classList.remove('is-loading');
+        });
+        banner.classList.remove('is-visible', 'route-banner--loading');
+        modesPanel.classList.remove('is-visible');
+      });
+  }
+
+  function applyMode(mode) {
+    if (!routeData[mode]) return;
+    currentMode = mode;
+    document.querySelectorAll('.transport-mode-btn').forEach(function (btn) {
+      btn.classList.toggle('is-active', btn.dataset.mode === mode);
+    });
+    drawNeonRoute(routeData[mode].coords, MODE_COLORS[mode]);
+    var bounds = new google.maps.LatLngBounds();
+    routeData[mode].coords.forEach(function (ll) { bounds.extend(ll); });
+    map.fitBounds(bounds, { top: 60, right: 60, bottom: 60, left: 60 });
+
+    var banner = document.getElementById('routeBanner');
+    banner.classList.add('is-visible');
+    banner.classList.remove('route-banner--loading');
+    document.getElementById('routeDist').textContent     = routeData[mode].distance;
+    document.getElementById('routeTime').textContent     = fmtMin(routeData[mode].duration);
+    document.getElementById('routeModeIcon').textContent = MODE_ICONS[mode];
+    document.getElementById('routeTimeUnit').textContent = MODE_LABELS[mode];
+  }
+
+  /* ════════════════════════════════════════
+     ORIGEN (una sola definición)
+  ════════════════════════════════════════ */
+  function setOrigin(lat, lng, label) {
+    originLatLng = new google.maps.LatLng(lat, lng);
+    if (originMarker) originMarker.setMap(null);
+    originMarker = new google.maps.Marker({
+      position: originLatLng, map: map, zIndex: 999,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE, scale: 10,
+        fillColor: '#3BB2F6', fillOpacity: 1,
+        strokeColor: 'rgba(59,178,246,0.35)', strokeWeight: 8,
+      },
+    });
+    document.getElementById('originChipText').textContent = label;
+    document.getElementById('originChip').classList.add('is-visible');
+    if (activeParkId) {
+      var park = PARKS.find(function (p) { return p.id === activeParkId; });
+      if (park) routeAllModes(park);
+    }
+  }
+
+  function clearOrigin() {
+    originLatLng = null;
+    if (originMarker) { originMarker.setMap(null); originMarker = null; }
+    document.getElementById('originChip').classList.remove('is-visible');
+    document.getElementById('originInput').value = '';
+    routeData = {};
+    clearRoute();
+  }
+
+  /* ════════════════════════════════════════
+     AUTOCOMPLETE — Google Places (una sola definición)
+  ════════════════════════════════════════ */
+  var acList      = document.getElementById('originAutocomplete');
+  var originInput = document.getElementById('originInput');
+  var acItems     = [];
+  var acFocused   = -1;
+
+  function closeAC() {
+    acList.classList.remove('is-open');
+    acItems = []; acFocused = -1;
+  }
+
+  function highlightMatch(text, query) {
+    var i = text.toLowerCase().indexOf(query.toLowerCase());
+    if (i === -1) return text;
+    return text.slice(0, i) +
+      '<mark>' + text.slice(i, i + query.length) + '</mark>' +
+      text.slice(i + query.length);
+  }
+
+  /* Seleccionar un lugar de Nominatim */
+  function selectPlace(place) {
+    var parts = place.display_name.split(',');
+    var label = (place.name || parts[0]).trim();
+    originInput.value = label;
+    closeAC();
+    setOrigin(parseFloat(place.lat), parseFloat(place.lon), label);
+    map.panTo({ lat: parseFloat(place.lat), lng: parseFloat(place.lon) });
+    map.setZoom(13);
+  }
+
+  function fetchSuggestions(query) {
+    acList.innerHTML = '<li class="origin-ac-state"><div class="mini-spinner"></div>Buscando…</li>';
+    acList.classList.add('is-open');
+  
+    var url = 'https://nominatim.openstreetmap.org/search?q=' +
+      encodeURIComponent(query) +
+      '&format=json&limit=6&countrycodes=mx&addressdetails=1&accept-language=es';
+  
+    fetch(url)
+      .then(function (r) {
+        if (!r.ok) throw new Error('red');
+        return r.json();
+      })
+      .then(function (data) {
+        if (!data.length) {
+          acList.innerHTML =
+            '<li class="origin-ac-state">' +
+            '<span class="material-symbols-outlined" style="font-size:16px;opacity:.4">search_off</span>' +
+            'Sin resultados para "' + query + '"</li>';
+          acItems = [];
+          return;
+        }
+  
+        acItems   = data;
+        acFocused = -1;
+        acList.innerHTML = '';
+  
+        data.forEach(function (place) {
+          var parts = place.display_name.split(',');
+          var name  = (place.name || parts[0]).trim();
+          var addr  = parts.slice(1, 3).join(',').trim();
+  
+          var li = document.createElement('li');
+          li.className = 'origin-ac-item';
+          li.setAttribute('role', 'option');
+          li.innerHTML =
+            '<span class="origin-ac-item__icon material-symbols-outlined">location_on</span>' +
+            '<div class="origin-ac-item__main">' +
+              '<span class="origin-ac-item__name">' + highlightMatch(name, query) + '</span>' +
+              '<span class="origin-ac-item__addr">' + addr + '</span>' +
+            '</div>';
+          li.addEventListener('mousedown', function (e) {
+            e.preventDefault();
+            selectPlace(place);
+          });
+          acList.appendChild(li);
+        });
+      })
+      .catch(function () {
+        acList.innerHTML = '<li class="origin-ac-state">Error al buscar. Intenta de nuevo.</li>';
+      });
+  }
+
+  var debouncedFetch = debounce(fetchSuggestions, 400);
+
+  originInput.addEventListener('input', function () {
+    var q = originInput.value.trim();
+    if (q.length < 3) { closeAC(); return; }
+    debouncedFetch(q);
+  });
+
+  originInput.addEventListener('keydown', function (e) {
+    var items = acList.querySelectorAll('.origin-ac-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault(); acFocused = Math.min(acFocused + 1, items.length - 1);
+      items.forEach(function (el, i) { el.classList.toggle('is-focused', i === acFocused); });
+      if (items[acFocused]) items[acFocused].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault(); acFocused = Math.max(acFocused - 1, 0);
+      items.forEach(function (el, i) { el.classList.toggle('is-focused', i === acFocused); });
+      if (items[acFocused]) items[acFocused].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      var t = acFocused >= 0 ? acItems[acFocused] : acItems[0];
+      if (t) selectPlace(t);
+    } else if (e.key === 'Escape') {
+      closeAC(); originInput.blur();
+    }
+  });
+
+  originInput.addEventListener('blur', function () { setTimeout(closeAC, 150); });
+
+  /* ── GPS y controles de origen ── */
+  document.getElementById('originLocateBtn').addEventListener('click', function () {
+    if (!navigator.geolocation) return;
+    var icon = this.querySelector('.material-symbols-outlined'), btn = this;
+    icon.textContent = 'sync'; btn.style.animation = 'spin 1s linear infinite';
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        icon.textContent = 'my_location'; btn.style.animation = '';
+        setOrigin(pos.coords.latitude, pos.coords.longitude, 'Mi ubicación actual');
+        map.panTo({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        map.setZoom(14);
+      },
+      function () { icon.textContent = 'my_location'; btn.style.animation = ''; }
+    );
+  });
+
+  document.getElementById('originClear').addEventListener('click', clearOrigin);
+  document.getElementById('locateBtn').addEventListener('click', function () {
+    document.getElementById('originLocateBtn').click();
+  });
+
+  document.querySelectorAll('.transport-mode-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (routeData[btn.dataset.mode]) applyMode(btn.dataset.mode);
+    });
+  });
+
+  /* ════════════════════════════════════════
+     MARCADORES
+  ════════════════════════════════════════ */
+  var markers = {};
+
+  function getMarkerIcon(color, isActive) {
+    return {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: isActive ? 14 : 10,
+      fillColor: color, fillOpacity: 1,
+      strokeColor: color,
+      strokeWeight: isActive ? 10 : 6,
+      strokeOpacity: isActive ? 0.30 : 0.15,
+    };
+  }
+
+  PARKS.forEach(function (park) {
+    var marker = new google.maps.Marker({
+      position: { lat: park.lat, lng: park.lng },
+      map: map, title: park.name,
+      icon: getMarkerIcon(park.color, park.id === 'bosque-esmeralda'),
+      zIndex: 10,
+    });
+
+    marker.addListener('click', function () {
+      if (activeParkId !== park.id) clearRoute(); /* nuevo destino → limpiar ruta anterior */
+      activeParkId = park.id;
+      openPopup(park);
+      activateParkItem(park.id);
+    });
+
+    markers[park.id] = marker;
+  });
+
+  /* ════════════════════════════════════════
+     POPUP
+  ════════════════════════════════════════ */
+  var popup      = document.getElementById('mapPopup');
+  var popupName  = document.getElementById('popupName');
+  var popupScore = document.getElementById('popupScore');
+  var popupDesc  = document.getElementById('popupDesc');
+  var popupBtn   = document.getElementById('popupBtn');
+  var activePopup = null;
+  var popupLatLng = null;
+
+  function openPopup(park) {
+    if (activePopup === park.id) { closePopup(); return; }
+    activePopup = park.id;
+    popupLatLng = new google.maps.LatLng(park.lat, park.lng);
+    popupName.textContent  = park.name;
+    popupScore.textContent = park.score;
+    popupDesc.textContent  = park.desc;
+    popupBtn.href          = park.href;
+    if (park.status === 'full') {
+      popupBtn.style.cssText  = 'background:#333535;color:#8B9291;pointer-events:none;';
+      popupBtn.textContent    = 'Sin disponibilidad';
+    } else {
+      popupBtn.style.cssText = '';
+      popupBtn.textContent   = 'Reservar Ahora';
+    }
+    positionPopup();
+    popup.classList.remove('is-hidden');
+  }
+
+  function closePopup() {
+    popup.classList.add('is-hidden');
+    activePopup = null; popupLatLng = null;
+  }
+
+  function positionPopup() {
+    if (!popupLatLng) return;
+    var projection = map.getProjection();
+    var bounds     = map.getBounds();
+    if (!projection || !bounds) return;
+    var scale    = Math.pow(2, map.getZoom());
+    var topLeft  = new google.maps.LatLng(bounds.getNorthEast().lat(), bounds.getSouthWest().lng());
+    var ptMarker = projection.fromLatLngToPoint(popupLatLng);
+    var ptOrigin = projection.fromLatLngToPoint(topLeft);
+    popup.style.left = Math.floor((ptMarker.x - ptOrigin.x) * scale) + 'px';
+    popup.style.top  = Math.floor((ptMarker.y - ptOrigin.y) * scale) + 'px';
+  }
+
+  map.addListener('bounds_changed', positionPopup);
+  map.addListener('zoom_changed',   positionPopup);
+
+  /* FIX: click en mapa solo cierra popup, NO borra la ruta */
+  map.addListener('click', function () {
+    closePopup();
+    deactivateAllItems();
+    activeParkId = null;
+    /* La ruta se mantiene hasta cambiar origen o destino */
+  });
+
+  /* ════════════════════════════════════════
+     CONTROLES DE ZOOM
+  ════════════════════════════════════════ */
+  document.getElementById('zoomIn').addEventListener('click',  function () { map.setZoom(map.getZoom() + 1); });
+  document.getElementById('zoomOut').addEventListener('click', function () { map.setZoom(map.getZoom() - 1); });
+
+  /* ════════════════════════════════════════
+     SIDEBAR ↔ MAPA
+  ════════════════════════════════════════ */
+  function activateParkItem(parkId) {
+    document.querySelectorAll('.map-park-item').forEach(function (el) { el.classList.remove('is-active'); });
+    var el = document.querySelector('[data-park-id="' + parkId + '"]');
+    if (el) { el.classList.add('is-active'); el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+    PARKS.forEach(function (p) {
+      var m = markers[p.id];
+      if (m) m.setIcon(getMarkerIcon(p.color, p.id === parkId));
+    });
+  }
+
+  function deactivateAllItems() {
+    document.querySelectorAll('.map-park-item').forEach(function (el) { el.classList.remove('is-active'); });
+    PARKS.forEach(function (p) { var m = markers[p.id]; if (m) m.setIcon(getMarkerIcon(p.color, false)); });
+  }
+
+  document.querySelectorAll('.map-park-item').forEach(function (item) {
+    item.addEventListener('click', function () {
+      var parkId = item.dataset.parkId;
+      var park   = PARKS.find(function (p) { return p.id === parkId; });
+      if (!park) return;
+      if (activeParkId !== parkId) clearRoute(); /* nuevo destino → limpiar ruta */
+      map.panTo({ lat: park.lat, lng: park.lng });
+      map.setZoom(14);
+      activeParkId = parkId;
+      activateParkItem(parkId);
+      setTimeout(function () { openPopup(park); }, 400);
+    });
+    item.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); }
+    });
+  });
+
+  /* ════════════════════════════════════════
+     BUSCADOR + FILTROS
+  ════════════════════════════════════════ */
+  var searchInput  = document.getElementById('parkSearch');
+  var resultsCount = document.getElementById('resultsCount');
+  var noResults    = document.getElementById('noResults');
+  var parkItems    = document.querySelectorAll('.map-park-item');
+
+  function filterParks() {
+    var query   = searchInput.value.toLowerCase().trim();
+    var filter  = document.querySelector('.map-filter-btn.is-active').dataset.filter;
+    var visible = 0;
+    parkItems.forEach(function (item) {
+      var name = item.querySelector('.map-park-item__name').textContent.toLowerCase();
+      var show = (!query || name.includes(query)) && (filter === 'all' || item.dataset.type === filter);
+      item.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    resultsCount.textContent = visible + ' ' + (visible === 1 ? 'parque encontrado' : 'parques encontrados');
+    noResults.classList.toggle('is-visible', visible === 0);
+  }
+
+  searchInput.addEventListener('input', filterParks);
+
+  document.querySelectorAll('.map-filter-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.map-filter-btn').forEach(function (b) { b.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+      var filter = btn.dataset.filter;
+      PARKS.forEach(function (park) {
+        var m = markers[park.id];
+        if (m) m.setMap((filter === 'all' || park.type === filter) ? map : null);
+      });
+      filterParks();
+    });
+  });
+
+  /* ════════════════════════════════════════
+     BOTÓN "CÓMO LLEGAR"
+  ════════════════════════════════════════ */
+  var mapArea = document.getElementById('mapArea');
+  function isMobile() { return window.innerWidth <= 768; }
+
+  document.getElementById('popupRouteBtn').addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (!originLatLng) {
+      if (isMobile()) {
+        /* FIX: colapsar PRIMERO, enfocar el input DESPUÉS de la animación */
+        mapArea.classList.remove('is-expanded');
+        closePopup();
+        google.maps.event.trigger(map, 'resize');
+        setTimeout(function () {
+          document.getElementById('mapSidebar').scrollTop = 0;
+          originInput.placeholder = '← Escribe tu punto de partida';
+          originInput.focus();
+        }, 380);
+        return;
+      }
+      /* Desktop: enfocar directamente */
+      originInput.placeholder = '← Escribe tu punto de partida';
+      document.getElementById('mapSidebar').scrollTop = 0;
+      originInput.focus();
+      return;
+    }
+    var park = PARKS.find(function (p) { return p.id === activeParkId; });
+    if (park) routeAllModes(park);
+  });
+
+  /* ════════════════════════════════════════
+     TOGGLE MINIMAPA ↔ PANTALLA COMPLETA (mobile)
+  ════════════════════════════════════════ */
+  var mapExpandBtn = document.getElementById('mapExpandBtn');
+
+  mapArea.addEventListener('click', function () {
+    if (!isMobile() || mapArea.classList.contains('is-expanded')) return;
+    mapArea.classList.add('is-expanded');
+    google.maps.event.trigger(map, 'resize');
+  });
+
+  mapExpandBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    mapArea.classList.remove('is-expanded');
+    closePopup();
+    google.maps.event.trigger(map, 'resize');
+  });
+
+  /* ════════════════════════════════════════
+     ESTADO INICIAL
+  ════════════════════════════════════════ */
+  setTimeout(function () {
+    activeParkId = PARKS[0].id;
+    activateParkItem(PARKS[0].id);
+    openPopup(PARKS[0]);
+  }, 800);
+
+} /* fin initLumiaMap */
+</script>
+
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOpGJySmUkTTSsPMezvdwtRdM8JRiJgj8&libraries=places&callback=initLumiaMap"
+  async
+></script>
+{% endblock %}

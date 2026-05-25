@@ -26,4 +26,5 @@ urlpatterns = [
     ), name='login'),
     path('register/', ff_views.register_view, name='register'),
     path('explore/', ff_views.explore_view, name='explore'),
+    path('mapa/', ff_views.mapa, name='mapa'),
 ]

@@ -5,3 +5,6 @@ def register_view(request):
 
 def explore_view(request):
     return render(request, 'explore.html')
+
+def mapa(request):
+    return render(request, 'mapa.html')
