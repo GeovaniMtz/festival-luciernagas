@@ -15,8 +15,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.contrib.auth import views as auth_views
+from frontend_festival import views as ff_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('login/', auth_views.LoginView.as_view(
+        template_name='registration/login.html'
+    ), name='login'),
+    path('register/', ff_views.register_view, name='register'),
+    path('explore/', ff_views.explore_view, name='explore'),
 ]

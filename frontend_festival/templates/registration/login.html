@@ -1,0 +1,515 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Iniciar Sesión — Lumia{% endblock %}
+
+{% block extra_css %}
+<style>
+
+/* ── Contenedor principal ── */
+.login-page {
+  min-height: calc(100vh - 72px);
+  padding-top: var(--navbar-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 16px;
+  padding-bottom: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Fondo con imagen de bosque oscuro ── */
+.login-page__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(10, 20, 18, 0.70) 0%, rgba(18, 20, 20, 0.90) 100%),
+    url("{% static 'img/bg-bosque.jpg' %}") center/cover no-repeat;
+  z-index: 0;
+}
+
+/* Fallback si no hay imagen: gradiente inmersivo */
+.login-page__bg--fallback {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(21, 81, 85, 0.35) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 20% 80%, rgba(10, 46, 43, 0.40) 0%, transparent 60%),
+    linear-gradient(180deg, #0a0f0e 0%, #121414 100%);
+  z-index: 0;
+}
+
+/* ── Canvas de partículas ── */
+#particlesCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Card de login ── */
+.login-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 440px;
+  background: #1E2020;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow:
+    var(--glow-green),
+    0 24px 60px rgba(0, 0, 0, 0.50);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  animation: cardFadeIn 0.5s ease both;
+}
+
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header del card ── */
+.login-card__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.login-card__title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+  color: var(--color-text-primary);
+  text-align: center;
+}
+
+.login-card__subtitle {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+/* ── Cuerpo del formulario ── */
+.login-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Grupos de campo ── */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-group__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.field-label {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.7px;
+  color: var(--color-text-label);
+}
+
+.field-forgot {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--color-success);
+  transition: opacity var(--transition);
+}
+
+.field-forgot:hover {
+  opacity: 0.8;
+}
+
+/* ── Inputs ── */
+.field-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-input-icon {
+  position: absolute;
+  left: 16px;
+  color: var(--color-text-muted);
+  font-size: 20px;
+  pointer-events: none;
+  display: flex;
+}
+
+.field-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 48px 0 48px;
+  background: #1A1C1C;
+  border: 1px solid #414847;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.field-input::placeholder {
+  color: rgba(139, 146, 145, 0.50);
+}
+
+.field-input:focus {
+  border-color: rgba(170, 206, 201, 0.50);
+  box-shadow: 0 0 0 3px rgba(170, 206, 201, 0.10);
+}
+
+/* Toggle mostrar contraseña */
+.field-toggle-pass {
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  transition: color var(--transition);
+}
+
+.field-toggle-pass:hover {
+  color: var(--color-text-secondary);
+}
+
+/* ── Botón primario (Iniciar Sesión) ── */
+.btn-primary {
+  width: 100%;
+  height: 48px;
+  background: var(--color-success);
+  border: none;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  color: var(--color-success-dark);
+  cursor: pointer;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.10), 0 4px 6px -4px rgba(0,0,0,0.10);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  -webkit-appearance: none;
+}
+
+.btn-primary:hover {
+  background: #16a34a;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px -3px rgba(34, 197, 94, 0.30);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary .material-symbols-outlined {
+  font-size: 20px;
+}
+
+/* ── Divisor "O continúa con" ── */
+.divider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.divider__text {
+  position: relative;
+  background: #1E2020;
+  padding: 0 16px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--color-text-secondary);
+}
+
+/* ── Botones OAuth (Google / Facebook) ── */
+.oauth-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.btn-oauth {
+  height: 48px;
+  background: #1A1C1C;
+  border: 1px solid var(--color-border-mid);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.7px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+  -webkit-appearance: none;
+}
+
+.btn-oauth:hover {
+  background: var(--color-surface-high);
+  border-color: rgba(65, 72, 71, 0.80);
+}
+
+.btn-oauth svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* ── Footer del card ── */
+.login-card__footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  padding-top: 8px;
+}
+
+.login-card__footer-text {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--color-text-secondary);
+}
+
+.login-card__footer-link {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  color: var(--color-success);
+  transition: opacity var(--transition);
+}
+
+.login-card__footer-link:hover {
+  opacity: 0.8;
+}
+
+/* ── Errores de formulario ── */
+.form-errors {
+  background: rgba(239, 68, 68, 0.10);
+  border: 1px solid rgba(239, 68, 68, 0.30);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #fca5a5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 28px 20px;
+    gap: 24px;
+  }
+
+  .login-card__title {
+    font-size: 26px;
+  }
+
+  .oauth-btns {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-page">
+
+  <!-- Fondo bosque nocturno -->
+  <div class="login-page__bg--fallback"></div>
+
+  <!-- Canvas partículas bioluminiscentes -->
+  {% include "components/particles.html" %}
+
+  <!-- Card de login -->
+  <div class="login-card" role="main">
+
+    <!-- Header -->
+    <div class="login-card__header">
+      <h1 class="login-card__title">Bienvenido</h1>
+      <p class="login-card__subtitle">
+        Para realizar tu reserva es necesario iniciar<br/>
+        sesión o registrarse.
+      </p>
+    </div>
+
+    <!-- Errores Django (si los hay) -->
+    {% if form.errors %}
+    <div class="form-errors" role="alert">
+      {% for field in form %}
+        {% for error in field.errors %}
+          <span>{{ error }}</span>
+        {% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors %}
+        <span>{{ error }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Formulario -->
+    <form method="POST" action="{% url 'login' %}" novalidate>
+      {% csrf_token %}
+
+      <div class="login-card__body">
+
+        <!-- Correo electrónico -->
+        <div class="field-group">
+          <label class="field-label" for="id_username">Correo electrónico</label>
+          <div class="field-input-wrap">
+            <span class="field-input-icon material-symbols-outlined">mail</span>
+            <input
+              type="email"
+              id="id_username"
+              name="username"
+              class="field-input"
+              placeholder="genoma@ejemplo.com"
+              autocomplete="email"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Contraseña -->
+        <div class="field-group">
+          <div class="field-group__header">
+            <label class="field-label" for="id_password">Contraseña</label>
+            <a href="/recuperar-contrasena/" class="field-forgot">¿Olvidaste tu contraseña?</a>
+          </div>
+          <div class="field-input-wrap">
+            <span class="field-input-icon material-symbols-outlined">lock</span>
+            <input
+              type="password"
+              id="id_password"
+              name="password"
+              class="field-input"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required
+            />
+            <button
+              type="button"
+              class="field-toggle-pass"
+              id="togglePass"
+              aria-label="Mostrar u ocultar contraseña"
+            >
+              <span class="material-symbols-outlined" id="togglePassIcon">visibility_off</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Botón Iniciar Sesión -->
+        <button type="submit" class="btn-primary">
+          <span class="material-symbols-outlined">login</span>
+          Iniciar Sesión
+        </button>
+
+      </div>
+    </form>
+
+    <!-- Divisor -->
+    <div class="divider">
+      <span class="divider__text">O continúa con</span>
+    </div>
+
+    <!-- OAuth -->
+    <div class="oauth-btns">
+      <!-- Google -->
+      <button type="button" class="btn-oauth" aria-label="Continuar con Google">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Google
+      </button>
+
+      <!-- Facebook -->
+      <button type="button" class="btn-oauth" aria-label="Continuar con Facebook">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#1877F2">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>
+        Facebook
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div class="login-card__footer">
+      <span class="login-card__footer-text">¿Eres nuevo en Lumia?</span>
+      <a href="/registro/" class="login-card__footer-link">Crear una cuenta</a>
+    </div>
+
+  </div><!-- /login-card -->
+
+</div><!-- /login-page -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  /* ─── Toggle mostrar/ocultar contraseña ─── */
+  const passInput  = document.getElementById('id_password');
+  const toggleBtn  = document.getElementById('togglePass');
+  const toggleIcon = document.getElementById('togglePassIcon');
+
+  if (toggleBtn && passInput) {
+    toggleBtn.addEventListener('click', function () {
+      const isHidden = passInput.type === 'password';
+      passInput.type = isHidden ? 'text' : 'password';
+      toggleIcon.textContent = isHidden ? 'visibility' : 'visibility_off';
+    });
+  }
+  
+})();
+</script>
+{% endblock %}

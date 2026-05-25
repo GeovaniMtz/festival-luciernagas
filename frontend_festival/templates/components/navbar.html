@@ -1,0 +1,108 @@
+{% load static %}
+
+<header class="navbar">
+
+  <div class="navbar__inner">
+
+    <!-- ═════════════════════ LOGO ═════════════════════ -->
+    <a href="{% url 'explore' %}" class="navbar__logo">
+
+      <img
+        src="{% static 'img/logo.png' %}"
+        alt="Lumia logo icon"
+        class="navbar__logo-icon"
+      />
+
+      <img
+        src="{% static 'img/logo-text.png' %}"
+        alt="Lumia"
+        class="navbar__logo-text"
+      />
+
+    </a>
+
+    <!-- ═════════════════ NAV LINKS DESKTOP ═════════════════ -->
+    <nav class="navbar__links" aria-label="Navegación principal">
+
+      <a
+        href="{% url 'explore' %}"
+        class="navbar__link {% block nav_inicio %}{% endblock %}"
+      >
+        Explore
+      </a>
+
+      <a
+        href="/mapa/"
+        class="navbar__link {% block nav_mapa %}{% endblock %}"
+      >
+        Mapa
+      </a>
+
+    </nav>
+
+    <!-- ═══════════════════ HAMBURGER ═══════════════════ -->
+    <button
+      class="navbar__hamburger"
+      id="menuToggle"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+    >
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+
+  </div>
+
+  <!-- ═════════════════ MOBILE MENU ═════════════════ -->
+  <nav
+    class="navbar__mobile"
+    id="mobileMenu"
+    aria-hidden="true"
+  >
+
+    <a
+      href="{% url 'explore' %}"
+      class="navbar__mobile-link"
+    >
+      Explore
+    </a>
+
+    <a
+      href="/mapa/"
+      class="navbar__mobile-link"
+    >
+      Mapa
+    </a>
+
+    <a
+      href="/mis-reservas/"
+      class="navbar__mobile-link"
+    >
+      Mis reservas
+    </a>
+
+    <hr class="navbar__mobile-divider" />
+
+    <a
+      href="/cuenta/"
+      class="navbar__mobile-link"
+    >
+      Mi cuenta
+    </a>
+
+    <a
+      href="{% url 'register' %}"
+      class="navbar__mobile-link"
+    >
+      Registrarse
+    </a>
+
+    <a
+      href="/configuracion/"
+      class="navbar__mobile-link"
+    >
+      Configuración
+    </a>
+
+  </nav>
+
+</header>
