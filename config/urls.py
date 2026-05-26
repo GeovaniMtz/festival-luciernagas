@@ -17,5 +17,5 @@ urlpatterns = [
     
     path('register/', lumia_views.register_view, name='register'),
     path('explore/', lumia_views.explore_view, name='explore'),
-    path('mapa/', lumia_views.mapa, name='mapa'),
+    path('map/', lumia_views.mapa, name='map'),
 ]
