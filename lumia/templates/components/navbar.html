@@ -54,10 +54,13 @@
       Configuración
     </a>
 
-    <a href="{% url 'logout' %}" class="navbar__mobile-link">
-      <span class="material-symbols-outlined navbar__mobile-link-icon">logout</span>
-      Cerrar sesión
-    </a>
+    <form method="POST" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="navbar__mobile-link navbar__logout-btn">
+        <span class="material-symbols-outlined navbar__mobile-link-icon">logout</span>
+        Cerrar sesión
+      </button>
+    </form>
 
   {% else %}
 
@@ -69,6 +72,16 @@
     <a href="{% url 'register' %}" class="navbar__mobile-link">
       <span class="material-symbols-outlined navbar__mobile-link-icon">how_to_reg</span>
       Registrarse
+    </a>
+
+    <a href="{% url 'explore' %}" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">travel_explore</span>
+      Explore
+    </a>
+
+    <a href="/mapa/" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">map</span>
+      Mapa
     </a>
 
   {% endif %}
