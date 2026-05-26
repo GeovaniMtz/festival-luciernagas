@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'frontend_festival',
+    'lumia',
 ]
 
 MIDDLEWARE = [
@@ -118,5 +118,5 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/explore/'
 LOGOUT_REDIRECT_URL = '/login/'
