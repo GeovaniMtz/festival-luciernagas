@@ -509,6 +509,10 @@
   50%       { opacity: 0.4; transform: scale(0.8); }
 }
 
+.map-expand-btn {
+  display: none;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .mapa-page   { flex-direction: column; position: relative; }
@@ -801,6 +805,7 @@
 {% block extra_js %}
 <script>
 function initLumiaMap() {
+  var HERE_KEY = 'zJI_g__qQ8E36JnWpIP6m8zvMYvPvOOw5cJ6TKa2MvE';
   'use strict';
 
   /* ════════════════════════════════════════
@@ -808,7 +813,7 @@ function initLumiaMap() {
   ════════════════════════════════════════ */
   function debounce(fn, ms) {
     var t;
-    return function () { clearTimeout(t); t = setTimeout(function () { fn.apply(null, arguments); }, ms); };
+    return function () { var args = arguments; clearTimeout(t); t = setTimeout(function () { fn.apply(null, args); }, ms); };
   }
   function fmtMin(min) {
     min = Math.round(min);
@@ -1064,31 +1069,39 @@ function initLumiaMap() {
   }
 
   /* Seleccionar un lugar de Nominatim */
-  function selectPlace(place) {
-    var parts = place.display_name.split(',');
-    var label = (place.name || parts[0]).trim();
+  function selectPlace(item) {
+    var label = item.title;
     originInput.value = label;
     closeAC();
-    setOrigin(parseFloat(place.lat), parseFloat(place.lon), label);
-    map.panTo({ lat: parseFloat(place.lat), lng: parseFloat(place.lon) });
-    map.setZoom(13);
+
+    fetch('https://lookup.search.hereapi.com/v1/lookup?id=' +
+      encodeURIComponent(item.id) + '&apiKey=' + HERE_KEY)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.position) return;
+        setOrigin(data.position.lat, data.position.lng, label);
+        map.panTo({ lat: data.position.lat, lng: data.position.lng });
+        map.setZoom(13);
+      })
+      .catch(function () {
+        acList.innerHTML = '<li class="origin-ac-state">Error al obtener ubicación.</li>';
+      }); 
   }
 
+    // 3. Reemplazar fetchSuggestions — usa HERE Autocomplete API
   function fetchSuggestions(query) {
     acList.innerHTML = '<li class="origin-ac-state"><div class="mini-spinner"></div>Buscando…</li>';
     acList.classList.add('is-open');
-  
-    var url = 'https://nominatim.openstreetmap.org/search?q=' +
-      encodeURIComponent(query) +
-      '&format=json&limit=6&countrycodes=mx&addressdetails=1&accept-language=es';
-  
-    fetch(url)
-      .then(function (r) {
-        if (!r.ok) throw new Error('red');
-        return r.json();
-      })
+
+    fetch('https://autocomplete.search.hereapi.com/v1/autocomplete' +
+      '?q=' + encodeURIComponent(query) +
+      '&in=countryCode:MEX' +
+      '&lang=es' +
+      '&limit=6' +
+      '&apiKey=' + HERE_KEY)
+      .then(function (r) { return r.json(); })
       .then(function (data) {
-        if (!data.length) {
+        if (!data.items || !data.items.length) {
           acList.innerHTML =
             '<li class="origin-ac-state">' +
             '<span class="material-symbols-outlined" style="font-size:16px;opacity:.4">search_off</span>' +
@@ -1096,16 +1109,17 @@ function initLumiaMap() {
           acItems = [];
           return;
         }
-  
-        acItems   = data;
+
+        acItems   = data.items;
         acFocused = -1;
         acList.innerHTML = '';
-  
-        data.forEach(function (place) {
-          var parts = place.display_name.split(',');
-          var name  = (place.name || parts[0]).trim();
+
+        data.items.forEach(function (item, idx) {
+          // HERE devuelve address.label con la dirección completa
+          var parts = (item.address.label || item.title).split(',');
+          var name  = item.title;
           var addr  = parts.slice(1, 3).join(',').trim();
-  
+
           var li = document.createElement('li');
           li.className = 'origin-ac-item';
           li.setAttribute('role', 'option');
@@ -1115,15 +1129,16 @@ function initLumiaMap() {
               '<span class="origin-ac-item__name">' + highlightMatch(name, query) + '</span>' +
               '<span class="origin-ac-item__addr">' + addr + '</span>' +
             '</div>';
+
           li.addEventListener('mousedown', function (e) {
             e.preventDefault();
-            selectPlace(place);
+            selectPlace(acItems[idx]);
           });
           acList.appendChild(li);
         });
       })
       .catch(function () {
-        acList.innerHTML = '<li class="origin-ac-state">Error al buscar. Intenta de nuevo.</li>';
+        acList.innerHTML = '<li class="origin-ac-state">Error de conexión. Intenta de nuevo.</li>';
       });
   }
 
@@ -1394,6 +1409,23 @@ function initLumiaMap() {
     if (!isMobile() || mapArea.classList.contains('is-expanded')) return;
     mapArea.classList.add('is-expanded');
     google.maps.event.trigger(map, 'resize');
+
+        /* Esperar a que el resize termine y luego centrar */
+    setTimeout(function () {
+      if (routeData[currentMode] && routeData[currentMode].coords.length) {
+        /* Hay ruta activa → ajustar para verla completa */
+        var bounds = new google.maps.LatLngBounds();
+        routeData[currentMode].coords.forEach(function (ll) { bounds.extend(ll); });
+        map.fitBounds(bounds, { top: 60, right: 60, bottom: 60, left: 60 });
+      } else if (activeParkId) {
+        /* Solo parque seleccionado → centrar en él */
+        var park = PARKS.find(function (p) { return p.id === activeParkId; });
+        if (park) {
+          map.panTo({ lat: park.lat, lng: park.lng });
+          map.setZoom(14);
+        }
+      }
+    }, 150); /* 150ms da tiempo al resize de Google Maps */
   });
 
   mapExpandBtn.addEventListener('click', function (e) {
