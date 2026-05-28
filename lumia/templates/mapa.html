@@ -598,6 +598,31 @@
   transform: translateY(-1px);
 }
 
+/* ── Anillo radar sobre cada marcador ── */
+.marker-pulse {
+  position: absolute;
+  pointer-events: none;
+  z-index: 490;
+  width: 0; height: 0;
+  transform: translate(-50%, -50%);
+}
+
+.marker-pulse__ring {
+  position: absolute;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  left: -14px; top: -14px;
+  opacity: 0;
+  animation: radarRing 6s ease-out infinite;
+}
+
+@keyframes radarRing {
+  0%   { opacity: 0.70; transform: scale(0.30); }
+  75%  { opacity: 0;    transform: scale(2.00); }
+  100% { opacity: 0;    transform: scale(3.20); }
+}
+
 </style>
 {% endblock %}
 
@@ -626,6 +651,9 @@
         </button>
         <button class="map-filter-btn" data-filter="cabana" type="button">
           <span class="material-symbols-outlined">cabin</span> Cabañas
+        </button>
+        <button class="map-filter-btn" data-filter="sendero" type="button">
+          <span class="material-symbols-outlined">hiking</span> Senderos
         </button>
       </div>
 
@@ -680,7 +708,7 @@
     </div>
 
     <!-- Contador -->
-    <p class="map-results-count" id="resultsCount">3 parques encontrados</p>
+    <p class="map-results-count" id="resultsCount">9 parques encontrados</p>
 
     <!-- Lista de parques -->
     <div class="map-park-list" id="parkList" role="list">
@@ -726,9 +754,92 @@
           </div>
         </div>
         <p class="map-park-item__desc">Cabañas familiares cerca de la orilla del lago.</p>
-        <span class="map-status-badge map-status-badge--full">Agotado</span>
+        <span class="map-status-badge map-status-badge--few">Pocos lugares</span>
       </div>
 
+            <!-- Santuario El Rosario -->
+      <div class="map-park-item" role="listitem" data-park-id="santuario-el-rosario"
+      data-type="camping" tabindex="0">
+      <div class="map-park-item__header">
+        <span class="map-park-item__name">Santuario El Rosario</span>
+        <div class="map-park-item__rating">
+          <span class="rating-star"><svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg></span>
+          <span class="map-park-item__score">4.9</span>
+        </div>
+      </div>
+      <p class="map-park-item__desc">El santuario más grande de la región, experiencia inmersiva única.</p>
+      <span class="map-status-badge map-status-badge--available">Disponible</span>
+      </div>
+
+            <!-- Parque Ecoturístico Chalma -->
+      <div class="map-park-item" role="listitem" data-park-id="parque-chalma"
+      data-type="sendero" tabindex="0">
+      <div class="map-park-item__header">
+        <span class="map-park-item__name">Parque Ecoturístico Chalma</span>
+        <div class="map-park-item__rating">
+          <span class="rating-star"><svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg></span>
+          <span class="map-park-item__score">4.7</span>
+        </div>
+      </div>
+      <p class="map-park-item__desc">Famoso por su densa vegetación y avistamientos garantizados.</p>
+      <span class="map-status-badge map-status-badge--available">Disponible</span>
+      </div>
+
+            <!-- Piedra Canteada -->
+      <div class="map-park-item" role="listitem" data-park-id="piedra-canteada"
+      data-type="cabana" tabindex="0">
+      <div class="map-park-item__header">
+        <span class="map-park-item__name">Piedra Canteada</span>
+        <div class="map-park-item__rating">
+          <span class="rating-star"><svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg></span>
+          <span class="map-park-item__score">4.8</span>
+        </div>
+      </div>
+      <p class="map-park-item__desc">Paraíso rústico ideal para fotógrafos y desconexión total.</p>
+      <span class="map-status-badge map-status-badge--full">Agotado</span>
+      </div>
+
+            <!-- Parque Nacional Molino -->
+      <div class="map-park-item" role="listitem" data-park-id="parque-molino"
+      data-type="camping" tabindex="0">
+      <div class="map-park-item__header">
+        <span class="map-park-item__name">Parque Nacional Molino</span>
+        <div class="map-park-item__rating">
+          <span class="rating-star"><svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg></span>
+          <span class="map-park-item__score">4.5</span>
+        </div>
+      </div>
+      <p class="map-park-item__desc">Ambiente familiar con actividades educativas y zonas de picnic.</p>
+      <span class="map-status-badge map-status-badge--available">Disponible</span>
+      </div>
+
+            <!-- Texcoco -->
+      <div class="map-park-item" role="listitem" data-park-id="texcoco"
+      data-type="sendero" tabindex="0">
+      <div class="map-park-item__header">
+        <span class="map-park-item__name">Texcoco</span>
+        <div class="map-park-item__rating">
+          <span class="rating-star"><svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg></span>
+          <span class="map-park-item__score">4.9</span>
+        </div>
+      </div>
+      <p class="map-park-item__desc">Ruta exclusiva limitada a 20 personas por noche.</p>
+      <span class="map-status-badge map-status-badge--available">Disponible</span>
+      </div>
+
+            <!-- Chalco -->
+      <div class="map-park-item" role="listitem" data-park-id="chalco"
+      data-type="cabana" tabindex="0">
+      <div class="map-park-item__header">
+        <span class="map-park-item__name">Chalco</span>
+        <div class="map-park-item__rating">
+          <span class="rating-star"><svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg></span>
+          <span class="map-park-item__score">4.6</span>
+        </div>
+      </div>
+      <p class="map-park-item__desc">Grupos grandes con cabañas equipadas y vistas panorámicas.</p>
+      <span class="map-status-badge map-status-badge--full">Agotado</span>
+      </div>
     </div>
 
   </aside>
@@ -836,8 +947,33 @@ function initLumiaMap() {
       lat: 19.1200, lng: -98.7700, href: '/explore/parques/amecameca/', color: '#FEE715' },
     { id: 'rancho-del-valle', name: 'Rancho del Valle',
       desc: 'Cabañas familiares cerca de la orilla del lago.',
-      score: '4.8', status: 'full', type: 'cabana',
+      score: '4.8', status: 'few', type: 'cabana',
       lat: 19.0500, lng: -98.7400, href: '/explore/parques/rancho-del-valle/', color: '#22C55E' },
+      // ── Parques nuevos ──
+    { id: 'santuario-el-rosario', name: 'Santuario El Rosario',
+      desc: 'El santuario más grande de la región, experiencia inmersiva única.',
+      score: '4.9', status: 'available', type: 'camping',
+      lat: 19.0900, lng: -98.7800, href: '/explore/parques/santuario-el-rosario/', color: '#A3E635' },
+    { id: 'parque-chalma', name: 'Parque Ecoturístico Chalma',
+      desc: 'Famoso por su densa vegetación y avistamientos garantizados.',
+      score: '4.7', status: 'available', type: 'sendero',
+      lat: 18.9150, lng: -99.5050, href: '/explore/parques/parque-chalma/', color: '#22C55E' },
+    { id: 'piedra-canteada', name: 'Piedra Canteada',
+      desc: 'Paraíso rústico ideal para fotógrafos y desconexión total.',
+      score: '4.8', status: 'full', type: 'cabana',
+      lat: 19.3700, lng: -98.4800, href: '/explore/parques/piedra-canteada/', color: '#FEE715' },
+    { id: 'parque-molino', name: 'Parque Nacional Molino',
+      desc: 'Ambiente familiar con actividades educativas y zonas de picnic.',
+      score: '4.5', status: 'available', type: 'camping',
+      lat: 19.1300, lng: -98.7100, href: '/explore/parques/parque-nacional-molino/', color: '#22C55E' },
+    { id: 'texcoco', name: 'Texcoco',
+      desc: 'Ruta exclusiva limitada a 20 personas por noche.',
+      score: '4.9', status: 'available', type: 'sendero',
+      lat: 19.5150, lng: -98.8820, href: '/explore/parques/texcoco/', color: '#A3E635' },
+    { id: 'chalco', name: 'Chalco',
+      desc: 'Grupos grandes con cabañas equipadas y vistas panorámicas.',
+      score: '4.6', status: 'full', type: 'cabana',
+      lat: 19.2640, lng: -98.8980, href: '/explore/parques/chalco/', color: '#FEE715' },
   ];
 
   var MODE_COLORS = { driving: '#A3E635', walking: '#AACEC9', cycling: '#FEE715' };
@@ -1203,14 +1339,101 @@ function initLumiaMap() {
   ════════════════════════════════════════ */
   var markers = {};
 
+    /* ════════════════════════════════════════
+     PULSO RADAR SOBRE MARCADORES
+  ════════════════════════════════════════ */
+  var pulseEls = {};
+
+  function createPulseEl(park) {
+    var wrap = document.createElement('div');
+    wrap.className = 'marker-pulse';
+    wrap.style.color = park.color;   /* currentColor para los rings */
+
+    /* 3 anillos escalonados → efecto radar continuo */
+    for (var i = 0; i < 3; i++) {
+      var ring = document.createElement('div');
+      ring.className = 'marker-pulse__ring';
+      ring.style.animationDelay = (i * 2) + 's';
+      wrap.appendChild(ring);
+    }
+
+    document.getElementById('mapArea').appendChild(wrap);
+    return wrap;
+  }
+
+  function positionPulse(park) {
+    var el = pulseEls[park.id];
+    if (!el) return;
+    var projection = map.getProjection();
+    var bounds     = map.getBounds();
+    if (!projection || !bounds) return;
+
+    var scale   = Math.pow(2, map.getZoom());
+    var topLeft = new google.maps.LatLng(
+      bounds.getNorthEast().lat(), bounds.getSouthWest().lng()
+    );
+    var ptMark = projection.fromLatLngToPoint(
+      new google.maps.LatLng(park.lat, park.lng)
+    );
+    var ptOrig = projection.fromLatLngToPoint(topLeft);
+
+    el.style.left = Math.floor((ptMark.x - ptOrig.x) * scale) + 'px';
+    el.style.top  = Math.floor((ptMark.y - ptOrig.y) * scale) + 'px';
+  }
+
+  function positionAllPulses() {
+    PARKS.forEach(function (p) { positionPulse(p); });
+  }
+
+  /* Crear un elemento por parque */
+  PARKS.forEach(function (park) {
+    pulseEls[park.id] = createPulseEl(park);
+  });
+
+  /* Reubicar al mover/zoom (añade a los listeners que ya tienes) */
+  map.addListener('bounds_changed', positionAllPulses);
+  map.addListener('zoom_changed',   positionAllPulses);
+
   function getMarkerIcon(color, isActive) {
+    /* ── Parámetros de tamaño — modifícalos aquí ── */
+    var size   = isActive ? 72 : 52;   /* canvas total del icono en px   */
+    var dotR   = isActive ? 13 : 9;    /* radio del círculo central       */
+    var haloR  = isActive ? 24 : 17;   /* radio del halo semitransparente */
+    var glowSD = isActive ? 9  : 6;    /* stdDeviation del blur (≈ spread)*/
+  
+    var cx = size / 2;
+  
+    var svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg"',
+      '  width="' + size + '" height="' + size + '"',
+      '  viewBox="0 0 ' + size + ' ' + size + '">',
+      '  <defs>',
+      '    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">',
+      '      <feGaussianBlur stdDeviation="' + glowSD + '" result="blur"/>',
+      '      <feMerge>',
+      '        <feMergeNode in="blur"/>',
+      '        <feMergeNode in="blur"/>',   /* doble pasada → más bloom */
+      '        <feMergeNode in="SourceGraphic"/>',
+      '      </feMerge>',
+      '    </filter>',
+      '  </defs>',
+      /* Halo exterior difuso */
+      '  <circle cx="' + cx + '" cy="' + cx + '" r="' + haloR + '"',
+      '    fill="' + color + '" opacity="' + (isActive ? '0.28' : '0.18') + '"',
+      '    filter="url(#glow)"/>',
+      /* Círculo principal con glow */
+      '  <circle cx="' + cx + '" cy="' + cx + '" r="' + dotR + '"',
+      '    fill="' + color + '" filter="url(#glow)"/>',
+      /* Núcleo blanco brillante */
+      '  <circle cx="' + cx + '" cy="' + cx + '" r="' + Math.round(dotR * 0.38) + '"',
+      '    fill="white" opacity="0.95"/>',
+      '</svg>',
+    ].join('\n');
+  
     return {
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: isActive ? 14 : 10,
-      fillColor: color, fillOpacity: 1,
-      strokeColor: color,
-      strokeWeight: isActive ? 10 : 6,
-      strokeOpacity: isActive ? 0.30 : 0.15,
+      url:        'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
+      scaledSize: new google.maps.Size(size, size),
+      anchor:     new google.maps.Point(cx, cx),
     };
   }
 
@@ -1304,6 +1527,7 @@ function initLumiaMap() {
     document.querySelectorAll('.map-park-item').forEach(function (el) { el.classList.remove('is-active'); });
     var el = document.querySelector('[data-park-id="' + parkId + '"]');
     if (el) { el.classList.add('is-active'); el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+    
     PARKS.forEach(function (p) {
       var m = markers[p.id];
       if (m) m.setIcon(getMarkerIcon(p.color, p.id === parkId));
@@ -1312,7 +1536,10 @@ function initLumiaMap() {
 
   function deactivateAllItems() {
     document.querySelectorAll('.map-park-item').forEach(function (el) { el.classList.remove('is-active'); });
-    PARKS.forEach(function (p) { var m = markers[p.id]; if (m) m.setIcon(getMarkerIcon(p.color, false)); });
+    PARKS.forEach(function (p) { 
+      var m = markers[p.id]; 
+      if (m) m.setIcon(getMarkerIcon(p.color, false)); 
+    });
   }
 
   document.querySelectorAll('.map-park-item').forEach(function (item) {
@@ -1358,14 +1585,35 @@ function initLumiaMap() {
 
   document.querySelectorAll('.map-filter-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      document.querySelectorAll('.map-filter-btn').forEach(function (b) { b.classList.remove('is-active'); });
+      document.querySelectorAll('.map-filter-btn').forEach(function (b) { 
+        b.classList.remove('is-active'); 
+      });
       btn.classList.add('is-active');
+
       var filter = btn.dataset.filter;
+
       PARKS.forEach(function (park) {
         var m = markers[park.id];
-        if (m) m.setMap((filter === 'all' || park.type === filter) ? map : null);
+        var pulse = pulseEls[park.id];
+        var show  = filter === 'all' || park.type === filter;
+
+        if (m)     m.setMap(show ? map : null);
+        if (pulse) pulse.style.display = show ? '' : 'none';
       });
       filterParks();
+
+      /* ── Auto-fit: centrar en los parques visibles ── */
+      var fitBounds = new google.maps.LatLngBounds();
+      var hasVisible = false;
+      PARKS.forEach(function (park) {
+        if (markers[park.id] && markers[park.id].getMap()) {
+          fitBounds.extend({ lat: park.lat, lng: park.lng });
+          hasVisible = true;
+        }
+      });
+      if (hasVisible) {
+        map.fitBounds(fitBounds, { top: 80, right: 48, bottom: 80, left: 48 });
+      }
     });
   });
 
@@ -1414,16 +1662,18 @@ function initLumiaMap() {
     setTimeout(function () {
       if (routeData[currentMode] && routeData[currentMode].coords.length) {
         /* Hay ruta activa → ajustar para verla completa */
-        var bounds = new google.maps.LatLngBounds();
+        var routeBounds = new google.maps.LatLngBounds();
         routeData[currentMode].coords.forEach(function (ll) { bounds.extend(ll); });
         map.fitBounds(bounds, { top: 60, right: 60, bottom: 60, left: 60 });
-      } else if (activeParkId) {
-        /* Solo parque seleccionado → centrar en él */
-        var park = PARKS.find(function (p) { return p.id === activeParkId; });
-        if (park) {
-          map.panTo({ lat: park.lat, lng: park.lng });
-          map.setZoom(14);
-        }
+      } else {
+        /* Sin ruta → mostrar todos los parques visibles */
+        var allBounds = new google.maps.LatLngBounds();
+        PARKS.forEach(function (park) {
+          if (markers[park.id] && markers[park.id].getMap()) {
+            allBounds.extend({ lat: park.lat, lng: park.lng });
+          }
+        });
+        map.fitBounds(allBounds, { top: 80, right: 48, bottom: 80, left: 48 });
       }
     }, 150); /* 150ms da tiempo al resize de Google Maps */
   });
@@ -1438,11 +1688,29 @@ function initLumiaMap() {
   /* ════════════════════════════════════════
      ESTADO INICIAL
   ════════════════════════════════════════ */
-  setTimeout(function () {
-    activeParkId = PARKS[0].id;
-    activateParkItem(PARKS[0].id);
-    openPopup(PARKS[0]);
-  }, 800);
+  map.addListener('tilesloaded', function () {
+    /* Solo ejecutar una vez al cargar */
+    google.maps.event.clearListeners(map, 'tilesloaded');
+
+    /* Calcular bounds que contengan todos los parques */
+    var bounds = new google.maps.LatLngBounds();
+    PARKS.forEach(function (park) {
+      /* Solo incluir parques con marcador visible */
+      if (markers[park.id] && markers[park.id].getMap()) {
+        bounds.extend({ lat: park.lat, lng: park.lng });
+      }
+    });
+
+    /* Padding generoso para que ningún marcador quede bajo la navbar o el borde */
+    map.fitBounds(bounds, { top: 80, right: 48, bottom: 80, left: 48 });
+
+    /* Abrir el popup del primer parque con un pequeño delay */
+    setTimeout(function () {
+      activeParkId = PARKS[0].id;
+      activateParkItem(PARKS[0].id);
+      openPopup(PARKS[0]);
+    }, 600);
+  });
 
 } /* fin initLumiaMap */
 </script>

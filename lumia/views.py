@@ -18,3 +18,6 @@ def explore_view(request):
 
 def mapa(request):
     return render(request, 'mapa.html')
+
+def parques_view(request):
+    return render(request, 'parques.html')
