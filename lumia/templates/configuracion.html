@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Configuración — Lumia{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/configuracion.css' %}" />
+{% endblock %}
+
+{% block content %}
+<section class="config page-content">
+  <div class="config__bg"></div>
+
+  <div class="config__container">
+
+    {# ════════════════ ENCABEZADO ════════════════ #}
+    <header class="config__head">
+      <p class="config__eyebrow">Preferencias</p>
+      <h1 class="config__title">Configuración</h1>
+    </header>
+
+    {# ════════════════ APARIENCIA ════════════════ #}
+    <section class="config__section">
+      <h2 class="config__section-title">
+        <span class="material-symbols-outlined">palette</span>
+        Apariencia
+      </h2>
+
+      <div class="config__row">
+        <div class="config__row-main">
+          <div class="config__row-icon">
+            <span class="material-symbols-outlined">contrast</span>
+          </div>
+          <div>
+            <div class="config__row-title">Modo claro</div>
+            <div class="config__row-desc">Cambia entre el tema oscuro y claro</div>
+          </div>
+        </div>
+        <div class="config__row-control">
+          <label class="switch">
+            <input type="checkbox" id="theme-toggle" />
+            <span class="switch__track"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    {# ════════════════ CUENTA ════════════════ #}
+    <section class="config__section">
+      <h2 class="config__section-title">
+        <span class="material-symbols-outlined">person</span>
+        Cuenta
+      </h2>
+
+      <a href="{% url 'perfil' %}" class="config__link">
+        <div class="config__row-main">
+          <div class="config__row-icon">
+            <span class="material-symbols-outlined">manage_accounts</span>
+          </div>
+          <div>
+            <div class="config__row-title">Modificar perfil</div>
+            <div class="config__row-desc">Nombre, correo y datos de contacto</div>
+          </div>
+        </div>
+        <span class="material-symbols-outlined config__chevron">chevron_right</span>
+      </a>
+
+      <a href="#" class="config__link">
+        <div class="config__row-main">
+          <div class="config__row-icon">
+            <span class="material-symbols-outlined">lock_reset</span>
+          </div>
+          <div>
+            <div class="config__row-title">Cambiar contraseña</div>
+            <div class="config__row-desc">Actualiza tu contraseña de acceso</div>
+          </div>
+        </div>
+        <span class="material-symbols-outlined config__chevron">chevron_right</span>
+      </a>
+    </section>
+
+    {# ════════════════ ACCESIBILIDAD (visible, sin implementar) ════════════════ #}
+    <section class="config__section">
+      <h2 class="config__section-title">
+        <span class="material-symbols-outlined">accessibility_new</span>
+        Accesibilidad
+      </h2>
+
+      <div class="config__row">
+        <div class="config__row-main">
+          <div class="config__row-icon">
+            <span class="material-symbols-outlined">visibility</span>
+          </div>
+          <div>
+            <div class="config__row-title">Modo daltonismo</div>
+            <div class="config__row-desc">Ajusta los colores del festival</div>
+          </div>
+        </div>
+        <div class="config__row-control">
+          <span class="config__soon">Pronto</span>
+          <div class="config__select">
+            <select aria-label="Modo daltonismo">
+              <option>Ninguno</option>
+              <option>Protanopia</option>
+              <option>Deuteranopia</option>
+              <option>Tritanopia</option>
+            </select>
+            <span class="material-symbols-outlined">expand_more</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="config__row">
+        <div class="config__row-main">
+          <div class="config__row-icon">
+            <span class="material-symbols-outlined">format_size</span>
+          </div>
+          <div>
+            <div class="config__row-title">Tamaño de texto</div>
+            <div class="config__row-desc">Aumenta la legibilidad</div>
+          </div>
+        </div>
+        <div class="config__row-control">
+          <span class="config__soon">Pronto</span>
+          <div class="config__segmented">
+            <button type="button">A-</button>
+            <button type="button" class="is-active">A</button>
+            <button type="button">A+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="config__row">
+        <div class="config__row-main">
+          <div class="config__row-icon">
+            <span class="material-symbols-outlined">animation</span>
+          </div>
+          <div>
+            <div class="config__row-title">Reducir animaciones</div>
+            <div class="config__row-desc">Desactiva el movimiento de luciérnagas</div>
+          </div>
+        </div>
+        <div class="config__row-control">
+          <span class="config__soon">Pronto</span>
+          <label class="switch">
+            <input type="checkbox" disabled />
+            <span class="switch__track"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    {# ════════════════ NOTIFICACIONES (visible, sin implementar) ════════════════ #}
+    <section class="config__section">
+      <h2 class="config__section-title">
+        <span class="material-symbols-outlined">notifications</span>
+        Notificaciones
+      </h2>
+
+      <div class="config__row">
+        <div class="config__row-main">
+          <div class="config__row-icon">
+            <span class="material-symbols-outlined">event_available</span>
+          </div>
+          <div>
+            <div class="config__row-title">Recordatorios de reservación</div>
+            <div class="config__row-desc">Avísame antes de cada recorrido</div>
+          </div>
+        </div>
+        <div class="config__row-control">
+          <span class="config__soon">Pronto</span>
+          <label class="switch">
+            <input type="checkbox" checked disabled />
+            <span class="switch__track"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="config__row">
+        <div class="config__row-main">
+          <div class="config__row-icon">
+            <span class="material-symbols-outlined">campaign</span>
+          </div>
+          <div>
+            <div class="config__row-title">Promociones y novedades</div>
+            <div class="config__row-desc">Ofertas del festival por correo</div>
+          </div>
+        </div>
+        <div class="config__row-control">
+          <span class="config__soon">Pronto</span>
+          <label class="switch">
+            <input type="checkbox" disabled />
+            <span class="switch__track"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    {# ════════════════ IDIOMA (visible, sin implementar) ════════════════ #}
+    <section class="config__section">
+      <h2 class="config__section-title">
+        <span class="material-symbols-outlined">translate</span>
+        Idioma y región
+      </h2>
+
+      <div class="config__row">
+        <div class="config__row-main">
+          <div class="config__row-icon">
+            <span class="material-symbols-outlined">language</span>
+          </div>
+          <div>
+            <div class="config__row-title">Idioma</div>
+            <div class="config__row-desc">Idioma de la interfaz</div>
+          </div>
+        </div>
+        <div class="config__row-control">
+          <span class="config__soon">Pronto</span>
+          <div class="config__select">
+            <select aria-label="Idioma">
+              <option>Español</option>
+              <option>English</option>
+            </select>
+            <span class="material-symbols-outlined">expand_more</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {# ════════════════ ZONA DE PELIGRO ════════════════ #}
+    <section class="config__section config__section--danger">
+      <h2 class="config__section-title">
+        <span class="material-symbols-outlined">warning</span>
+        Zona de peligro
+      </h2>
+
+      <div class="config__row">
+        <div class="config__row-main">
+          <div>
+            <div class="config__row-title">Cerrar sesión</div>
+            <div class="config__row-desc">Salir de tu cuenta en este dispositivo</div>
+          </div>
+        </div>
+        <div class="config__row-control">
+          <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="config__danger-btn">
+              <span class="material-symbols-outlined">logout</span>
+              Cerrar sesión
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="config__row">
+        <div class="config__row-main">
+          <div>
+            <div class="config__row-title">Eliminar cuenta</div>
+            <div class="config__row-desc">Borra tu cuenta y reservaciones de forma permanente</div>
+          </div>
+        </div>
+        <div class="config__row-control">
+          <a href="#" class="config__danger-btn config__danger-btn--delete">
+            <span class="material-symbols-outlined">delete</span>
+            Eliminar
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function () {
+    var toggle = document.getElementById('theme-toggle');
+    if (!toggle) return;
+
+    var current = document.documentElement.getAttribute('data-theme') || 'dark';
+    toggle.checked = current === 'light';
+
+    toggle.addEventListener('change', function () {
+      var theme = toggle.checked ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      try { localStorage.setItem('lumia-theme', theme); } catch (e) {}
+    });
+  })();
+</script>
+{% endblock %}

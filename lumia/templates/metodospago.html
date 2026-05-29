@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Métodos de Pago — Lumia{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/metodospago.css' %}" />
+{% endblock %}
+
+{% block content %}
+<section class="pago page-content">
+  <div class="pago__bg"></div>
+
+  <div class="pago__container">
+
+    {# ════════════════ ENCABEZADO ════════════════ #}
+    <header class="pago__head">
+      <p class="pago__eyebrow">Mi cuenta</p>
+      <h1 class="pago__title">Métodos de pago</h1>
+    </header>
+
+    <!-- {# ════════════════ TARJETAS GUARDADAS ════════════════
+       DATOS DE EJEMPLO (sin backend todavía).
+       Cuando tengas el modelo, reemplaza estas tarjetas por:
+       {% comment %}
+         {% for t in tarjetas %}
+           <article class="pago-method"> ... clase pago-card--{{ t.marca }} ... </article>
+         {% endfor %}
+       {% endcomment %}
+    #} -->
+    <h2 class="pago__section-title">
+      <span class="material-symbols-outlined">credit_card</span>
+      Tarjetas guardadas
+    </h2>
+
+    {# ── Visa (predeterminada) ── #}
+    <article class="pago-method">
+      <div class="pago-card pago-card--visa">
+        <div class="pago-card__top">
+          <div class="pago-card__chip"></div>
+          <span class="pago-card__brand">VISA</span>
+        </div>
+        <div class="pago-card__number">•••• 4242</div>
+        <div class="pago-card__bottom">
+          <div>
+            <span class="pago-card__label">Titular</span>
+            <b>María Robles</b>
+          </div>
+          <div>
+            <span class="pago-card__label">Vence</span>
+            <b>08/27</b>
+          </div>
+        </div>
+      </div>
+      <div class="pago-method__info">
+        <div class="pago-method__head">
+          <h3 class="pago-method__name">Visa terminación 4242</h3>
+          <span class="pago-method__badge">Predeterminada</span>
+        </div>
+        <p class="pago-method__sub">Vence 08/27 · Tarjeta de crédito</p>
+        <div class="pago-method__actions">
+          <a href="#" class="pago-btn"><span class="material-symbols-outlined">edit</span> Editar</a>
+          <a href="#" class="pago-btn pago-btn--danger"><span class="material-symbols-outlined">delete</span> Eliminar</a>
+        </div>
+      </div>
+    </article>
+
+    {# ── Mastercard ── #}
+    <article class="pago-method">
+      <div class="pago-card pago-card--mastercard">
+        <div class="pago-card__top">
+          <div class="pago-card__chip"></div>
+          <span class="pago-card__brand">Mastercard</span>
+        </div>
+        <div class="pago-card__number">•••• 8210</div>
+        <div class="pago-card__bottom">
+          <div>
+            <span class="pago-card__label">Titular</span>
+            <b>María Robles</b>
+          </div>
+          <div>
+            <span class="pago-card__label">Vence</span>
+            <b>11/26</b>
+          </div>
+        </div>
+      </div>
+      <div class="pago-method__info">
+        <div class="pago-method__head">
+          <h3 class="pago-method__name">Mastercard terminación 8210</h3>
+        </div>
+        <p class="pago-method__sub">Vence 11/26 · Tarjeta de débito</p>
+        <div class="pago-method__actions">
+          <a href="#" class="pago-btn"><span class="material-symbols-outlined">push_pin</span> Hacer predeterminada</a>
+          <a href="#" class="pago-btn"><span class="material-symbols-outlined">edit</span> Editar</a>
+          <a href="#" class="pago-btn pago-btn--danger"><span class="material-symbols-outlined">delete</span> Eliminar</a>
+        </div>
+      </div>
+    </article>
+
+    {# ════════════════ OTROS MÉTODOS ════════════════ #}
+    <h2 class="pago__section-title">
+      <span class="material-symbols-outlined">account_balance_wallet</span>
+      Otros métodos
+    </h2>
+
+    {# ── PayPal ── #}
+    <article class="pago-alt">
+      <div class="pago-alt__icon">
+        <span class="material-symbols-outlined">paid</span>
+      </div>
+      <div class="pago-alt__text">
+        <h3>PayPal</h3>
+        <p>maria.robles@correo.com</p>
+      </div>
+      <a href="#" class="pago-btn pago-btn--danger">
+        <span class="material-symbols-outlined">link_off</span> Desvincular
+      </a>
+    </article>
+
+    {# ── OXXO ── #}
+    <article class="pago-alt">
+      <div class="pago-alt__icon">
+        <span class="material-symbols-outlined">store</span>
+      </div>
+      <div class="pago-alt__text">
+        <h3>Pago en OXXO</h3>
+        <p>Genera una referencia para pagar en efectivo</p>
+      </div>
+      <a href="#" class="pago-btn">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </a>
+    </article>
+
+    {# ════════════════ AGREGAR ════════════════ #}
+    <button type="button" class="pago-add">
+      <span class="material-symbols-outlined">add_card</span>
+      Agregar método de pago
+    </button>
+
+    {# ════════════════ NOTA DE SEGURIDAD ════════════════ #}
+    <p class="pago__secure">
+      <span class="material-symbols-outlined">lock</span>
+      Tus datos de pago se almacenan de forma segura y cifrada
+    </p>
+
+  </div>
+</section>
+{% endblock %}

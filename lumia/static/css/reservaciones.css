@@ -1,0 +1,381 @@
+/* ═══════════════════════════════════════════════════════════════════
+   MIS RESERVACIONES — Lumia / Festival de las Luciérnagas
+   Depende de las variables globales (styles.css) y tema.css
+═══════════════════════════════════════════════════════════════════ */
+
+.reservas {
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 80px;
+  overflow: hidden;
+}
+
+.reservas__bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(620px 420px at 18% 0%,  rgba(163, 230, 53, 0.06), transparent 70%),
+    radial-gradient(560px 520px at 92% 8%,  rgba(20, 184, 177, 0.07), transparent 72%),
+    radial-gradient(800px 600px at 50% 120%, rgba(4, 71, 75, 0.20),   transparent 70%);
+}
+
+.reservas__container {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 44px 24px 0;
+}
+
+/* ─── Encabezado ─── */
+.reservas__head {
+  margin-bottom: 24px;
+  animation: reservas-rise 0.5s ease both;
+}
+
+.reservas__eyebrow {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--color-text-label);
+  margin-bottom: 6px;
+}
+
+.reservas__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(26px, 4vw, 34px);
+  color: var(--color-text-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FILTROS
+═══════════════════════════════════════════════════════════════════ */
+.reservas__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+  animation: reservas-rise 0.5s ease both;
+  animation-delay: 0.05s;
+}
+
+.reservas__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 15px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: color var(--transition), background var(--transition), border-color var(--transition);
+}
+
+.reservas__filter .material-symbols-outlined {
+  font-size: 17px;
+}
+
+.reservas__filter:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-border-mid);
+}
+
+.reservas__filter.is-active {
+  background: var(--color-lime);
+  color: #06201D;
+  border-color: transparent;
+}
+
+/* ─── Barra de conteo ─── */
+.reservas__bar {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+}
+
+.reservas__bar strong {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   LISTA Y TARJETAS
+═══════════════════════════════════════════════════════════════════ */
+.reservas__list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.reserva-v2 {
+  display: flex;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  animation: reservas-rise 0.5s ease both;
+  transition: border-color var(--transition), transform var(--transition);
+}
+
+.reserva-v2:hover {
+  border-color: var(--color-border-mid);
+  transform: translateY(-2px);
+}
+
+/* Imagen */
+.reserva-v2__media {
+  position: relative;
+  width: 172px;
+  flex-shrink: 0;
+}
+
+.reserva-v2__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Estado (badge sobre imagen) */
+.reserva-v2__status {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.reserva-v2__status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: currentColor;
+}
+
+.reserva-v2__status--confirmada { color: #DFFBE8; background: rgba(34, 197, 94, 0.85); }
+.reserva-v2__status--pendiente  { color: #3B2A05; background: rgba(245, 158, 11, 0.90); }
+.reserva-v2__status--completada { color: #04243A; background: rgba(59, 178, 246, 0.90); }
+.reserva-v2__status--cancelada  { color: #FFFFFF; background: rgba(239, 68, 68, 0.85); }
+
+/* Cuerpo */
+.reserva-v2__body {
+  flex: 1;
+  padding: 16px 18px;
+  min-width: 0;
+}
+
+.reserva-v2__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.reserva-v2__type {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-text-label);
+  margin-bottom: 5px;
+}
+
+.reserva-v2__type .material-symbols-outlined {
+  font-size: 15px;
+}
+
+.reserva-v2__name {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.reserva-v2__folio {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+}
+
+.reserva-v2__price {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.reserva-v2__price small {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+/* Meta (fecha, hora, personas) */
+.reserva-v2__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 12px 0 14px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.reserva-v2__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.reserva-v2__meta .material-symbols-outlined {
+  font-size: 16px;
+  color: var(--color-text-muted);
+}
+
+/* Acciones */
+.reserva-v2__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.reserva-v2__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--color-border-mid);
+  background: transparent;
+  color: var(--color-text-secondary);
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+
+.reserva-v2__btn .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.reserva-v2__btn:hover {
+  background: var(--color-surface-high);
+  color: var(--color-text-primary);
+}
+
+.reserva-v2__btn--primary {
+  background: var(--color-lime);
+  color: #06201D;
+  border-color: transparent;
+}
+
+.reserva-v2__btn--primary:hover {
+  background: var(--color-lime);
+  color: #06201D;
+  box-shadow: var(--glow-lime);
+}
+
+.reserva-v2__btn--danger {
+  color: var(--color-error);
+  border-color: rgba(239, 68, 68, 0.40);
+}
+
+.reserva-v2__btn--danger:hover {
+  background: rgba(239, 68, 68, 0.10);
+  color: var(--color-error);
+}
+
+/* Tarjeta cancelada: imagen atenuada */
+.reserva-v2--cancelada .reserva-v2__media img {
+  filter: grayscale(0.7) brightness(0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ESTADO VACÍO
+═══════════════════════════════════════════════════════════════════ */
+.reservas__empty {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 56px 24px;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border-mid);
+  border-radius: var(--radius-xl);
+}
+
+.reservas__empty.is-visible {
+  display: flex;
+}
+
+.reservas__empty .material-symbols-outlined {
+  font-size: 42px;
+  color: var(--color-text-muted);
+}
+
+.reservas__empty p {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-muted);
+  max-width: 320px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ANIMACIÓN
+═══════════════════════════════════════════════════════════════════ */
+@keyframes reservas-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reserva-v2:nth-child(1) { animation-delay: 0.10s; }
+.reserva-v2:nth-child(2) { animation-delay: 0.16s; }
+.reserva-v2:nth-child(3) { animation-delay: 0.22s; }
+.reserva-v2:nth-child(4) { animation-delay: 0.28s; }
+.reserva-v2:nth-child(5) { animation-delay: 0.34s; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .reservas__container {
+    padding: 32px 16px 0;
+  }
+
+  .reserva-v2 {
+    flex-direction: column;
+  }
+
+  .reserva-v2__media {
+    width: 100%;
+    height: 150px;
+  }
+}

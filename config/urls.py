@@ -15,6 +15,9 @@ urlpatterns = [
     
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path("perfil/", lumia_views.perfil, name="perfil"),
+    path("configuracion/", lumia_views.configuracion, name="configuracion"),
+    path("reservaciones/", lumia_views.reservaciones, name="reservaciones"),
+    path("metodos-pago/", lumia_views.metodos_pago, name="metodos_pago"),
     path('register/', lumia_views.register_view, name='register'),
     path('explore/', lumia_views.explore_view, name='explore'),
     path('map/', lumia_views.mapa, name='map'),

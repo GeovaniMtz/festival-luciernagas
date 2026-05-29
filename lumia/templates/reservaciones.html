@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mis Reservaciones — Lumia{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/reservaciones.css' %}" />
+{% endblock %}
+
+{% block content %}
+<section class="reservas page-content">
+  <div class="reservas__bg"></div>
+
+  <div class="reservas__container">
+
+    {# ════════════════ ENCABEZADO ════════════════ #}
+    <header class="reservas__head">
+      <p class="reservas__eyebrow">Mi cuenta</p>
+      <h1 class="reservas__title">Mis reservaciones</h1>
+    </header>
+
+    {# ════════════════ FILTROS ════════════════ #}
+    <div class="reservas__filters" role="group" aria-label="Filtrar reservaciones">
+      <button class="reservas__filter is-active" data-filter="all" type="button">
+        <span class="material-symbols-outlined">confirmation_number</span> Todas
+      </button>
+      <button class="reservas__filter" data-filter="proxima" type="button">
+        <span class="material-symbols-outlined">event_upcoming</span> Próximas
+      </button>
+      <button class="reservas__filter" data-filter="pasada" type="button">
+        <span class="material-symbols-outlined">history</span> Pasadas
+      </button>
+      <button class="reservas__filter" data-filter="cancelada" type="button">
+        <span class="material-symbols-outlined">cancel</span> Canceladas
+      </button>
+    </div>
+
+    {# ════════════════ BARRA DE CONTEO ════════════════ #}
+    <p class="reservas__bar">
+      <strong id="reservasCount">5</strong> reservaciones
+    </p>
+    
+    <!-- {# ════════════════ LISTA ════════════════
+       DATOS INVENTADOS (sin backend todavía).
+       Cuando tengas el modelo, sustituye estas tarjetas por un bucle:
+       {% comment %}
+         {% for r in reservaciones %}
+           <article class="reserva-v2 reserva-v2--{{ r.estado }}" data-group="{{ r.grupo }}"> ... </article>
+         {% endfor %}
+       {% endcomment %}
+    #} -->
+    <div class="reservas__list" id="reservasList">
+
+      {# ── Bosque Esmeralda — Confirmada ── #}
+      <article class="reserva-v2 reserva-v2--confirmada" data-group="proxima">
+        <div class="reserva-v2__media">
+          <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80" alt="Bosque Esmeralda" loading="lazy" />
+          <span class="reserva-v2__status reserva-v2__status--confirmada">Confirmada</span>
+        </div>
+        <div class="reserva-v2__body">
+          <div class="reserva-v2__top">
+            <div>
+              <span class="reserva-v2__type"><span class="material-symbols-outlined">camping</span> Camping</span>
+              <h3 class="reserva-v2__name">Bosque Esmeralda</h3>
+              <p class="reserva-v2__folio">Folio #LUM-0142</p>
+            </div>
+            <span class="reserva-v2__price">$900 <small>MXN</small></span>
+          </div>
+          <div class="reserva-v2__meta">
+            <span><span class="material-symbols-outlined">calendar_today</span> 14 jun 2026</span>
+            <span><span class="material-symbols-outlined">schedule</span> 20:30 h</span>
+            <span><span class="material-symbols-outlined">group</span> 2 personas</span>
+          </div>
+          <div class="reserva-v2__actions">
+            <a href="#" class="reserva-v2__btn"><span class="material-symbols-outlined">visibility</span> Ver detalles</a>
+            <a href="#" class="reserva-v2__btn reserva-v2__btn--danger"><span class="material-symbols-outlined">close</span> Cancelar</a>
+          </div>
+        </div>
+      </article>
+
+      {# ── Parque Central Amecameca — Pendiente ── #}
+      <article class="reserva-v2 reserva-v2--pendiente" data-group="proxima">
+        <div class="reserva-v2__media">
+          <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&q=80" alt="Parque Central Amecameca" loading="lazy" />
+          <span class="reserva-v2__status reserva-v2__status--pendiente">Pendiente</span>
+        </div>
+        <div class="reserva-v2__body">
+          <div class="reserva-v2__top">
+            <div>
+              <span class="reserva-v2__type"><span class="material-symbols-outlined">cabin</span> Cabaña</span>
+              <h3 class="reserva-v2__name">Parque Central Amecameca</h3>
+              <p class="reserva-v2__folio">Folio #LUM-0188</p>
+            </div>
+            <span class="reserva-v2__price">$1,400 <small>MXN</small></span>
+          </div>
+          <div class="reserva-v2__meta">
+            <span><span class="material-symbols-outlined">calendar_today</span> 21 jun 2026</span>
+            <span><span class="material-symbols-outlined">schedule</span> 19:00 h</span>
+            <span><span class="material-symbols-outlined">group</span> 4 personas</span>
+          </div>
+          <div class="reserva-v2__actions">
+            <a href="#" class="reserva-v2__btn reserva-v2__btn--primary"><span class="material-symbols-outlined">payments</span> Completar pago</a>
+            <a href="#" class="reserva-v2__btn"><span class="material-symbols-outlined">visibility</span> Ver detalles</a>
+            <a href="#" class="reserva-v2__btn reserva-v2__btn--danger"><span class="material-symbols-outlined">close</span> Cancelar</a>
+          </div>
+        </div>
+      </article>
+
+      {# ── Rancho del Valle — Confirmada ── #}
+      <article class="reserva-v2 reserva-v2--confirmada" data-group="proxima">
+        <div class="reserva-v2__media">
+          <img src="https://images.unsplash.com/photo-1511497584788-876760111969?w=400&q=80" alt="Rancho del Valle" loading="lazy" />
+          <span class="reserva-v2__status reserva-v2__status--confirmada">Confirmada</span>
+        </div>
+        <div class="reserva-v2__body">
+          <div class="reserva-v2__top">
+            <div>
+              <span class="reserva-v2__type"><span class="material-symbols-outlined">hiking</span> Sendero</span>
+              <h3 class="reserva-v2__name">Rancho del Valle</h3>
+              <p class="reserva-v2__folio">Folio #LUM-0205</p>
+            </div>
+            <span class="reserva-v2__price">$1,230 <small>MXN</small></span>
+          </div>
+          <div class="reserva-v2__meta">
+            <span><span class="material-symbols-outlined">calendar_today</span> 28 jun 2026</span>
+            <span><span class="material-symbols-outlined">schedule</span> 21:00 h</span>
+            <span><span class="material-symbols-outlined">group</span> 3 personas</span>
+          </div>
+          <div class="reserva-v2__actions">
+            <a href="#" class="reserva-v2__btn"><span class="material-symbols-outlined">visibility</span> Ver detalles</a>
+            <a href="#" class="reserva-v2__btn reserva-v2__btn--danger"><span class="material-symbols-outlined">close</span> Cancelar</a>
+          </div>
+        </div>
+      </article>
+
+      {# ── Parque Nacional Molino — Completada ── #}
+      <article class="reserva-v2 reserva-v2--completada" data-group="pasada">
+        <div class="reserva-v2__media">
+          <img src="https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=400&q=80" alt="Parque Nacional Molino" loading="lazy" />
+          <span class="reserva-v2__status reserva-v2__status--completada">Completada</span>
+        </div>
+        <div class="reserva-v2__body">
+          <div class="reserva-v2__top">
+            <div>
+              <span class="reserva-v2__type"><span class="material-symbols-outlined">camping</span> Camping</span>
+              <h3 class="reserva-v2__name">Parque Nacional Molino</h3>
+              <p class="reserva-v2__folio">Folio #LUM-0098</p>
+            </div>
+            <span class="reserva-v2__price">$640 <small>MXN</small></span>
+          </div>
+          <div class="reserva-v2__meta">
+            <span><span class="material-symbols-outlined">calendar_today</span> 10 may 2026</span>
+            <span><span class="material-symbols-outlined">schedule</span> 20:00 h</span>
+            <span><span class="material-symbols-outlined">group</span> 2 personas</span>
+          </div>
+          <div class="reserva-v2__actions">
+            <a href="#" class="reserva-v2__btn"><span class="material-symbols-outlined">visibility</span> Ver detalles</a>
+            <a href="#" class="reserva-v2__btn"><span class="material-symbols-outlined">replay</span> Volver a reservar</a>
+          </div>
+        </div>
+      </article>
+
+      {# ── Piedra Canteada — Cancelada ── #}
+      <article class="reserva-v2 reserva-v2--cancelada" data-group="cancelada">
+        <div class="reserva-v2__media">
+          <img src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400&q=80" alt="Piedra Canteada" loading="lazy" />
+          <span class="reserva-v2__status reserva-v2__status--cancelada">Cancelada</span>
+        </div>
+        <div class="reserva-v2__body">
+          <div class="reserva-v2__top">
+            <div>
+              <span class="reserva-v2__type"><span class="material-symbols-outlined">cabin</span> Cabaña</span>
+              <h3 class="reserva-v2__name">Piedra Canteada</h3>
+              <p class="reserva-v2__folio">Folio #LUM-0071</p>
+            </div>
+            <span class="reserva-v2__price">$520 <small>MXN</small></span>
+          </div>
+          <div class="reserva-v2__meta">
+            <span><span class="material-symbols-outlined">calendar_today</span> 02 may 2026</span>
+            <span><span class="material-symbols-outlined">schedule</span> 21:00 h</span>
+            <span><span class="material-symbols-outlined">group</span> 1 persona</span>
+          </div>
+          <div class="reserva-v2__actions">
+            <a href="#" class="reserva-v2__btn"><span class="material-symbols-outlined">visibility</span> Ver detalles</a>
+            <a href="#" class="reserva-v2__btn reserva-v2__btn--primary"><span class="material-symbols-outlined">replay</span> Reservar de nuevo</a>
+          </div>
+        </div>
+      </article>
+
+    </div><!-- /reservasList -->
+
+    {# ════════════════ ESTADO VACÍO ════════════════ #}
+    <div class="reservas__empty" id="reservasEmpty">
+      <span class="material-symbols-outlined">nights_stay</span>
+      <p>No tienes reservaciones en esta categoría.</p>
+    </div>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function () {
+    var filters = document.querySelectorAll('.reservas__filter');
+    var cards   = document.querySelectorAll('.reserva-v2');
+    var count   = document.getElementById('reservasCount');
+    var empty   = document.getElementById('reservasEmpty');
+
+    filters.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        filters.forEach(function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+
+        var f = btn.getAttribute('data-filter');
+        var visible = 0;
+
+        cards.forEach(function (card) {
+          var show = (f === 'all' || card.getAttribute('data-group') === f);
+          card.style.display = show ? 'flex' : 'none';
+          if (show) visible++;
+        });
+
+        if (count) count.textContent = visible;
+        if (empty) empty.classList.toggle('is-visible', visible === 0);
+      });
+    });
+  })();
+</script>
+{% endblock %}

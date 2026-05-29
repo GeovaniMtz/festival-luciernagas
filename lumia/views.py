@@ -24,6 +24,18 @@ def parques_view(request):
     return render(request, 'parques.html')
 
 @login_required
+def metodos_pago(request):
+    return render(request, "metodospago.html")
+
+@login_required
+def reservaciones(request):
+    return render(request, "reservaciones.html")
+
+@login_required
+def configuracion(request):
+    return render(request, "configuracion.html")
+
+@login_required
 def perfil(request):
     #reservaciones = request.user.reservaciones.all()  # ajusta al nombre de tu relación
     #return render(request, "perfil.html", {"reservaciones": reservaciones})
