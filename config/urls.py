@@ -18,5 +18,6 @@ urlpatterns = [
     path('register/', lumia_views.register_view, name='register'),
     path('explore/', lumia_views.explore_view, name='explore'),
     path('map/', lumia_views.mapa, name='map'),
-    path('explore/parques/', lumia_views.parques_view, name='parques'),
+    path('explore/parks/', lumia_views.parques_view, name='parks'),
+    path('explore/parks/<str:park_name>/', lumia_views.park_detail_view, name='park_detail'),
 ]
