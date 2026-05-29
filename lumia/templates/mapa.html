@@ -731,7 +731,7 @@
         <span class="map-status-badge map-status-badge--available">Disponible</span>
       </div>
 
-      <div class="map-park-item" role="listitem" data-park-id="parque-amecameca"
+      <div class="map-park-item" role="listitem" data-park-id="parque-central-amecameca"
         data-type="cabana" tabindex="0" aria-label="Parque Central Amecameca, disponible">
         <div class="map-park-item__header">
           <span class="map-park-item__name">Parque Central<br>Amecameca</span>
@@ -941,10 +941,10 @@ function initLumiaMap() {
       desc: 'El corazón del festival. Avistamiento premium.',
       score: '4.9', status: 'available', type: 'camping',
       lat: 19.0700, lng: -98.7650, href: '/explore/parks/bosque-esmeralda/', color: '#A3E635' },
-    { id: 'parque-amecameca', name: 'Parque Central Amecameca',
+    { id: 'parque-central-amecameca', name: 'Parque Central Amecameca',
       desc: 'Zona tranquila ideal para entusiastas de la fotografía.',
       score: '4.7', status: 'available', type: 'cabana',
-      lat: 19.1200, lng: -98.7700, href: '/explore/parks/amecameca/', color: '#FEE715' },
+      lat: 19.1200, lng: -98.7700, href: '/explore/parks/parque-central-amecameca/', color: '#FEE715' },
     { id: 'rancho-del-valle', name: 'Rancho del Valle',
       desc: 'Cabañas familiares cerca de la orilla del lago.',
       score: '4.8', status: 'few', type: 'cabana',
@@ -1705,10 +1705,29 @@ function initLumiaMap() {
     map.fitBounds(bounds, { top: 80, right: 48, bottom: 80, left: 48 });
 
     /* Abrir el popup del primer parque con un pequeño delay */
+    // setTimeout(function () {
+    //   activeParkId = PARKS[0].id;
+    //   activateParkItem(PARKS[0].id);
+    //   openPopup(PARKS[0]);
+    // }, 600);
     setTimeout(function () {
-      activeParkId = PARKS[0].id;
-      activateParkItem(PARKS[0].id);
-      openPopup(PARKS[0]);
+      var params = new URLSearchParams(window.location.search);
+      var parkSlug = params.get('park');
+      var target = parkSlug
+        ? PARKS.find(function (p) { return p.id === parkSlug; })
+        : null;
+
+      if (target) {
+        activeParkId = target.id;
+        activateParkItem(target.id);
+        openPopup(target);
+        map.setCenter({ lat: target.lat, lng: target.lng });
+        map.setZoom(14);
+      } else {
+        activeParkId = PARKS[0].id;
+        activateParkItem(PARKS[0].id);
+        openPopup(PARKS[0]);
+      }
     }, 600);
   });
 

@@ -311,5 +311,6 @@ def park_detail_view(request, park_name):
         return redirect('parks')
 
     return render(request, 'park-detail.html', {
-        'park': park
+        'park': park,
+        'park_name': park_name
     })
