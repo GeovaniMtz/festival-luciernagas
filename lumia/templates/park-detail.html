@@ -1056,26 +1056,21 @@
   (function () {
     'use strict';
 
-    /* ════════════════════════════════════════
-       CALENDARIO — selección de rango
-    ════════════════════════════════════════ */
     var FULL_DATES = [3, 4, 10, 11, 17, 18, 24, 25];
     var today = new Date();
     var currentYear = today.getFullYear();
     var currentMonth = today.getMonth();
 
-    // Estado del rango
-    var rangeStart = null;  // { y, m, d }
+    var rangeStart = null;
     var rangeEnd = null;
-    var pickingEnd = false; // true = primer clic hecho, esperando salida
-    var hoverDay = null;  // día bajo el cursor mientras se elige la salida
+    var pickingEnd = false;
+    var hoverDay = null;
 
     var MONTHS_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     var SHORT_ES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
       'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
-    /* ── Utilidades de fecha ── */
     function key(y, m, d) { return y * 10000 + m * 100 + d; }
     function keyOf(o) { return key(o.y, o.m, o.d); }
     function sorted() {
@@ -1091,13 +1086,11 @@
     }
     function fmt(d) { return d.d + ' ' + SHORT_ES[d.m] + ' ' + d.y; }
 
-    /* ── Hint ── */
     function setHint(txt) {
       var el = document.getElementById('calHint');
       if (el) el.textContent = txt;
     }
 
-    /* ── Sync booking card ── */
     function syncCard() {
       var elCi = document.getElementById('valCheckin');
       var elCo = document.getElementById('valCheckout');
@@ -1131,7 +1124,10 @@
       }
     }
 
-    /* ── Render ── */
+    /* ──────────────────────────────────────────────
+      RENDER: construye la tabla UNA vez por mes.
+      Ya NO se vuelve a llamar en cada hover.
+    ────────────────────────────────────────────── */
     function renderCalendar(year, month) {
       document.getElementById('calMonthLabel').textContent = MONTHS_ES[month] + ' ' + year;
       var tbody = document.getElementById('calBody');
@@ -1140,12 +1136,6 @@
       var firstDay = new Date(year, month, 1).getDay();
       var daysInMonth = new Date(year, month + 1, 0).getDate();
       var todayKey = key(today.getFullYear(), today.getMonth(), today.getDate());
-
-      // Rango efectivo (incluye hover preview)
-      var effEnd = rangeEnd;
-      if (pickingEnd && rangeStart && hoverDay !== null) {
-        effEnd = { y: year, m: month, d: hoverDay };
-      }
 
       var day = 1;
       for (var row = 0; row < 6; row++) {
@@ -1164,65 +1154,46 @@
             var isFull = FULL_DATES.indexOf(d) !== -1;
 
             td.textContent = d;
+            // Guardamos el día en el nodo para poder repintar sin recrear
+            td.setAttribute('data-day', d);
 
             if (isPast) {
               td.className = 'cal-day cal-day--past';
-
             } else if (isFull) {
               td.className = 'cal-day cal-day--full';
-
             } else {
-              // Calcular clase de rango
-              var ks = rangeStart ? keyOf(rangeStart) : null;
-              var ke = effEnd ? keyOf(effEnd) : null;
-              var lo = (ks && ke) ? Math.min(ks, ke) : ks;
-              var hi = (ks && ke) ? Math.max(ks, ke) : ke;
-              var cls;
+              td.className = 'cal-day cal-day--available';
 
-              if (ks && ke && k === lo && lo !== hi) cls = 'cal-day cal-day--range-start';
-              else if (ks && ke && k === hi && lo !== hi) cls = 'cal-day cal-day--range-end';
-              else if (lo && hi && k > lo && k < hi)
-                cls = (pickingEnd && !rangeEnd) ? 'cal-day cal-day--hover-range' : 'cal-day cal-day--in-range';
-              else if (ks && k === ks) cls = 'cal-day cal-day--range-start';
-              else cls = 'cal-day cal-day--available';
-
-              td.className = cls;
-
-              // Eventos
-              (function (dd) {
-                td.addEventListener('mouseenter', function () {
-                  if (pickingEnd) { hoverDay = dd; renderCalendar(year, month); }
+              (function (dd, cell) {
+                // Hover: solo repinta clases, NO recrea la tabla
+                cell.addEventListener('mouseenter', function () {
+                  if (pickingEnd) { hoverDay = dd; paintRange(year, month); }
                 });
-                td.addEventListener('mouseleave', function () {
-                  if (pickingEnd) { hoverDay = null; renderCalendar(year, month); }
+                cell.addEventListener('mouseleave', function () {
+                  if (pickingEnd) { hoverDay = null; paintRange(year, month); }
                 });
-                td.addEventListener('click', function () {
+                // Clic: selección de inicio / fin
+                cell.addEventListener('click', function () {
                   if (!rangeStart || (!pickingEnd && rangeEnd)) {
-                    // Primer clic → inicio
                     rangeStart = { y: year, m: month, d: dd };
                     rangeEnd = null;
                     pickingEnd = true;
                     hoverDay = null;
                     setHint('Ahora selecciona tu fecha de salida');
                   } else {
-                    // Segundo clic → fin
+                    if (keyOf(rangeStart) === key(year, month, dd)) {
+                      setHint('Elige una fecha de salida diferente');
+                      return;
+                    }
                     rangeEnd = { y: year, m: month, d: dd };
                     pickingEnd = false;
                     hoverDay = null;
-                    if (keyOf(rangeStart) === keyOf(rangeEnd)) {
-                      // Misma fecha: esperar otra vez
-                      rangeEnd = null;
-                      pickingEnd = true;
-                      setHint('Elige una fecha de salida diferente');
-                      renderCalendar(year, month);
-                      return;
-                    }
                     setHint('Toca cualquier fecha para cambiar el rango');
                   }
-                  renderCalendar(year, month);
+                  paintRange(year, month);
                   syncCard();
                 });
-              })(d);
+              })(d, td);
             }
 
             day++;
@@ -1230,6 +1201,51 @@
           tr.appendChild(td);
         }
         tbody.appendChild(tr);
+      }
+
+      paintRange(year, month);
+    }
+
+    /* ──────────────────────────────────────────────
+      PAINT: actualiza SOLO las clases de rango sobre
+      las celdas existentes. No toca el DOM estructural,
+      así el clic nunca se pierde.
+    ────────────────────────────────────────────── */
+    function paintRange(year, month) {
+      var tbody = document.getElementById('calBody');
+      if (!tbody) return;
+
+      var effEnd = rangeEnd;
+      if (pickingEnd && rangeStart && hoverDay !== null) {
+        effEnd = { y: year, m: month, d: hoverDay };
+      }
+
+      var ks = rangeStart ? keyOf(rangeStart) : null;
+      var ke = effEnd ? keyOf(effEnd) : null;
+      var lo = (ks && ke) ? Math.min(ks, ke) : ks;
+      var hi = (ks && ke) ? Math.max(ks, ke) : ke;
+
+      var cells = tbody.querySelectorAll('td[data-day]');
+      for (var i = 0; i < cells.length; i++) {
+        var cell = cells[i];
+        // Solo repintamos celdas disponibles (no past, no full)
+        if (cell.className.indexOf('cal-day--past') !== -1 ||
+            cell.className.indexOf('cal-day--full') !== -1) {
+          continue;
+        }
+
+        var d = parseInt(cell.getAttribute('data-day'), 10);
+        var k = key(year, month, d);
+        var cls;
+
+        if (ks && ke && k === lo && lo !== hi) cls = 'cal-day cal-day--range-start';
+        else if (ks && ke && k === hi && lo !== hi) cls = 'cal-day cal-day--range-end';
+        else if (lo && hi && k > lo && k < hi)
+          cls = (pickingEnd && !rangeEnd) ? 'cal-day cal-day--hover-range' : 'cal-day cal-day--in-range';
+        else if (ks && k === ks) cls = 'cal-day cal-day--range-start';
+        else cls = 'cal-day cal-day--available';
+
+        cell.className = cls;
       }
     }
 
@@ -1247,7 +1263,6 @@
       renderCalendar(currentYear, currentMonth);
     });
 
-    // Botones del card → scroll al calendario
     var btnCi = document.getElementById('btnCheckin');
     var btnCo = document.getElementById('btnCheckout');
     if (btnCi) btnCi.addEventListener('click', function () {
@@ -1322,7 +1337,6 @@
         return;
       }
 
-      // Verificar que no haya días agotados dentro del rango
       var sr = sorted();
       var hasBlocked = false;
       var cur = new Date(sr.s.y, sr.s.m, sr.s.d);
