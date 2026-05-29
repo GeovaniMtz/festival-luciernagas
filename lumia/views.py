@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from .forms import RegisterForm
+from django.contrib.auth.decorators import login_required
 
 def register_view(request):
     if request.method == 'POST':
@@ -21,6 +22,12 @@ def mapa(request):
 
 def parques_view(request):
     return render(request, 'parques.html')
+
+@login_required
+def perfil(request):
+    #reservaciones = request.user.reservaciones.all()  # ajusta al nombre de tu relación
+    #return render(request, "perfil.html", {"reservaciones": reservaciones})
+    return render(request, "perfil.html")
 
 def park_detail_view(request, park_name):
 

@@ -14,7 +14,7 @@ urlpatterns = [
     ), name='login'),
     
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    
+    path("perfil/", lumia_views.perfil, name="perfil"),
     path('register/', lumia_views.register_view, name='register'),
     path('explore/', lumia_views.explore_view, name='explore'),
     path('map/', lumia_views.mapa, name='map'),

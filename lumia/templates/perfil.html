@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mi Perfil — Lumia{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/perfil.css' %}" />
+{% endblock %}
+
+{% block content %}
+<section class="perfil page-content">
+  <div class="perfil__bg"></div>
+
+  <div class="perfil__container">
+
+    {# ════════════════ HEADER ════════════════ #}
+    <header class="perfil__header">
+      <div class="perfil__avatar">
+        {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+      </div>
+
+      <div class="perfil__identity">
+        <p class="perfil__eyebrow">Mi cuenta</p>
+        <h1 class="perfil__name">
+          {{ user.get_full_name|default:user.username }}
+        </h1>
+        <p class="perfil__email">
+          <span class="material-symbols-outlined">mail</span>
+          {{ user.email }}
+        </p>
+      </div>
+
+      <a href="#" class="perfil__edit-btn">
+        <span class="material-symbols-outlined">edit</span>
+        Modificar perfil
+      </a>
+    </header>
+
+    {# ════════════════ INFO + RESUMEN ════════════════ #}
+    <div class="perfil__grid">
+
+      {# ----- Información personal ----- #}
+      <article class="perfil__card">
+        <h2 class="perfil__card-title">
+          <span class="material-symbols-outlined">person</span>
+          Información personal
+        </h2>
+
+        <div class="perfil__field">
+          <div class="perfil__field-text">
+            <span class="perfil__field-label">Nombre completo</span>
+            <span class="perfil__field-value">
+              {{ user.get_full_name|default:"—" }}
+            </span>
+          </div>
+        </div>
+
+        <div class="perfil__field">
+          <div class="perfil__field-text">
+            <span class="perfil__field-label">Correo electrónico</span>
+            <span class="perfil__field-value">{{ user.email|default:"—" }}</span>
+          </div>
+        </div>
+
+        <div class="perfil__field">
+          <div class="perfil__field-text">
+            <span class="perfil__field-label">Contraseña</span>
+            <span class="perfil__field-value perfil__field-value--mask">••••••••••</span>
+          </div>
+          <a href="#" class="perfil__field-action">
+            <span class="material-symbols-outlined">lock_reset</span>
+            Cambiar
+          </a>
+        </div>
+      </article>
+
+      {# ----- Resumen ----- #}
+      <aside class="perfil__card perfil__card--stats">
+        <h2 class="perfil__card-title">
+          <span class="material-symbols-outlined">insights</span>
+          Resumen
+        </h2>
+
+        <div class="perfil__stat">
+          <div class="perfil__stat-icon">
+            <span class="material-symbols-outlined">confirmation_number</span>
+          </div>
+          <div>
+            <div class="perfil__stat-value">{{ reservaciones|length }}</div>
+            <div class="perfil__stat-label">Reservaciones</div>
+          </div>
+        </div>
+
+        <div class="perfil__stat">
+          <div class="perfil__stat-icon">
+            <span class="material-symbols-outlined">calendar_month</span>
+          </div>
+          <div>
+            <div class="perfil__stat-value">{{ user.date_joined|date:"Y" }}</div>
+            <div class="perfil__stat-label">Miembro desde</div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+
+    {# ════════════════ RESERVACIONES ════════════════ #}
+    <section class="perfil__reservas">
+      <div class="perfil__section-head">
+        <h2>
+          <span class="material-symbols-outlined">confirmation_number</span>
+          Mis reservaciones
+        </h2>
+        <span class="perfil__count">{{ reservaciones|length }}</span>
+      </div>
+
+      {% if reservaciones %}
+        <div class="perfil__reservas-list">
+          {% for r in reservaciones %}
+            <article class="reserva-card">
+              <div class="reserva-card__date">
+                <span class="reserva-card__day">{{ r.fecha|date:"d" }}</span>
+                <span class="reserva-card__month">{{ r.fecha|date:"M" }}</span>
+              </div>
+
+              <div class="reserva-card__info">
+                <h3>{{ r.tour }}</h3>
+                <div class="reserva-card__meta">
+                  <span>
+                    <span class="material-symbols-outlined">schedule</span>
+                    {{ r.fecha|date:"H:i" }} h
+                  </span>
+                  <span>
+                    <span class="material-symbols-outlined">group</span>
+                    {{ r.personas }} persona{{ r.personas|pluralize }}
+                  </span>
+                </div>
+              </div>
+
+              <span class="reserva-card__status reserva-card__status--{{ r.estado }}">
+                {{ r.get_estado_display }}
+              </span>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="perfil__empty">
+          <span class="material-symbols-outlined">nights_stay</span>
+          <p>Todavía no tienes reservaciones. Reserva tu lugar para ver brillar a las luciérnagas.</p>
+          <a href="#">
+            <span class="material-symbols-outlined">add</span>
+            Hacer una reservación
+          </a>
+        </div>
+      {% endif %}
+    </section>
+
+  </div>
+</section>
+{% endblock %}
