@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from .forms import RegisterForm
 from django.contrib.auth.decorators import login_required
+import random, string
+from datetime import datetime
 
 def register_view(request):
     if request.method == 'POST':
@@ -41,9 +43,8 @@ def perfil(request):
     #return render(request, "perfil.html", {"reservaciones": reservaciones})
     return render(request, "perfil.html")
 
-def park_detail_view(request, park_name):
 
-    parks = {
+PARKS = {
 
         'chalco': {
             'name': 'Parque Chalco',
@@ -303,14 +304,60 @@ def park_detail_view(request, park_name):
             {'value': 'camping', 'label': 'Camping'},
         ],
     },
-    }
+}
 
-    park = parks.get(park_name)
-
+def park_detail_view(request, park_name):
+    park = PARKS.get(park_name)
     if not park:
         return redirect('parks')
-
     return render(request, 'park-detail.html', {
         'park': park,
-        'park_name': park_name
+        'park_name': park_name,
     })
+
+
+@login_required
+def confirm_reservation_view(request, park_name):
+    """
+    Procesa el POST de 'Confirmar Reserva' desde park-detail.
+    Si el usuario no está logueado, Django redirige al login (login_required).
+    Con GET directo redirige al detalle del parque.
+    """
+    park = PARKS.get(park_name)
+    if not park:
+        return redirect('parks')
+ 
+    if request.method == 'POST':
+        # Leer datos del formulario
+        checkin   = request.POST.get('checkin', '')
+        checkout  = request.POST.get('checkout', '')
+        adults    = request.POST.get('adults', '2')
+        kids      = request.POST.get('kids', '0')
+        lodge     = request.POST.get('lodge_type', 'Cabaña')
+ 
+        # Generar ID único de reserva
+        suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+        reservation_id = f'#LUM-2026-{suffix}'
+ 
+        # Visitantes
+        total_visitors = int(adults or 1) + int(kids or 0)
+        visitors_label = f'{total_visitors} persona{"s" if total_visitors != 1 else ""}'
+ 
+        reservation = {
+            'id':         reservation_id,
+            'visitors':   visitors_label,
+            'date':       checkin,
+            'checkout':   checkout,
+            'entry_time': '19:30 - 21:00',
+            'lodge':      lodge,
+        }
+ 
+        return render(request, 'confirmacion.html', {
+            'park':        park,
+            'park_name':   park_name,
+            'reservation': reservation,
+        })
+ 
+    # GET directo → volver al detalle
+    return redirect('park_detail', park_name=park_name)
+ 
