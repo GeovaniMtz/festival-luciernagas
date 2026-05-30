@@ -595,37 +595,10 @@
         <div class="confirm-pass">
 
           <!-- QR simulado con CSS -->
-          <div class="confirm-qr" aria-label="Código QR de tu reserva">
-            <!-- Fila 1: patrón esquina superior izquierda -->
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <!-- Fila 2 -->
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <div class="confirm-qr__cell"></div>
-            <div class="confirm-qr__cell"></div>
-            <div class="confirm-qr__cell"></div>
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <!-- Fila 3 -->
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <div class="confirm-qr__cell"></div>
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <div class="confirm-qr__cell"></div>
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <!-- Fila 4 -->
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <div class="confirm-qr__cell"></div>
-            <div class="confirm-qr__cell"></div>
-            <div class="confirm-qr__cell"></div>
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <!-- Fila 5 -->
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
-            <div class="confirm-qr__cell confirm-qr__cell--dark"></div>
+          <div id="qrContainer" aria-label="Código QR de tu reserva"
+            style="flex-shrink:0;width:100px;height:100px;
+                  background:#fff;border-radius:8px;padding:6px;
+                  display:flex;align-items:center;justify-content:center;">
           </div>
 
           <div class="confirm-pass__info">
@@ -636,12 +609,11 @@
               te incluye el mapa en PDF.
             </p>
             <div class="confirm-pass__actions">
-              <button class="btn-pass" type="button" onclick="window.print()">
+              <button class="btn-pass" type="button" id="btnPDF">
                 <span class="material-symbols-outlined">download</span>
                 Guardar PDF
               </button>
-              <button class="btn-pass btn-pass--primary" type="button"
-                onclick="navigator.share ? navigator.share({title:'Lumia — Reserva',text:'Mi reserva #{{ reservation.id }}'}) : null">
+              <button class="btn-pass btn-pass--primary" type="button">
                 <span class="material-symbols-outlined">share</span>
                 Compartir
               </button>
@@ -714,8 +686,7 @@
             <span>Temperatura estimada:</span>
             <span class="confirm-temp-row__value">14°C – 16°C</span>
           </div>
-          <button class="btn-calendar" type="button"
-            onclick="addToCalendar('{{ park.name }}', '{{ reservation.date }}')">
+          <button class="btn-calendar" type="button" id="calendarBtn">
             <span class="material-symbols-outlined">calendar_add_on</span>
             Añadir a Calendario
           </button>
@@ -747,16 +718,309 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
-  function addToCalendar(parkName, dateStr) {
-    // Construcción básica de enlace Google Calendar
-    var title = encodeURIComponent('Festival de Luciérnagas 2026 — ' + parkName);
-    var details = encodeURIComponent('Tu reserva en ' + parkName + '. Llega 30 min antes.');
-    // dateStr esperado: "15 de Julio, 2026" → necesitamos formato YYYYMMDD
-    var url = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
-            + '&text=' + title
-            + '&details=' + details;
-    window.open(url, '_blank', 'noopener,noreferrer');
+(function () {
+
+  /* ── Datos desde el contexto Django ── */
+  var RESERVA = {
+    id:         '{{ reservation.id|default:"LUM-2026-X892" }}',
+    parkName:   '{{ park.name|default:"Bosque Esmeralda" }}',
+    parkAddr:   '{{ park.address|default:"Amecameca, Estado de México" }}',
+    fecha:      '{{ reservation.date|default:"15 de Julio, 2026" }}',
+    hora:       '{{ reservation.entry_time|default:"19:30 - 21:00" }}',
+    visitantes: '{{ reservation.visitors|default:"2 Personas" }}',
+  };
+
+  var QR_URL = window.location.origin + '/reservas/' + RESERVA.id + '/';
+
+  /* ════════════════════════════════════════════════
+     1. GENERAR QR
+  ════════════════════════════════════════════════ */
+  var qrDataURL   = null;
+  var qrContainer = document.getElementById('qrContainer');
+
+  new QRCode(qrContainer, {
+    text:         QR_URL,
+    width:        88,
+    height:       88,
+    colorDark:    '#121414',
+    colorLight:   '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M,
+  });
+
+  function extractQRDataURL() {
+    var canvas = qrContainer.querySelector('canvas');
+    if (canvas) { qrDataURL = canvas.toDataURL('image/png'); return; }
+    var img = qrContainer.querySelector('img');
+    if (img && img.complete && img.src) { qrDataURL = img.src; return; }
+    setTimeout(extractQRDataURL, 200);
   }
+  setTimeout(extractQRDataURL, 300);
+
+  /* ════════════════════════════════════════════════
+     2. HELPERS
+  ════════════════════════════════════════════════ */
+
+  function loadImage(url) {
+    return new Promise(function (resolve) {
+      var img        = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload  = function () {
+        var c    = document.createElement('canvas');
+        c.width  = img.width;
+        c.height = img.height;
+        c.getContext('2d').drawImage(img, 0, 0);
+        resolve(c.toDataURL('image/png'));
+      };
+      img.onerror = function () { resolve(null); };
+      img.src = url;
+    });
+  }
+
+  function renderParticles(w, h, count) {
+    var c    = document.createElement('canvas');
+    c.width  = w;
+    c.height = h;
+    var ctx  = c.getContext('2d');
+    var COLORS = ['#A3E635','#FEE715','#4ECBA5','#22C55E','#E8F94A'];
+    function rand(a, b) { return Math.random() * (b - a) + a; }
+
+    for (var i = 0; i < count; i++) {
+      var x     = rand(0, w);
+      var y     = rand(0, h);
+      var size  = rand(1.2, 3.0);
+      var alpha = rand(0.15, 0.55);
+      var color = COLORS[Math.floor(Math.random() * COLORS.length)];
+
+      var g = ctx.createRadialGradient(x, y, 0, x, y, size * 5);
+      g.addColorStop(0, color);
+      g.addColorStop(1, 'transparent');
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle   = g;
+      ctx.beginPath();
+      ctx.arc(x, y, size * 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.globalAlpha = Math.min(1, alpha * 1.8);
+      ctx.fillStyle   = '#fff';
+      ctx.beginPath();
+      ctx.arc(x, y, size * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    return c.toDataURL('image/png');
+  }
+
+  /* ════════════════════════════════════════════════
+     3. CONSTRUIR PDF — devuelve el objeto jsPDF
+  ════════════════════════════════════════════════ */
+  function buildPDF(logoDataURL, logoTextDataURL) {
+    var doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    var W   = 210;
+    var H   = 297;
+
+    /* Fondo oscuro */
+    doc.setFillColor(18, 20, 20);
+    doc.rect(0, 0, W, H, 'F');
+
+    /* Partículas */
+    var particlesURL = renderParticles(840, 1190, 140);
+    doc.addImage(particlesURL, 'PNG', 0, 0, W, H);
+
+    /* Logo */
+    if (logoDataURL)     doc.addImage(logoDataURL,     'PNG', 14, 10, 14, 14);
+    if (logoTextDataURL) doc.addImage(logoTextDataURL, 'PNG', 30, 13, 32,  8);
+    else {
+      doc.setTextColor(170, 206, 201);
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text('LUMIA', 32, 20);
+    }
+
+    doc.setTextColor(139, 146, 145);
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Festival Internacional de las Luciérnagas 2026', W - 14, 17, { align: 'right' });
+
+    /* Título */
+    doc.setTextColor(226, 226, 226);
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Tu Pase Digital', W / 2, 40, { align: 'center' });
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(193, 200, 198);
+    doc.text('Presenta este código en la entrada principal del parque', W / 2, 48, { align: 'center' });
+
+    /* QR */
+    var qrSize = 60;
+    var qrX    = (W - qrSize) / 2;
+    var qrY    = 56;
+
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(qrX - 5, qrY - 5, qrSize + 10, qrSize + 10, 4, 4, 'F');
+    doc.addImage(qrDataURL, 'PNG', qrX, qrY, qrSize, qrSize);
+
+    doc.setTextColor(107, 114, 128);
+    doc.setFontSize(7);
+    doc.text(QR_URL, W / 2, qrY + qrSize + 8, { align: 'center' });
+
+    /* Divisor */
+    doc.setDrawColor(65, 72, 71);
+    doc.setLineWidth(0.3);
+    doc.line(14, qrY + qrSize + 14, W - 14, qrY + qrSize + 14);
+
+    /* Datos */
+    var sy   = qrY + qrSize + 24;
+    var c1   = 14;
+    var c2   = W / 2 + 4;
+    var rowH = 18;
+
+    function campo(label, val, x, y) {
+      doc.setTextColor(107, 114, 128);
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'normal');
+      doc.text(label.toUpperCase(), x, y);
+      doc.setTextColor(226, 226, 226);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(val, x, y + 6);
+    }
+
+    campo('ID de Reserva', RESERVA.id,         c1, sy);
+    campo('Visitantes',    RESERVA.visitantes,  c2, sy);
+    campo('Fecha',         RESERVA.fecha,       c1, sy + rowH);
+    campo('Hora',          RESERVA.hora,        c2, sy + rowH);
+
+    var parkY = sy + rowH * 2 + 4;
+    doc.setDrawColor(65, 72, 71);
+    doc.line(14, parkY, W - 14, parkY);
+    campo('Parque',    RESERVA.parkName, c1, parkY + 10);
+    campo('Ubicación', RESERVA.parkAddr, c2, parkY + 10);
+
+    /* Consejos */
+    var tipsY = parkY + 28;
+    doc.setFillColor(30, 32, 32);
+    doc.roundedRect(14, tipsY, W - 28, 50, 4, 4, 'F');
+
+    doc.setTextColor(226, 226, 226);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Consejos para tu visita', 22, tipsY + 10);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(193, 200, 198);
+    var tips = [
+      '• Usa ropa oscura y calzado cerrado.',
+      '• Evita linternas o flashes de cámara.',
+      '• Llega 30 minutos antes del registro.',
+      '• Permanece en los senderos marcados.',
+    ];
+    tips.slice(0, 2).forEach(function (t, i) { doc.text(t, 22,       tipsY + 22 + i * 10); });
+    tips.slice(2).forEach(function  (t, i) { doc.text(t, W / 2 + 4, tipsY + 22 + i * 10); });
+
+    /* Footer */
+    doc.setFillColor(10, 15, 14);
+    doc.rect(0, 279, W, 18, 'F');
+    doc.setTextColor(139, 146, 145);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text('© 2026 LUMIA — Festival Internacional de las Luciérnagas', W / 2, 290, { align: 'center' });
+
+    return doc;
+  }
+
+  /* Carga logos y devuelve el doc listo (Promise) */
+  function getPDF() {
+    if (!qrDataURL) return Promise.reject('qr-not-ready');
+    return Promise.all([
+      loadImage('/static/img/logo.png'),
+      loadImage('/static/img/logo-text.png'),
+    ]).then(function (res) {
+      return buildPDF(res[0], res[1]);
+    });
+  }
+
+  /* ════════════════════════════════════════════════
+     4. LISTENERS
+  ════════════════════════════════════════════════ */
+
+  /* Guardar PDF */
+  var btnPDF = document.getElementById('btnPDF');
+  if (btnPDF) {
+    btnPDF.addEventListener('click', function () {
+      getPDF()
+        .then(function (doc) { doc.save('pase-lumia-' + RESERVA.id + '.pdf'); })
+        .catch(function () { alert('El código QR todavía se está generando. Intenta en un momento.'); });
+    });
+  }
+
+  /* Compartir */
+  var btnShare = document.querySelector('.btn-pass--primary');
+  if (btnShare) {
+    btnShare.addEventListener('click', function () {
+
+      var fileName = 'pase-lumia-' + RESERVA.id + '.pdf';
+      var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+      /* ── Móvil: intentar compartir el PDF como archivo ── */
+      if (isMobile && navigator.share) {
+        getPDF()
+          .then(function (doc) {
+            var blob = doc.output('blob');
+            var file = new File([blob], fileName, { type: 'application/pdf' });
+
+            /* Verificar que el navegador acepte archivos PDF */
+            var canShareFile = false;
+            try { canShareFile = navigator.canShare && navigator.canShare({ files: [file] }); }
+            catch (e) {}
+
+            if (canShareFile) {
+              return navigator.share({
+                title: 'Pase Digital — Festival de Luciérnagas 2026',
+                text:  RESERVA.parkName + ' · ' + RESERVA.fecha,
+                files: [file],
+              }).catch(function () {
+                /* Usuario canceló — no hacer nada */
+              });
+            } else {
+              /* El navegador móvil no acepta PDF: descargar directamente */
+              doc.save(fileName);
+            }
+          })
+          .catch(function () {
+            alert('El código QR todavía se está generando. Intenta en un momento.');
+          });
+
+      /* ── Escritorio: descargar el PDF ── */
+      } else {
+        getPDF()
+          .then(function (doc) { doc.save(fileName); })
+          .catch(function () {
+            alert('El código QR todavía se está generando. Intenta en un momento.');
+          });
+      }
+    });
+  }
+
+  /* Calendario */
+  var btnCal = document.getElementById('calendarBtn');
+  if (btnCal) {
+    btnCal.addEventListener('click', function () {
+      var title   = encodeURIComponent('Festival de Luciérnagas 2026 — ' + RESERVA.parkName);
+      var details = encodeURIComponent('Reserva #' + RESERVA.id + '. Llega 30 min antes. ' + RESERVA.parkAddr);
+      window.open(
+        'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + title + '&details=' + details,
+        '_blank', 'noopener,noreferrer'
+      );
+    });
+  }
+
+})();
 </script>
 {% endblock %}

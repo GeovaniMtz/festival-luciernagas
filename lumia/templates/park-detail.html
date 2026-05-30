@@ -801,10 +801,16 @@
       grid-template-columns: 1fr 1fr;
       height: auto;
       grid-template-rows: 260px 260px;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .park-layout {
+      padding-top: 8px;    
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 769px) {
     .park-gallery {
       grid-template-columns: 1fr;
       grid-template-rows: 300px 180px 180px;
@@ -820,9 +826,47 @@
 
     .park-gallery__badge h1 { font-size: 28px; }
 
-  .park-layout { padding: 20px 16px 60px; gap: 20px; }
+  .park-layout { padding: 8px 16px 60px; gap: 20px; }
   .park-gallery { padding: 20px 16px 0; }
   }
+
+  /* ── Fix móvil: badge visible sobre partículas ── */
+.park-gallery__badge {
+  z-index: 2;
+}
+
+@media (max-width: 769px) {
+  .park-gallery__badge { display: none; }
+}
+
+/* ── Reduce espacio entre galería y contenido ── */
+@media (max-width: 769px) {
+  .park-layout {
+    padding: 0px 16px 60px;  /* ← top reducido, mantiene los laterales y bottom */
+    gap: 20px;
+  }
+}
+
+.park-mobile-title {
+  display: none;
+}
+
+@media (max-width: 769px) {
+  .park-mobile-title {
+    display: block;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 16px 16px 0;
+  }
+
+  .park-mobile-title h1 {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 400;
+    color: #E2E2E2;
+  }
+}
+
 </style>
 {% endblock %}
 
@@ -851,6 +895,11 @@
       <img src="{{ park.images.2 }}" alt="{{ park.name }} foto 3" />
     </div>
 
+  </div>
+
+    <!-- Título solo visible en móvil -->
+  <div class="park-mobile-title">
+    <h1>{{ park.name }}</h1>
   </div>
 
   <!-- ══════════════ LAYOUT ══════════════ -->
