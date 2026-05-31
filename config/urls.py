@@ -23,6 +23,7 @@ urlpatterns = [
     path('map/', lumia_views.mapa, name='map'),
     path('explore/parks/', lumia_views.parques_view, name='parks'),
     path('explore/parks/<str:park_name>/', lumia_views.park_detail_view, name='park_detail'),
+    path('festival/', lumia_views.festival_view, name='festival'),
 
     # ── Confirmación de reserva ──────────────────────────────────
     # POST desde el formulario de park-detail

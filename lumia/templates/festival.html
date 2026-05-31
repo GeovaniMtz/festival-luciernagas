@@ -1,0 +1,1004 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}El Festival — Lumia{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ═══════════════════════════════════════════════
+   FESTIVAL INFO — mezcla de estilos
+═══════════════════════════════════════════════ */
+
+    .festival-page {
+        position: relative;
+        background: #121414;
+        min-height: 100vh;
+    }
+
+    #particlesCanvas {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    .fest-hero,
+    .fest-science,
+    .fest-history,
+    .fest-commitment,
+    .fest-reglamento,
+    .fest-cta {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ── HERO (estilo explorar) ── */
+    .fest-hero {
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        overflow: hidden;
+        padding-top: calc(var(--navbar-h) + 48px);
+        padding-bottom: 32px;
+    }
+
+    .fest-hero__bg {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+    }
+
+    .fest-hero__bg img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.60;
+    }
+
+    .fest-hero__bg-gradient {
+        display: none;
+    }
+
+    .fest-hero__content {
+        position: relative;
+        z-index: 2;
+        max-width: 896px;
+        width: 100%;
+        padding: 0 40px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        text-align: center;
+    }
+
+    .fest-hero__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(163, 230, 53, 0.10);
+        border: 1px solid rgba(163, 230, 53, 0.30);
+        border-radius: 100px;
+        padding: 6px 16px;
+    }
+
+    .fest-hero__badge-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #A3E635;
+        box-shadow: 0 0 8px rgba(163, 230, 53, 0.70);
+        animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+
+        0%,
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.6;
+            transform: scale(0.85);
+        }
+    }
+
+    .fest-hero__badge-text {
+        font-family: var(--font-body);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #A3E635;
+    }
+
+    .fest-hero__title {
+        font-family: 'Montserrat', var(--font-display);
+        font-size: clamp(44px, 7vw, 72px);
+        font-weight: 700;
+        line-height: 1.05;
+        color: #fff;
+    }
+
+    .fest-hero__title span {
+        color: #A3E635;
+        text-shadow: 0 0 20px rgba(163, 230, 53, 0.40);
+    }
+
+    .fest-hero__desc {
+        font-family: var(--font-body);
+        font-size: 18px;
+        line-height: 28px;
+        color: #E2E2E2;
+        max-width: 560px;
+    }
+
+    .fest-hero__meta {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .fest-hero__meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--font-body);
+        font-size: 14px;
+        color: #AACEC9;
+        background: rgba(40, 42, 43, 0.70);
+        border: 1px solid #414847;
+        border-radius: 100px;
+        padding: 6px 14px;
+        backdrop-filter: blur(6px);
+    }
+
+    .fest-hero__meta-item .material-symbols-outlined {
+        font-size: 18px;
+        color: #A3E635;
+    }
+
+    .fest-hero__btns {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 8px;
+    }
+
+    .btn-fest-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #16a34a;
+        color: #133633;
+        font-family: var(--font-body);
+        font-size: 15px;
+        font-weight: 600;
+        padding: 12px 28px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        
+    }
+
+    .btn-fest-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 28px rgba(170, 206, 201, 0.35);
+    }
+
+    .btn-fest-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        color: #B7E4C7;
+        font-family: var(--font-body);
+        font-size: 15px;
+        font-weight: 600;
+        padding: 12px 28px;
+        border-radius: 10px;
+        border: 1px solid #B7E4C7;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.15s;
+    }
+
+    .btn-fest-secondary:hover {
+        background: rgba(183, 228, 199, 0.10);
+    }
+
+    /* ── WRAPPER general de secciones ── */
+    .fest-sections {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 40px 80px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    /* Sección sin tarjeta */
+    .fest-section-bare {
+        padding: 16px 0;
+    }
+
+    /* Tarjeta base — glassmorphism sutil */
+    .fest-card {
+        background: rgba(26, 28, 28, 0.55);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(65, 72, 71, 0.50);
+        border-radius: 20px;
+        padding: 48px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* ── SCIENCE — split con imagen ── */
+    .fest-science__grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 48px;
+        align-items: center;
+    }
+
+    .fest-science__img-wrap {
+        position: relative;
+    }
+
+    .fest-science__img-glow {
+        position: absolute;
+        inset: -16px;
+        background: rgba(163, 230, 53, 0.10);
+        border-radius: 16px;
+        filter: blur(32px);
+        transition: background 0.3s;
+    }
+
+    .fest-science__img-wrap:hover .fest-science__img-glow {
+        background: rgba(163, 230, 53, 0.20);
+    }
+
+    .fest-science__img {
+        position: relative;
+        border-radius: 14px;
+        width: 100%;
+        height: 420px;
+        object-fit: cover;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.40);
+    }
+
+    .fest-science__img-badge {
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        background: rgba(4, 71, 75, 0.70);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 12px;
+        padding: 12px 16px;
+    }
+
+    .fest-science__img-badge-label {
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #FEE715;
+        margin-bottom: 4px;
+    }
+
+    .fest-science__img-badge-name {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 600;
+        color: #E2E2E2;
+        font-style: italic;
+    }
+
+    .fest-science__label {
+        font-family: var(--font-body);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.10em;
+        text-transform: uppercase;
+        color: #AACEC9;
+        margin-bottom: 12px;
+    }
+
+    .fest-science__title {
+        font-family: var(--font-display);
+        font-size: 30px;
+        font-weight: 600;
+        color: #E2E2E2;
+        line-height: 1.2;
+        margin-bottom: 16px;
+    }
+
+    .fest-science__body {
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 26px;
+        color: #C1C8C6;
+        margin-bottom: 12px;
+    }
+
+    .fest-science__body .highlight {
+        color: #55ddb0;
+    }
+
+    .fest-science__stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .fest-science__stat {
+        background: #1A1C1C;
+        border: 1px solid #414847;
+        border-radius: 12px;
+        padding: 16px;
+    }
+
+    .fest-science__stat-num {
+        font-family: var(--font-display);
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .fest-science__stat-num--lime {
+        color: #A3E635;
+    }
+
+    .fest-science__stat-label {
+        font-family: var(--font-body);
+        font-size: 13px;
+        line-height: 18px;
+        color: #C1C8C6;
+    }
+
+    /* ── HISTORY — bento grid ── */
+    .fest-history__header {
+        margin-bottom: 32px;
+    }
+
+    .fest-history__title {
+        font-family: var(--font-display);
+        font-size: 34px;
+        font-weight: 600;
+        color: #E2E2E2;
+        margin-bottom: 6px;
+    }
+
+    .fest-history__sub {
+        font-family: var(--font-body);
+        font-size: 14px;
+        font-weight: 600;
+        color: #AACEC9;
+        letter-spacing: 0.05em;
+    }
+
+    .fest-bento {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .fest-bento__card {
+        border-radius: 14px;
+        overflow: hidden;
+        position: relative;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        min-height: 220px;
+    }
+
+    .fest-bento__card--origins {
+        grid-column: span 2;
+        background: #1A1C1C;
+        border: 1px solid #414847;
+    }
+
+    .fest-bento__card--origins img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.30;
+    }
+
+    .fest-bento__card--origins::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(12, 15, 15, 0.95) 0%, transparent 60%);
+    }
+
+    .fest-bento__card--origins>*:not(img) {
+        position: relative;
+        z-index: 1;
+    }
+
+    .fest-bento__card--growth {
+        background: #0A2E2B;
+        border: 1px solid rgba(170, 206, 201, 0.20);
+        justify-content: space-between;
+    }
+
+    .fest-bento__card--community {
+        background: #0A2E2B;
+        border: 1px solid rgba(170, 206, 201, 0.20);
+        justify-content: flex-start;
+    }
+
+    .fest-bento__card--future {
+        grid-column: span 2;
+        background: #0A2E2B;
+        border: 1px solid rgba(170, 206, 201, 0.20);
+        flex-direction: row;
+        align-items: center;
+        gap: 24px;
+        min-height: 140px;
+        justify-content: flex-start;
+    }
+
+    .fest-bento__card-icon {
+        font-size: 40px;
+        color: #AACEC9;
+        flex-shrink: 0;
+    }
+
+    .fest-bento__card-title {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 600;
+        color: #E2E2E2;
+        margin-bottom: 8px;
+    }
+
+    .fest-bento__card--growth .fest-bento__card-title {
+        color: #E2E2E2;
+    }
+
+    .fest-bento__card--community .fest-bento__card-title {
+        color: #E2E2E2;
+    }
+
+    .fest-bento__card--future .fest-bento__card-title {
+        color: #E2E2E2;
+    }
+
+    .fest-bento__card-text {
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 24px;
+        color: #C1C8C6;
+    }
+
+    /* ── COMMITMENT ── */
+    .fest-commitment__title {
+        font-family: var(--font-display);
+        font-size: 34px;
+        font-weight: 600;
+        color: #E2E2E2;
+        margin-bottom: 28px;
+        text-align: center;
+    }
+
+    .fest-commitment__grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+
+    .fest-commitment__card {
+        background: #1E2020;
+        border-radius: 14px;
+        padding: 28px;
+        border: 1px solid #414847;
+        border-bottom: 3px solid transparent;
+        transition: transform 0.2s;
+        isolation: isolate;
+    }
+
+    .fest-commitment__card:hover {
+        transform: translateY(-5px);
+    }
+
+    .fest-commitment__card--lime {
+        border-bottom-color: #A3E635;
+    }
+
+    .fest-commitment__card--yellow {
+        border-bottom-color: #FEE715;
+    }
+
+    .fest-commitment__card--teal {
+        border-bottom-color: #AACEC9;
+    }
+
+    .fest-commitment__icon-wrap {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+    }
+
+    .fest-commitment__icon-wrap--lime {
+        background: rgba(163, 230, 53, 0.10);
+    }
+
+    .fest-commitment__icon-wrap--yellow {
+        background: rgba(254, 231, 21, 0.10);
+    }
+
+    .fest-commitment__icon-wrap--teal {
+        background: rgba(170, 206, 201, 0.10);
+    }
+
+    .fest-commitment__icon-wrap .material-symbols-outlined {
+        font-size: 26px;
+    }
+
+    .fest-commitment__icon-wrap--lime .material-symbols-outlined {
+        color: #A3E635;
+    }
+
+    .fest-commitment__icon-wrap--yellow .material-symbols-outlined {
+        color: #FEE715;
+    }
+
+    .fest-commitment__icon-wrap--teal .material-symbols-outlined {
+        color: #AACEC9;
+    }
+
+    .fest-commitment__card-title {
+        font-family: var(--font-display);
+        font-size: 17px;
+        font-weight: 600;
+        color: #E2E2E2;
+        margin-bottom: 10px;
+    }
+
+    .fest-commitment__card-text {
+        font-family: var(--font-body);
+        font-size: 14px;
+        line-height: 22px;
+        color: #C1C8C6;
+    }
+
+    /* ── REGLAMENTO — tarjetas centradas ── */
+    .fest-reglamento__header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+    .fest-reglamento__title {
+        font-family: var(--font-display);
+        font-size: 34px;
+        font-weight: 600;
+        color: #E2E2E2;
+        margin-bottom: 6px;
+    }
+
+    .fest-reglamento__sub {
+        font-family: var(--font-body);
+        font-size: 14px;
+        color: #AACEC9;
+    }
+
+    .fest-reglamento__glass-icon {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        font-size: 96px;
+        color: rgba(163, 230, 53, 0.04);
+        user-select: none;
+        pointer-events: none;
+        font-family: 'Material Symbols Outlined';
+    }
+
+    .fest-rules-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+
+    .fest-rule-card {
+        background: #1E2020;
+        border: 1px solid #414847;
+        border-radius: 16px;
+        padding: 28px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+        transition: border-color 0.2s, transform 0.2s;
+        isolation: isolate;
+    }
+
+    .fest-rule-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(170, 206, 201, 0.30);
+    }
+
+    .fest-rule-card .material-symbols-outlined {
+        font-size: 32px;
+        color: #E2E2E2;
+    }
+
+    .fest-rule-card__title {
+        font-family: var(--font-body);
+        font-size: 17px;
+        font-weight: 600;
+        color: #E2E2E2;
+    }
+
+    .fest-rule-card__text {
+        font-family: var(--font-body);
+        font-size: 14px;
+        line-height: 22px;
+        color: #C1C8C6;
+    }
+
+    .fest-reglamento__warning {
+        margin-top: 28px;
+        padding: 12px 20px;
+        background: rgba(239, 68, 68, 0.08);
+        border: 1px solid rgba(239, 68, 68, 0.20);
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .fest-reglamento__warning p {
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: #fca5a5;
+        font-style: italic;
+    }
+
+    /* ── CTA ── */
+    .fest-cta {
+        text-align: center;
+    }
+
+    .fest-cta__title {
+        font-family: var(--font-display);
+        font-size: clamp(28px, 3vw, 40px);
+        font-weight: 700;
+        color: #E2E2E2;
+        line-height: 1.1;
+        margin-bottom: 12px;
+    }
+
+    .fest-cta__sub {
+        font-family: var(--font-body);
+        font-size: 16px;
+        color: #C1C8C6;
+        line-height: 26px;
+        margin-bottom: 28px;
+        max-width: 560px;
+        margin-inline: auto;
+    }
+
+    .btn-fest-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background:#16a34a;
+        color: #003828;
+        font-family: var(--font-body);
+        font-size: 15px;
+        font-weight: 600;
+        padding: 14px 32px;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        
+    }
+
+    .btn-fest-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 32px rgba(85, 221, 176, 0.35);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+        .fest-hero__content {
+            padding: 0 20px 60px;
+        }
+
+        .fest-sections {
+            padding: 0 16px 60px;
+            gap: 16px;
+        }
+
+        .fest-card {
+            padding: 28px 20px;
+        }
+
+        .fest-science__grid {
+            grid-template-columns: 1fr;
+            gap: 32px;
+        }
+
+        .fest-science__img {
+            height: 280px;
+        }
+
+        .fest-bento {
+            grid-template-columns: 1fr;
+        }
+
+        .fest-bento__card--origins,
+        .fest-bento__card--future {
+            grid-column: span 1;
+        }
+
+        .fest-bento__card--future {
+            flex-direction: column;
+            gap: 12px;
+            min-height: auto;
+        }
+
+        .fest-commitment__grid {
+            grid-template-columns: 1fr;
+        }
+
+        .fest-rules-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap');
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="festival-page">
+    {% include "components/particles.html" %}
+
+    <!-- ═══════════ HERO ═══════════ -->
+    <section class="fest-hero">
+        <div class="fest-hero__bg">
+            <div class="fest-hero__bg-gradient"></div>
+        </div>
+        <div class="fest-hero__content">
+            <div class="fest-hero__badge">
+                <span class="fest-hero__badge-dot"></span>
+                <span class="fest-hero__badge-text">Edición 2026</span>
+            </div>
+            <h1 class="fest-hero__title">
+                Festival Internacional<br />de las <span>Luciérnagas</span>
+            </h1>
+            <p class="fest-hero__desc">
+                Un fenómeno bioluminiscente único en el mundo, donde miles de luciérnagas
+                iluminan los bosques de México en perfecta sincronía.
+            </p>
+            <div class="fest-hero__meta">
+                <div class="fest-hero__meta-item">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    Mayo – Julio 2026
+                </div>
+                <div class="fest-hero__meta-item">
+                    <span class="material-symbols-outlined">location_on</span>
+                    Estado de México, Tlaxcala y Michoacán
+                </div>
+                <div class="fest-hero__meta-item">
+                    <span class="material-symbols-outlined">schedule</span>
+                    19:30 – 21:00
+                </div>
+            </div>
+            <div class="fest-hero__btns">
+                <a href="/explore" class="btn-fest-primary">
+                    <span class="material-symbols-outlined">forest</span>
+                    Explorar el Bosque
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════ SECCIONES EN TARJETAS ═══════════ -->
+    <div class="fest-sections">
+
+        <!-- Ciencia -->
+        <div class="fest-card" id="fenomeno">
+            <div class="fest-science__grid">
+                <div class="fest-science__img-wrap">
+                    <div class="fest-science__img-glow"></div>
+                    <img class="fest-science__img"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDac9wlq_puj7k-TA1UVc0HY6RigXITqiEerrRthnIz-nObHL3W9V9QiYD_EK5M7CSF5r93hHE7OnytlGu4Cu9YHiEVOBEKR8cogzLJ0aZmSvDW9Fd2paSfYGa1m1o1ShTjKCUxCrh5Df9SC7lHZl1i_AHn2yqihrBNWXjzZ087lQ1D2sgOdKhWoQxoW21RjFJte2zCCQoavX5Nqclp7J12nE9EqjuDXMcV2U8_zmhlDzL6dbPByHNwVkwHPobTbBVzFzgx3X_0s1c"
+                        alt="Luciérnaga bioluminiscente" />
+                    <div class="fest-science__img-badge">
+                        <div class="fest-science__img-badge-label">Especie endémica</div>
+                        <div class="fest-science__img-badge-name">Photinus pyralis</div>
+                    </div>
+                </div>
+                <div>
+                    <p class="fest-science__label">El fenómeno</p>
+                    <h2 class="fest-science__title">El Secreto de la Bioluminiscencia</h2>
+                    <p class="fest-science__body">
+                        No es magia, es una coreografía evolutiva. La bioluminiscencia
+                        es el resultado de una reacción química donde la luciferasa actúa sobre la luciferina,
+                        produciendo luz sin calor.
+                    </p>
+                    <p class="fest-science__body">
+                        En los bosques del festival, los machos vuelan emitiendo destellos rítmicos mientras
+                        las hembras responden desde la hojarasca, creando una sincronía visible solo en la
+                        oscuridad total.
+                    </p>
+                    <div class="fest-science__stats">
+                        <div class="fest-science__stat">
+                            <div class="fest-science__stat-num fest-science__stat-num--lime">98%</div>
+                            <div class="fest-science__stat-label">Eficiencia energética (luz fría)</div>
+                        </div>
+                        <div class="fest-science__stat">
+                            <div class="fest-science__stat-num fest-science__stat-num--lime">2.5k</div>
+                            <div class="fest-science__stat-label">Especies registradas globalmente</div>
+                        </div>
+                        <div class="fest-science__stat">
+                            <div class="fest-science__stat-num fest-science__stat-num--lime">9+</div>
+                            <div class="fest-science__stat-label">Parques certificados en México</div>
+                        </div>
+                        <div class="fest-science__stat">
+                            <div class="fest-science__stat-num fest-science__stat-num--lime">8 sem</div>
+                            <div class="fest-science__stat-label">Semanas de temporada activa</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historia bento -->
+        <div class="fest-section-bare">
+            <div class="fest-history__header">
+                <h2 class="fest-history__title">Nuestra Trayectoria</h2>
+                <p class="fest-history__sub">Desde el primer destello en 2011</p>
+            </div>
+            <div class="fest-bento">
+                <div class="fest-bento__card fest-bento__card--origins">
+                    <img src="https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80" alt="Bosque" />
+                    <h3 class="fest-bento__card-title">Raíces Profundas (2011)</h3>
+                    <p class="fest-bento__card-text">El festival nació para proteger el hábitat de la luciérnaga ante la
+                        urbanización, transformando la curiosidad local en un modelo de conservación científica
+                        reconocido internacionalmente.</p>
+                </div>
+                <div class="fest-bento__card fest-bento__card--growth">
+                    <span class="material-symbols-outlined fest-bento__card-icon">trending_up</span>
+                    <div>
+                        <h3 class="fest-bento__card-title">Evolución</h3>
+                        <p class="fest-bento__card-text">Lo que comenzó como una caminata guiada es hoy el referente
+                            regional de turismo sostenible con más de 50,000 visitantes por temporada.</p>
+                    </div>
+                </div>
+                <div class="fest-bento__card fest-bento__card--community">
+                    <h3 class="fest-bento__card-title">Voz Local</h3>
+                    <p class="fest-bento__card-text">Integramos a comunidades rurales de la región, generando empleo
+                        digno para guías especializados y artesanos de la montaña.</p>
+                </div>
+                <div class="fest-bento__card fest-bento__card--future">
+                    <span class="material-symbols-outlined fest-bento__card-icon">eco</span>
+                    <div>
+                        <h3 class="fest-bento__card-title">Hacia el 2030</h3>
+                        <p class="fest-bento__card-text">Nuestro objetivo es la reforestación de 500 hectáreas de bosque
+                            nativo para expandir el corredor biológico de las luciérnagas en México.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compromiso -->
+        <div class="fest-section-bare">
+            <h2 class="fest-commitment__title">Compromiso con el Entorno</h2>
+            <div class="fest-commitment__grid">
+                <div class="fest-commitment__card fest-commitment__card--lime">
+                    <div class="fest-commitment__icon-wrap fest-commitment__icon-wrap--lime">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </div>
+                    <h3 class="fest-commitment__card-title">Cero Impacto Lumínico</h3>
+                    <p class="fest-commitment__card-text">Prohibimos fuentes de luz artificial para evitar la
+                        desorientación de las luciérnagas y mantener la pureza del cielo nocturno.</p>
+                </div>
+                <div class="fest-commitment__card fest-commitment__card--yellow">
+                    <div class="fest-commitment__icon-wrap fest-commitment__icon-wrap--yellow">
+                        <span class="material-symbols-outlined">group</span>
+                    </div>
+                    <h3 class="fest-commitment__card-title">Capacidad Controlada</h3>
+                    <p class="fest-commitment__card-text">Limitamos el acceso diario para reducir la compactación del
+                        suelo y el estrés acústico en el santuario biológico.</p>
+                </div>
+                <div class="fest-commitment__card fest-commitment__card--teal">
+                    <div class="fest-commitment__icon-wrap fest-commitment__icon-wrap--teal">
+                        <span class="material-symbols-outlined">recycling</span>
+                    </div>
+                    <h3 class="fest-commitment__card-title">Turismo Regenerativo</h3>
+                    <p class="fest-commitment__card-text">Cada entrada contribuye directamente a fondos de restauración
+                        forestal y educación ambiental para visitantes.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reglamento -->
+        <div class="fest-section-bare">
+            <div class="fest-reglamento__header">
+                <h2 class="fest-reglamento__title">Reglamento del Visitante</h2>
+                <p class="fest-reglamento__sub">Garantizar la supervivencia de la especie es responsabilidad de todos.
+                </p>
+            </div>
+            <div class="fest-rules-grid">
+                <div class="fest-rule-card">
+                    <span class="material-symbols-outlined">no_flash</span>
+                    <div class="fest-rule-card__title">Sin Flash ni Pantallas</div>
+                    <div class="fest-rule-card__text">El brillo de los móviles detiene el apareamiento. Guarda tu
+                        teléfono durante el recorrido.</div>
+                </div>
+                <div class="fest-rule-card">
+                    <span class="material-symbols-outlined">volume_off</span>
+                    <div class="fest-rule-card__title">Silencio Absoluto</div>
+                    <div class="fest-rule-card__text">El ruido interfiere con la fauna local. Disfruta del sonido
+                        natural del bosque.</div>
+                </div>
+                <div class="fest-rule-card">
+                    <span class="material-symbols-outlined">signpost</span>
+                    <div class="fest-rule-card__title">Senderos Marcados</div>
+                    <div class="fest-rule-card__text">Camina solo por las áreas permitidas. Las luciérnagas hembras
+                        viven en el suelo.</div>
+                </div>
+                <div class="fest-rule-card">
+                    <span class="material-symbols-outlined">delete</span>
+                    <div class="fest-rule-card__title">Residuo Cero</div>
+                    <div class="fest-rule-card__text">Todo lo que entra al bosque sale contigo. No dejes rastro de tu
+                        visita.</div>
+                </div>
+                <div class="fest-rule-card">
+                    <span class="material-symbols-outlined">do_not_touch</span>
+                    <div class="fest-rule-card__title">No Captures Luciérnagas</div>
+                    <div class="fest-rule-card__text">Está estrictamente prohibido capturar o manipular cualquier
+                        organismo del ecosistema.</div>
+                </div>
+                <div class="fest-rule-card">
+                    <span class="material-symbols-outlined">air</span>
+                    <div class="fest-rule-card__title">Sin Repelentes Fuertes</div>
+                    <div class="fest-rule-card__text">Los químicos afectan las señales que usan las luciérnagas para
+                        comunicarse entre sí.</div>
+                </div>
+            </div>
+            <div class="fest-reglamento__warning">
+                <p>El incumplimiento de estas normas resultará en la expulsión inmediata sin reembolso.</p>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="fest-section-bare fest-cta">
+            <h2 class="fest-cta__title">¿Listo para sumergirte<br />en la oscuridad?</h2>
+            <p class="fest-cta__sub">Las plazas son limitadas para garantizar la conservación del ecosistema. Asegura tu
+                lugar antes de que se agoten.</p>
+            <a href="/explore/parks/" class="btn-fest-cta">
+                <span class="material-symbols-outlined">forest</span>
+                Reservar Mi Entrada
+            </a>
+        </div>
+
+    </div><!-- /fest-sections -->
+
+</div>
+{% endblock %}

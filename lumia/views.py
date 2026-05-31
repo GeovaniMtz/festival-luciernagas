@@ -361,3 +361,5 @@ def confirm_reservation_view(request, park_name):
     # GET directo → volver al detalle
     return redirect('park_detail', park_name=park_name)
  
+def festival_view(request):
+    return render(request, 'festival.html')

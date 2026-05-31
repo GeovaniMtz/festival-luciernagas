@@ -54,6 +54,11 @@
       Configuración
     </a>
 
+    <a href="/festival/" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">auto_awesome</span>
+      El Festival
+    </a>
+
     <form method="POST" action="{% url 'logout' %}">
       {% csrf_token %}
       <button type="submit" class="navbar__mobile-link navbar__logout-btn">
@@ -82,6 +87,11 @@
     <a href="/map/" class="navbar__mobile-link">
       <span class="material-symbols-outlined navbar__mobile-link-icon">map</span>
       Mapa
+    </a>
+
+    <a href="/festival/" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">auto_awesome</span>
+      El Festival
     </a>
 
   {% endif %}
