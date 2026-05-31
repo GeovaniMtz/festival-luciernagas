@@ -34,7 +34,54 @@
         z-index: 1;
     }
 
-    /* ── HERO (estilo explorar) ── */
+    .fest-sections {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px 40px 80px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Tarjeta base */
+    .fest-card {
+        background: #1A1C1C;
+        border: 1px solid #282A2B;
+        border-radius: 20px;
+        padding: 48px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Sección sin tarjeta — mismo estilo */
+    .fest-section-bare {
+        background: #1A1C1C;
+        border: 1px solid #282A2B;
+        border-radius: 20px;
+        padding: 48px;
+        position: relative;
+    }
+
+    /* Variación de color por sección para distinguirlas */
+    .fest-section-bare:nth-child(2) {
+        background: #1A1C1C;
+    }
+
+    .fest-section-bare:nth-child(3) {
+        background: #161818;
+    }
+
+    .fest-section-bare:nth-child(4) {
+        background: #1A1C1C;
+    }
+
+    .fest-section-bare:nth-child(5) {
+        background: #161818;
+    }
+
+    /* ── HERO ── */
     .fest-hero {
         position: relative;
         display: flex;
@@ -216,32 +263,6 @@
     }
 
     /* ── WRAPPER general de secciones ── */
-    .fest-sections {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 32px 40px 80px;
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-    }
-
-    /* Sección sin tarjeta */
-    .fest-section-bare {
-        padding: 16px 0;
-    }
-
-    /* Tarjeta base — glassmorphism sutil */
-    .fest-card {
-        background: rgba(26, 28, 28, 0.55);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(65, 72, 71, 0.50);
-        border-radius: 20px;
-        padding: 48px;
-        position: relative;
-        overflow: hidden;
-    }
-
     /* ── SCIENCE — split con imagen ── */
     .fest-science__grid {
         display: grid;
@@ -724,12 +745,14 @@
         }
 
         .fest-sections {
-            padding: 0 16px 60px;
-            gap: 16px;
+            padding: 16px 16px 60px;
+            gap: 12px;
         }
 
-        .fest-card {
+        .fest-card,
+        .fest-section-bare {
             padding: 28px 20px;
+            border-radius: 16px;
         }
 
         .fest-science__grid {
@@ -914,43 +937,6 @@
             </div>
         </div>
 
-        <!-- Historia bento -->
-        <div class="fest-section-bare">
-            <div class="fest-history__header">
-                <h2 class="fest-history__title">Nuestra Trayectoria</h2>
-                <p class="fest-history__sub">Desde el primer destello en 2011</p>
-            </div>
-            <div class="fest-bento">
-                <div class="fest-bento__card fest-bento__card--origins">
-                    <img src="https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80" alt="Bosque" />
-                    <h3 class="fest-bento__card-title">Raíces Profundas (2011)</h3>
-                    <p class="fest-bento__card-text">El festival nació para proteger el hábitat de la luciérnaga ante la
-                        urbanización, transformando la curiosidad local en un modelo de conservación científica
-                        reconocido internacionalmente.</p>
-                </div>
-                <div class="fest-bento__card fest-bento__card--growth">
-                    <span class="material-symbols-outlined fest-bento__card-icon">trending_up</span>
-                    <div>
-                        <h3 class="fest-bento__card-title">Evolución</h3>
-                        <p class="fest-bento__card-text">Lo que comenzó como una caminata guiada es hoy el referente
-                            regional de turismo sostenible con más de 50,000 visitantes por temporada.</p>
-                    </div>
-                </div>
-                <div class="fest-bento__card fest-bento__card--community">
-                    <h3 class="fest-bento__card-title">Voz Local</h3>
-                    <p class="fest-bento__card-text">Integramos a comunidades rurales de la región, generando empleo
-                        digno para guías especializados y artesanos de la montaña.</p>
-                </div>
-                <div class="fest-bento__card fest-bento__card--future">
-                    <span class="material-symbols-outlined fest-bento__card-icon">eco</span>
-                    <div>
-                        <h3 class="fest-bento__card-title">Hacia el 2030</h3>
-                        <p class="fest-bento__card-text">Nuestro objetivo es la reforestación de 500 hectáreas de bosque
-                            nativo para expandir el corredor biológico de las luciérnagas en México.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Compromiso -->
         <div class="fest-section-bare">
