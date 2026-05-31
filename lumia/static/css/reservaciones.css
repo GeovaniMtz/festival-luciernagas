@@ -90,8 +90,8 @@
 }
 
 .reservas__filter.is-active {
-  background: var(--color-lime);
-  color: #06201D;
+  background: #155155;
+  color: var(--color-text-secondary);
   border-color: transparent;
 }
 

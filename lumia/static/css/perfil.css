@@ -122,13 +122,13 @@
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  border-radius: var(--radius-full);
+  border-radius: 12px;
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.3px;
   color: #06201D;
-  background: var(--color-lime);
+  background: #16a34a;
   box-shadow: var(--glow-lime);
   transition: transform var(--transition), box-shadow var(--transition);
 }
@@ -501,13 +501,17 @@
   align-items: center;
   gap: 8px;
   padding: 11px 20px;
-  border-radius: var(--radius-full);
+  border-radius: 12px;
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 600;
   color: #06201D;
-  background: var(--color-lime);
-  transition: transform var(--transition);
+  background: #16a34a;
+  transition: 12px;
+}
+
+.perfil__empty a .material-symbols-outlined {
+  color: #06201D;
 }
 
 .perfil__empty a:hover {
