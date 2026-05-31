@@ -7,7 +7,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
     # Ruta raíz → redirige al explore
-    path('', lumia_views.explore_view, name='home'),
+    path('', lumia_views.festival_view, name='home'),
     
     path('login/', auth_views.LoginView.as_view(
         template_name='registration/login.html'
