@@ -169,7 +169,7 @@
         flex-wrap: wrap;
         gap: 12px;
         justify-content: center;
-        margin-top: 8px;
+        margin-top: 28px;
     }
 
     .btn-fest-primary {
@@ -186,7 +186,7 @@
         border: none;
         cursor: pointer;
         text-decoration: none;
-        
+
     }
 
     .btn-fest-primary:hover {
@@ -496,7 +496,7 @@
         font-weight: 600;
         color: #E2E2E2;
         margin-bottom: 28px;
-        text-align: center;
+        text-align: left;
     }
 
     .fest-commitment__grid {
@@ -586,7 +586,7 @@
 
     /* ── REGLAMENTO — tarjetas centradas ── */
     .fest-reglamento__header {
-        text-align: center;
+        text-align: left;
         margin-bottom: 32px;
     }
 
@@ -661,17 +661,13 @@
 
     .fest-reglamento__warning {
         margin-top: 28px;
-        padding: 12px 20px;
-        background: rgba(239, 68, 68, 0.08);
-        border: 1px solid rgba(239, 68, 68, 0.20);
-        border-radius: 10px;
         text-align: center;
     }
 
     .fest-reglamento__warning p {
         font-family: var(--font-body);
         font-size: 13px;
-        color: #fca5a5;
+        color: #EF4444;
         font-style: italic;
     }
 
@@ -703,7 +699,7 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background:#16a34a;
+        background: #16a34a;
         color: #003828;
         font-family: var(--font-body);
         font-size: 15px;
@@ -713,7 +709,7 @@
         border: none;
         cursor: pointer;
         text-decoration: none;
-        
+
     }
 
     .btn-fest-cta:hover {
@@ -868,6 +864,56 @@
             </div>
         </div>
 
+        <!-- Reglamento -->
+        <div class="fest-section-bare">
+            <div class="fest-reglamento__header">
+                <h2 class="fest-reglamento__title">Reglamento del Visitante</h2>
+                <p class="fest-reglamento__sub">Garantizar la supervivencia de la especie es responsabilidad de todos.
+                </p>
+            </div>
+            <div class="fest-rules-grid">
+                <div class="fest-rule-card">
+                    <span class="material-symbols-outlined">no_flash</span>
+                    <div class="fest-rule-card__title">Sin Flash ni Pantallas</div>
+                    <div class="fest-rule-card__text">El brillo de los móviles detiene el apareamiento. Guarda tu
+                        teléfono durante el recorrido.</div>
+                </div>
+                <div class="fest-rule-card">
+                    <span class="material-symbols-outlined">volume_off</span>
+                    <div class="fest-rule-card__title">Silencio Absoluto</div>
+                    <div class="fest-rule-card__text">El ruido interfiere con la fauna local. Disfruta del sonido
+                        natural del bosque.</div>
+                </div>
+                <div class="fest-rule-card">
+                    <span class="material-symbols-outlined">signpost</span>
+                    <div class="fest-rule-card__title">Senderos Marcados</div>
+                    <div class="fest-rule-card__text">Camina solo por las áreas permitidas. Las luciérnagas hembras
+                        viven en el suelo.</div>
+                </div>
+                <div class="fest-rule-card">
+                    <span class="material-symbols-outlined">delete</span>
+                    <div class="fest-rule-card__title">Residuo Cero</div>
+                    <div class="fest-rule-card__text">Todo lo que entra al bosque sale contigo. No dejes rastro de tu
+                        visita.</div>
+                </div>
+                <div class="fest-rule-card">
+                    <span class="material-symbols-outlined">do_not_touch</span>
+                    <div class="fest-rule-card__title">No Captures Luciérnagas</div>
+                    <div class="fest-rule-card__text">Está estrictamente prohibido capturar o manipular cualquier
+                        organismo del ecosistema.</div>
+                </div>
+                <div class="fest-rule-card">
+                    <span class="material-symbols-outlined">air</span>
+                    <div class="fest-rule-card__title">Sin Repelentes Fuertes</div>
+                    <div class="fest-rule-card__text">Los químicos afectan las señales que usan las luciérnagas para
+                        comunicarse entre sí.</div>
+                </div>
+            </div>
+            <div class="fest-reglamento__warning">
+                <p>El incumplimiento de estas normas resultará en la expulsión inmediata sin reembolso.</p>
+            </div>
+        </div>
+
         <!-- Historia bento -->
         <div class="fest-section-bare">
             <div class="fest-history__header">
@@ -937,55 +983,7 @@
             </div>
         </div>
 
-        <!-- Reglamento -->
-        <div class="fest-section-bare">
-            <div class="fest-reglamento__header">
-                <h2 class="fest-reglamento__title">Reglamento del Visitante</h2>
-                <p class="fest-reglamento__sub">Garantizar la supervivencia de la especie es responsabilidad de todos.
-                </p>
-            </div>
-            <div class="fest-rules-grid">
-                <div class="fest-rule-card">
-                    <span class="material-symbols-outlined">no_flash</span>
-                    <div class="fest-rule-card__title">Sin Flash ni Pantallas</div>
-                    <div class="fest-rule-card__text">El brillo de los móviles detiene el apareamiento. Guarda tu
-                        teléfono durante el recorrido.</div>
-                </div>
-                <div class="fest-rule-card">
-                    <span class="material-symbols-outlined">volume_off</span>
-                    <div class="fest-rule-card__title">Silencio Absoluto</div>
-                    <div class="fest-rule-card__text">El ruido interfiere con la fauna local. Disfruta del sonido
-                        natural del bosque.</div>
-                </div>
-                <div class="fest-rule-card">
-                    <span class="material-symbols-outlined">signpost</span>
-                    <div class="fest-rule-card__title">Senderos Marcados</div>
-                    <div class="fest-rule-card__text">Camina solo por las áreas permitidas. Las luciérnagas hembras
-                        viven en el suelo.</div>
-                </div>
-                <div class="fest-rule-card">
-                    <span class="material-symbols-outlined">delete</span>
-                    <div class="fest-rule-card__title">Residuo Cero</div>
-                    <div class="fest-rule-card__text">Todo lo que entra al bosque sale contigo. No dejes rastro de tu
-                        visita.</div>
-                </div>
-                <div class="fest-rule-card">
-                    <span class="material-symbols-outlined">do_not_touch</span>
-                    <div class="fest-rule-card__title">No Captures Luciérnagas</div>
-                    <div class="fest-rule-card__text">Está estrictamente prohibido capturar o manipular cualquier
-                        organismo del ecosistema.</div>
-                </div>
-                <div class="fest-rule-card">
-                    <span class="material-symbols-outlined">air</span>
-                    <div class="fest-rule-card__title">Sin Repelentes Fuertes</div>
-                    <div class="fest-rule-card__text">Los químicos afectan las señales que usan las luciérnagas para
-                        comunicarse entre sí.</div>
-                </div>
-            </div>
-            <div class="fest-reglamento__warning">
-                <p>El incumplimiento de estas normas resultará en la expulsión inmediata sin reembolso.</p>
-            </div>
-        </div>
+
 
         <!-- CTA -->
         <div class="fest-section-bare fest-cta">

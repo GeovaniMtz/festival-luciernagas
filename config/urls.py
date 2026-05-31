@@ -6,7 +6,7 @@ from lumia import views as lumia_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    # Ruta raíz → redirige al explore
+    # Ruta raíz → redirige a festival
     path('', lumia_views.festival_view, name='home'),
     
     path('login/', auth_views.LoginView.as_view(
