@@ -917,7 +917,32 @@
 
 {% block extra_js %}
 <script>
+
 (function () {
+
+  var params = new URLSearchParams(window.location.search);
+  var fecha = params.get('fecha');
+  var adultos = parseInt(params.get('adultos')) || 0;
+  var ninos = parseInt(params.get('ninos')) || 0;
+
+  if (fecha) {
+    var dateInput2 = document.getElementById('pFestivalDate');
+    var searchDate2 = document.getElementById('pSearchDate');
+    if (dateInput2) dateInput2.value = fecha;
+    if (searchDate2) {
+      var d = new Date(fecha + 'T12:00:00');
+      searchDate2.textContent = d.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+  }
+
+  if (adultos > 0) {
+    var adultEl = document.getElementById('pAdultCount');
+    var kidEl = document.getElementById('pKidCount');
+    var visEl = document.getElementById('pVisitorsText');
+    if (adultEl) adultEl.textContent = adultos;
+    if (kidEl) kidEl.textContent = ninos;
+    if (visEl) visEl.textContent = adultos + ' Adulto' + (adultos !== 1 ? 's' : '') + ', ' + ninos + ' Niño' + (ninos !== 1 ? 's' : '');
+  }
 
   /* ── FECHA ── */
   var dateField  = document.getElementById('pDateField');
@@ -946,7 +971,9 @@
   var visitorsField    = document.getElementById('pVisitorsField');
   var visitorsDropdown = document.getElementById('pVisitorsDropdown');
   var visitorsText     = document.getElementById('pVisitorsText');
-  var adults = 2, kids = 0;
+  var urlParams = new URLSearchParams(window.location.search);
+  var adults = parseInt(urlParams.get('adultos')) || 1;
+  var kids = parseInt(urlParams.get('ninos')) || 0;
 
   function updateVisitors() {
     document.getElementById('pAdultCount').textContent = adults;

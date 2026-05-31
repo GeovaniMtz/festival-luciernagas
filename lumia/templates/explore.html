@@ -183,7 +183,7 @@
 }
 
 .section--dark {
-  background: #1A1C1C;
+  background: #121414;;
   max-width: 100%;
 }
 
@@ -995,7 +995,7 @@
         </div>
 
       </div>
-      <button class="hero__search-btn" type="button">
+      <button class="hero__search-btn" type="button" id="searchBtn">
         <span class="material-symbols-outlined">search</span>
         Buscar
       </button>
@@ -1290,6 +1290,14 @@
     });
 
   updateVisitors();
+
+  document.getElementById('searchBtn').addEventListener('click', function () {
+    var date = document.getElementById('festivalDate').value;
+    var adults = document.getElementById('adultCount').textContent;
+    var kids = document.getElementById('kidCount').textContent;
+    var url = '/explore/parks/?fecha=' + date + '&adultos=' + adults + '&ninos=' + kids;
+    window.location.href = url;
+  });
 
 })();
 </script>
