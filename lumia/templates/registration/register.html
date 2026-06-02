@@ -1,0 +1,495 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Crear cuenta — Lumia{% endblock %}
+
+{% block extra_css %}
+<style>
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 16px;
+  padding-top: calc(var(--navbar-h) + 32px);
+  padding-bottom: 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.register-page__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%,  rgba(21, 81, 85, 0.35) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 20% 80%, rgba(10, 46, 43, 0.40) 0%, transparent 60%),
+    linear-gradient(180deg, #0a0f0e 0%, #121414 100%);
+  z-index: 0;
+}
+
+#particlesCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.register-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 480px;
+  background: rgba(26, 28, 28, 0.80);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 40px;
+  border: 1px solid rgba(183, 228, 199, 0.20);
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25), 0 0 15px rgba(163,230,53,0.06);
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  animation: cardFadeIn 0.5s ease both;
+}
+
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.register-card__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.register-card__title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+  color: #fff;
+  text-align: center;
+}
+
+.register-card__subtitle {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.register-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-label {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.7px;
+  color: rgba(170, 206, 201, 0.80);
+}
+
+.field-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-input-icon {
+  position: absolute;
+  left: 16px;
+  color: var(--color-text-secondary);
+  font-size: 20px;
+  pointer-events: none;
+  display: flex;
+}
+
+.field-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 48px 0 48px;
+  background: rgba(30, 32, 32, 0.50);
+  border: 1px solid #414847;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--color-text-primary);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.field-input--no-right { padding-right: 16px; }
+
+.field-input::placeholder { color: rgba(193, 200, 198, 0.40); }
+
+.field-input:focus {
+  border-color: rgba(170, 206, 201, 0.50);
+  box-shadow: 0 0 0 3px rgba(170, 206, 201, 0.10);
+}
+
+.field-toggle-pass {
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  transition: color var(--transition);
+}
+
+.field-toggle-pass:hover { color: var(--color-text-secondary); }
+
+/* Fuerza de contraseña */
+.password-strength {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.password-strength__bar {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--color-surface-highest);
+  transition: background 0.3s ease;
+}
+
+.password-strength__bar--weak   { background: var(--color-error); }
+.password-strength__bar--medium { background: var(--color-warning); }
+.password-strength__bar--strong { background: var(--color-success); }
+
+/* Errores campo */
+.field-error {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: #fca5a5;
+  display: none;
+}
+.field-error.visible { display: block; }
+
+/* Botón */
+.btn-primary {
+  width: 100%;
+  height: 48px;
+  background: var(--color-success);
+  border: none;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 28px;
+  color: #133633;
+  cursor: pointer;
+  box-shadow: 0 10px 15px -3px rgba(170,206,201,0.20), 0 4px 6px -4px rgba(170,206,201,0.20);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: #16a34a;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px -3px rgba(34,197,94,0.30);
+}
+.btn-primary:active { transform: scale(0.98); }
+
+/* Divisor */
+.divider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.divider::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: #414847;
+}
+.divider__text {
+  position: relative;
+  background: #1A1C1C;
+  padding: 0 16px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+/* OAuth */
+.oauth-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.btn-oauth {
+  height: 48px;
+  background: rgba(30, 32, 32, 0.50);
+  border: 1px solid #414847;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+.btn-oauth:hover {
+  background: var(--color-surface-high);
+  border-color: rgba(65,72,71,0.80);
+}
+.btn-oauth svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* Footer */
+.register-card__footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  padding-top: 8px;
+}
+.register-card__footer-text {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--color-text-secondary);
+}
+.register-card__footer-link {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-success);
+  transition: opacity var(--transition);
+}
+.register-card__footer-link:hover { opacity: 0.80; }
+
+/* Errores globales */
+.form-errors {
+  background: rgba(239,68,68,0.10);
+  border: 1px solid rgba(239,68,68,0.30);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #fca5a5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@media (max-width: 520px) {
+  .register-card { padding: 28px 20px; border-radius: 24px; gap: 24px; }
+  .register-card__title { font-size: 26px; }
+  .oauth-btns { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-page">
+  <div class="register-page__bg"></div>
+  {% include "components/particles.html" %}
+
+  <div class="register-card" role="main">
+
+    <div class="register-card__header">
+      <h1 class="register-card__title">Crea tu cuenta</h1>
+      <p class="register-card__subtitle">
+        Únete a la magia del Festival de las Luciérnagas<br/>2026
+      </p>
+    </div>
+
+    {% if form.errors %}
+    <div class="form-errors" role="alert">
+      {% for field in form %}{% for error in field.errors %}<span>{{ error }}</span>{% endfor %}{% endfor %}
+      {% for error in form.non_field_errors %}<span>{{ error }}</span>{% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'register' %}" novalidate id="registerForm">
+      {% csrf_token %}
+      <div class="register-card__body">
+
+        <!-- Nombre -->
+        <div class="field-group">
+          <label class="field-label" for="id_first_name">Nombre completo</label>
+          <div class="field-input-wrap">
+            <span class="field-input-icon material-symbols-outlined">person</span>
+            <input type="text" id="id_first_name" name="first_name"
+              class="field-input field-input--no-right"
+              placeholder="Ej. Ana Martínez" autocomplete="name" required />
+          </div>
+          <span class="field-error" id="err-name">Por favor ingresa tu nombre completo.</span>
+        </div>
+
+        <!-- Email -->
+        <div class="field-group">
+          <label class="field-label" for="id_email">Correo electrónico</label>
+          <div class="field-input-wrap">
+            <span class="field-input-icon material-symbols-outlined">mail</span>
+            <input type="email" id="id_email" name="email"
+              class="field-input field-input--no-right"
+              placeholder="tu@email.com" autocomplete="email" required />
+          </div>
+          <span class="field-error" id="err-email">Ingresa un correo electrónico válido.</span>
+        </div>
+
+        <!-- Contraseña -->
+        <div class="field-group">
+          <label class="field-label" for="id_password1">Contraseña</label>
+          <div class="field-input-wrap">
+            <span class="field-input-icon material-symbols-outlined">lock</span>
+            <input type="password" id="id_password1" name="password1"
+              class="field-input" placeholder="••••••••" autocomplete="new-password" required />
+            <button type="button" class="field-toggle-pass" id="togglePass1" aria-label="Mostrar contraseña">
+              <span class="material-symbols-outlined" id="icon1">visibility_off</span>
+            </button>
+          </div>
+          <div class="password-strength">
+            <div class="password-strength__bar" id="bar1"></div>
+            <div class="password-strength__bar" id="bar2"></div>
+            <div class="password-strength__bar" id="bar3"></div>
+          </div>
+          <span class="field-error" id="err-pass">La contraseña debe tener al menos 8 caracteres.</span>
+        </div>
+
+        <!-- Confirmar -->
+        <div class="field-group">
+          <label class="field-label" for="id_password2">Confirmar contraseña</label>
+          <div class="field-input-wrap">
+            <span class="field-input-icon material-symbols-outlined">lock</span>
+            <input type="password" id="id_password2" name="password2"
+              class="field-input" placeholder="••••••••" autocomplete="new-password" required />
+            <button type="button" class="field-toggle-pass" id="togglePass2" aria-label="Mostrar confirmación">
+              <span class="material-symbols-outlined" id="icon2">visibility_off</span>
+            </button>
+          </div>
+          <span class="field-error" id="err-confirm">Las contraseñas no coinciden.</span>
+        </div>
+
+        <button type="submit" class="btn-primary">Registrarse</button>
+
+      </div>
+    </form>
+
+    <div class="divider"><span class="divider__text">O continúa con</span></div>
+
+    <div class="oauth-btns">
+      <button type="button" class="btn-oauth" aria-label="Continuar con Google">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Google
+      </button>
+      <button type="button" class="btn-oauth" aria-label="Continuar con Facebook">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#1877F2">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>
+        Facebook
+      </button>
+    </div>
+
+    <div class="register-card__footer">
+      <span class="register-card__footer-text">¿Ya tienes cuenta?</span>
+      <a href="/login/" class="register-card__footer-link">Iniciar sesión</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  // Toggle pass 1
+  const p1 = document.getElementById('id_password1');
+  const b1 = document.getElementById('togglePass1');
+  const i1 = document.getElementById('icon1');
+  if (b1) b1.addEventListener('click', function () {
+    const show = p1.type === 'password';
+    p1.type = show ? 'text' : 'password';
+    i1.textContent = show ? 'visibility' : 'visibility_off';
+  });
+
+  // Toggle pass 2
+  const p2 = document.getElementById('id_password2');
+  const b2 = document.getElementById('togglePass2');
+  const i2 = document.getElementById('icon2');
+  if (b2) b2.addEventListener('click', function () {
+    const show = p2.type === 'password';
+    p2.type = show ? 'text' : 'password';
+    i2.textContent = show ? 'visibility' : 'visibility_off';
+  });
+
+  // Fuerza de contraseña
+  const bar1 = document.getElementById('bar1');
+  const bar2 = document.getElementById('bar2');
+  const bar3 = document.getElementById('bar3');
+  const SUFFIX = ['weak','medium','strong'];
+
+  function strength(v) {
+    let s = 0;
+    if (v.length >= 8) s++;
+    if (/[A-Z]/.test(v) && /[a-z]/.test(v)) s++;
+    if (/[0-9]/.test(v) || /[^A-Za-z0-9]/.test(v)) s++;
+    return s;
+  }
+
+  if (p1) p1.addEventListener('input', function () {
+    const s = strength(p1.value);
+    [bar1, bar2, bar3].forEach(b => b.className = 'password-strength__bar');
+    if (s >= 1) bar1.classList.add('password-strength__bar--' + SUFFIX[s-1]);
+    if (s >= 2) bar2.classList.add('password-strength__bar--' + SUFFIX[s-1]);
+    if (s >= 3) bar3.classList.add('password-strength__bar--' + SUFFIX[s-1]);
+  });
+
+  // Validación client-side
+  const form = document.getElementById('registerForm');
+  const nameEl  = document.getElementById('id_first_name');
+  const emailEl = document.getElementById('id_email');
+
+  function showErr(id, show) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('visible', show);
+  }
+
+  if (form) form.addEventListener('submit', function (e) {
+    let ok = true;
+    const nameOk  = nameEl  && nameEl.value.trim().length > 1;
+    const emailOk = emailEl && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value);
+    const passOk  = p1 && p1.value.length >= 8;
+    const matchOk = p1 && p2 && p1.value === p2.value;
+    showErr('err-name',    !nameOk);
+    showErr('err-email',   !emailOk);
+    showErr('err-pass',    !passOk);
+    showErr('err-confirm', !matchOk);
+    if (!nameOk || !emailOk || !passOk || !matchOk) { ok = false; e.preventDefault(); }
+  });
+})();
+</script>
+{% endblock %}

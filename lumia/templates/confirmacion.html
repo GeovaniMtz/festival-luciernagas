@@ -1,0 +1,1026 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Reserva Confirmada — Lumia{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ═══════════════════════════════════════════════
+   CONFIRMACIÓN — estilos
+═══════════════════════════════════════════════ */
+
+.confirm-page {
+  padding-top: var(--navbar-h);
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Encabezado ── */
+.confirm-hero {
+  text-align: center;
+  padding: 56px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.confirm-hero__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #22C55E;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 28px rgba(34,197,94,0.45);
+}
+
+.confirm-hero__icon .material-symbols-outlined {
+  font-size: 28px;
+  color: #fff;
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+.confirm-hero__title {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 400;
+  color: #E2E2E2;
+}
+
+.confirm-hero__sub {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: #C1C8C6;
+}
+
+/* ── Layout de dos columnas ── */
+.confirm-layout {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+  display: grid;
+  grid-template-columns: 1fr 394px;
+  gap: 32px;
+  align-items: start;
+}
+
+/* ── Tarjeta de reserva (columna izquierda) ── */
+.confirm-card {
+  background: #1E2020;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(65,72,71,0.50);
+}
+
+/* Hero image de la tarjeta */
+.confirm-card__hero {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.confirm-card__hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.55);
+}
+
+.confirm-card__hero-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 24px;
+  background: linear-gradient(to top, rgba(0,0,0,0.80) 0%, transparent 100%);
+}
+
+.confirm-card__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: #0A2E2B;
+  border-radius: 20px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #AACEC9;
+  margin-bottom: 8px;
+}
+
+.confirm-card__event {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 400;
+  color: #E2E2E2;
+}
+
+/* Detalles de reserva */
+.confirm-card__details {
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  border-bottom: 1px solid #414847;
+}
+
+.confirm-detail__label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: #6B7280;
+  margin-bottom: 4px;
+}
+
+.confirm-detail__value {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 400;
+  color: #E2E2E2;
+}
+
+.confirm-detail__value--accent {
+  color: #AACEC9;
+}
+
+/* Divisor con círculos laterales — ticket style */
+.confirm-card__divider {
+  position: relative;
+  height: 1px;
+  background: #414847;
+  margin: 0;
+}
+
+.confirm-card__divider::before,
+.confirm-card__divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #121414;
+}
+
+.confirm-card__divider::before { left: -10px; }
+.confirm-card__divider::after  { right: -10px; }
+
+/* Pase digital */
+.confirm-pass {
+  padding: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+/* QR */
+.confirm-qr {
+  flex-shrink: 0;
+  width: 100px;
+  height: 100px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 2px;
+}
+
+.confirm-qr__cell {
+  border-radius: 2px;
+  background: #fff;
+}
+
+.confirm-qr__cell--dark { background: #121414; }
+
+/* Texto del pase */
+.confirm-pass__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.confirm-pass__title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 400;
+  color: #E2E2E2;
+}
+
+.confirm-pass__desc {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: #C1C8C6;
+  line-height: 1.5;
+}
+
+.confirm-pass__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.btn-pass {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: 1px solid #414847;
+  background: transparent;
+  color: #E2E2E2;
+}
+
+.btn-pass:hover {
+  background: #282A2B;
+  border-color: rgba(170,206,201,0.30);
+}
+
+.btn-pass--primary {
+  background: #AACEC9;
+  border-color: #AACEC9;
+  color: #133633;
+}
+
+.btn-pass--primary:hover {
+  background: #93bfb9;
+  border-color: #93bfb9;
+}
+
+.btn-pass .material-symbols-outlined {
+  font-size: 16px;
+}
+
+/* ── Consejos (parte inferior izquierda) ── */
+.confirm-tips {
+  background: #1E2020;
+  border-radius: 16px;
+  border: 1px solid rgba(65,72,71,0.50);
+  padding: 24px;
+  margin-top: 24px;
+}
+
+.confirm-tips__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: #E2E2E2;
+}
+
+.confirm-tips__header .material-symbols-outlined {
+  font-size: 20px;
+  color: #FEE715;
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.confirm-tips__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.confirm-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.confirm-tip__icon {
+  font-size: 20px;
+  color: #AACEC9;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.confirm-tip__title {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: #E2E2E2;
+  margin-bottom: 3px;
+}
+
+.confirm-tip__desc {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: #C1C8C6;
+  line-height: 1.45;
+}
+
+/* ── Columna derecha ── */
+.confirm-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: calc(var(--navbar-h) + 20px);
+}
+
+/* Mapa / parque */
+.confirm-park-card {
+  background: #1E2020;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(65,72,71,0.50);
+}
+
+.confirm-park-card__map {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+}
+
+.confirm-park-card__map img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.45) saturate(0.6);
+  transition: filter 0.3s;
+}
+
+.confirm-park-card__map:hover img {
+  filter: brightness(0.55) saturate(0.7);
+}
+
+.confirm-park-card__map-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: #04474B;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.confirm-park-card__map-info {}
+
+.confirm-park-card__park-name {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: #E2E2E2;
+}
+
+.confirm-park-card__park-loc {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: #C1C8C6;
+}
+
+.confirm-park-card__map-btn {
+  width: 34px;
+  height: 34px;
+  background: #fff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+
+.confirm-park-card__map-btn:hover { background: #e5e5e5; }
+
+.confirm-park-card__map-btn .material-symbols-outlined {
+  font-size: 18px;
+  color: #133633;
+}
+
+/* Temperatura y calendario */
+.confirm-park-card__meta {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-bottom: 1px solid #414847;
+}
+
+.confirm-temp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: #C1C8C6;
+}
+
+.confirm-temp-row__value {
+  color: #E2E2E2;
+  font-weight: 500;
+}
+
+.btn-calendar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: #282A2B;
+  border: 1px solid #414847;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: #E2E2E2;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-calendar:hover {
+  background: #333535;
+  border-color: rgba(170,206,201,0.30);
+}
+
+.btn-calendar .material-symbols-outlined { font-size: 18px; color: #AACEC9; }
+
+/* Soporte */
+.confirm-support {
+  background: #0A2E2B;
+  border-radius: 16px;
+  border: 1px solid rgba(65,72,71,0.40);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.confirm-support__title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: #E2E2E2;
+  margin-bottom: 8px;
+}
+
+.confirm-support__desc {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: #C1C8C6;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.btn-support {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: #22C55E;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: #121414;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--transition), transform 0.15s ease;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.30);
+}
+
+.btn-support:hover {
+  background: #16a34a;
+  transform: translateY(-1px);
+}
+
+.btn-support .material-symbols-outlined { font-size: 18px; }
+
+/* ── Partículas ── */
+#particlesCanvas {
+  position: fixed !important;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .confirm-layout {
+    grid-template-columns: 1fr;
+  }
+  .confirm-right {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .confirm-hero__title { font-size: 26px; }
+  .confirm-card__details { grid-template-columns: 1fr; gap: 14px; }
+  .confirm-tips__grid { grid-template-columns: 1fr; }
+  .confirm-pass { flex-direction: column; }
+  .confirm-layout { padding: 0 16px 60px; }
+  .confirm-hero { padding: 40px 16px 28px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+{% load static %}
+{% include "components/particles.html" %}
+
+<div class="confirm-page">
+
+  <!-- ══════════════ HERO ══════════════ -->
+  <div class="confirm-hero">
+    <div class="confirm-hero__icon">
+      <span class="material-symbols-outlined">check</span>
+    </div>
+    <h1 class="confirm-hero__title">¡Tu reserva está confirmada!</h1>
+    <p class="confirm-hero__sub">Prepárate para una noche mágica en el bosque.</p>
+  </div>
+
+  <!-- ══════════════ LAYOUT ══════════════ -->
+  <div class="confirm-layout">
+
+    <!-- ──────── COLUMNA IZQUIERDA ──────── -->
+    <div class="confirm-left">
+
+      <!-- Tarjeta de reserva estilo ticket -->
+      <div class="confirm-card">
+
+        <!-- Imagen hero -->
+        <div class="confirm-card__hero">
+          <img src="{{ park.images.0 }}" alt="{{ park.name }}" />
+          <div class="confirm-card__hero-overlay">
+            <div class="confirm-card__badge">Confirmado</div>
+            <div class="confirm-card__event">Festival de Luciérnagas 2026</div>
+          </div>
+        </div>
+
+        <!-- Datos de la reserva -->
+        <div class="confirm-card__details">
+          <div>
+            <div class="confirm-detail__label">ID de Reserva</div>
+            <div class="confirm-detail__value confirm-detail__value--accent">{{ reservation.id }}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="confirm-detail__label">Visitantes</div>
+            <div class="confirm-detail__value">{{ reservation.visitors }}</div>
+          </div>
+          <div>
+            <div class="confirm-detail__label">Fecha</div>
+            <div class="confirm-detail__value">{{ reservation.date }}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="confirm-detail__label">Hora de Entrada</div>
+            <div class="confirm-detail__value">{{ reservation.entry_time }}</div>
+          </div>
+        </div>
+
+        <!-- Divisor estilo ticket -->
+        <div class="confirm-card__divider"></div>
+
+        <!-- Pase digital -->
+        <div class="confirm-pass">
+
+          <!-- QR simulado con CSS -->
+          <div id="qrContainer" aria-label="Código QR de tu reserva"
+            style="flex-shrink:0;width:100px;height:100px;
+                  background:#fff;border-radius:8px;padding:6px;
+                  display:flex;align-items:center;justify-content:center;">
+          </div>
+
+          <div class="confirm-pass__info">
+            <div class="confirm-pass__title">Tu Pase Digital</div>
+            <p class="confirm-pass__desc">
+              Presenta este código QR en la entrada principal del parque.
+              No es necesario imprimirlo, pero sí recomendable ya que
+              te incluye el mapa en PDF.
+            </p>
+            <div class="confirm-pass__actions">
+              <button class="btn-pass" type="button" id="btnPDF">
+                <span class="material-symbols-outlined">download</span>
+                Guardar PDF
+              </button>
+              <button class="btn-pass btn-pass--primary" type="button">
+                <span class="material-symbols-outlined">share</span>
+                Compartir
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /confirm-card -->
+
+      <!-- Consejos -->
+      <div class="confirm-tips">
+        <div class="confirm-tips__header">
+          <span class="material-symbols-outlined">lightbulb</span>
+          Consejos para tu visita
+        </div>
+        <div class="confirm-tips__grid">
+          <div class="confirm-tip">
+            <span class="material-symbols-outlined confirm-tip__icon">checkroom</span>
+            <div>
+              <div class="confirm-tip__title">Viste adecuado</div>
+              <div class="confirm-tip__desc">Usa ropa oscura y calzado cerrado cómodo para caminar en el bosque.</div>
+            </div>
+          </div>
+          <div class="confirm-tip">
+            <span class="material-symbols-outlined confirm-tip__icon">flashlight_off</span>
+            <div>
+              <div class="confirm-tip__title">Sin luces intensas</div>
+              <div class="confirm-tip__desc">Evita linternas o flashes de cámaras. Interfieren con la bioluminiscencia.</div>
+            </div>
+          </div>
+          <div class="confirm-tip">
+            <span class="material-symbols-outlined confirm-tip__icon">schedule</span>
+            <div>
+              <div class="confirm-tip__title">Llegada puntual</div>
+              <div class="confirm-tip__desc">Se recomienda llegar 30 minutos antes para el proceso de registro.</div>
+            </div>
+          </div>
+          <div class="confirm-tip">
+            <span class="material-symbols-outlined confirm-tip__icon">forest</span>
+            <div>
+              <div class="confirm-tip__title">Cuida el entorno</div>
+              <div class="confirm-tip__desc">Mantente en los senderos marcados y no utilices repelentes químicos.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /confirm-left -->
+
+    <!-- ──────── COLUMNA DERECHA ──────── -->
+    <div class="confirm-right">
+
+      <!-- Tarjeta del parque + mapa -->
+      <div class="confirm-park-card">
+        <div class="confirm-park-card__map">
+          <img src="{{ park.images.0 }}" alt="{{ park.name }}" />
+          <div class="confirm-park-card__map-bar">
+            <div class="confirm-park-card__map-info">
+              <div class="confirm-park-card__park-name">{{ park.name }}</div>
+              <div class="confirm-park-card__park-loc">{{ park.address }}</div>
+            </div>
+            <a href="/map/?park={{ park_name }}" class="confirm-park-card__map-btn" aria-label="Ver en mapa">
+              <span class="material-symbols-outlined">near_me</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="confirm-park-card__meta">
+          <div class="confirm-temp-row">
+            <span>Temperatura estimada:</span>
+            <span class="confirm-temp-row__value">14°C – 16°C</span>
+          </div>
+          <button class="btn-calendar" type="button" id="calendarBtn">
+            <span class="material-symbols-outlined">calendar_add_on</span>
+            Añadir a Calendario
+          </button>
+        </div>
+      </div>
+
+      <!-- Soporte -->
+      <div class="confirm-support">
+        <div class="confirm-support__title">¿Necesitas ayuda?</div>
+        <p class="confirm-support__desc">
+          Nuestro equipo de guardaparques está disponible 24/7
+          para resolver tus dudas.
+        </p>
+        <a href="https://wa.me/521XXXXXXXXXX?text=Hola,%20tengo%20una%20reserva%20%23{{ reservation.id }}"
+           class="btn-support" target="_blank" rel="noopener noreferrer">
+          <!-- WhatsApp icon SVG inline -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          Chat de Soporte
+        </a>
+      </div>
+
+    </div><!-- /confirm-right -->
+
+  </div><!-- /confirm-layout -->
+
+</div><!-- /confirm-page -->
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+(function () {
+
+  /* ── Datos desde el contexto Django ── */
+  var RESERVA = {
+    id:         '{{ reservation.id|default:"LUM-2026-X892" }}',
+    parkName:   '{{ park.name|default:"Bosque Esmeralda" }}',
+    parkAddr:   '{{ park.address|default:"Amecameca, Estado de México" }}',
+    fecha:      '{{ reservation.date|default:"15 de Julio, 2026" }}',
+    hora:       '{{ reservation.entry_time|default:"19:30 - 21:00" }}',
+    visitantes: '{{ reservation.visitors|default:"2 Personas" }}',
+  };
+
+  var QR_URL = window.location.origin + '/reservas/' + RESERVA.id + '/';
+
+  /* ════════════════════════════════════════════════
+     1. GENERAR QR
+  ════════════════════════════════════════════════ */
+  var qrDataURL   = null;
+  var qrContainer = document.getElementById('qrContainer');
+
+  new QRCode(qrContainer, {
+    text:         QR_URL,
+    width:        88,
+    height:       88,
+    colorDark:    '#121414',
+    colorLight:   '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M,
+  });
+
+  function extractQRDataURL() {
+    var canvas = qrContainer.querySelector('canvas');
+    if (canvas) { qrDataURL = canvas.toDataURL('image/png'); return; }
+    var img = qrContainer.querySelector('img');
+    if (img && img.complete && img.src) { qrDataURL = img.src; return; }
+    setTimeout(extractQRDataURL, 200);
+  }
+  setTimeout(extractQRDataURL, 300);
+
+  /* ════════════════════════════════════════════════
+     2. HELPERS
+  ════════════════════════════════════════════════ */
+
+  function loadImage(url) {
+    return new Promise(function (resolve) {
+      var img        = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload  = function () {
+        var c    = document.createElement('canvas');
+        c.width  = img.width;
+        c.height = img.height;
+        c.getContext('2d').drawImage(img, 0, 0);
+        resolve(c.toDataURL('image/png'));
+      };
+      img.onerror = function () { resolve(null); };
+      img.src = url;
+    });
+  }
+
+  function renderParticles(w, h, count) {
+    var c    = document.createElement('canvas');
+    c.width  = w;
+    c.height = h;
+    var ctx  = c.getContext('2d');
+    var COLORS = ['#A3E635','#FEE715','#4ECBA5','#22C55E','#E8F94A'];
+    function rand(a, b) { return Math.random() * (b - a) + a; }
+
+    for (var i = 0; i < count; i++) {
+      var x     = rand(0, w);
+      var y     = rand(0, h);
+      var size  = rand(1.2, 3.0);
+      var alpha = rand(0.15, 0.55);
+      var color = COLORS[Math.floor(Math.random() * COLORS.length)];
+
+      var g = ctx.createRadialGradient(x, y, 0, x, y, size * 5);
+      g.addColorStop(0, color);
+      g.addColorStop(1, 'transparent');
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle   = g;
+      ctx.beginPath();
+      ctx.arc(x, y, size * 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.globalAlpha = Math.min(1, alpha * 1.8);
+      ctx.fillStyle   = '#fff';
+      ctx.beginPath();
+      ctx.arc(x, y, size * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    return c.toDataURL('image/png');
+  }
+
+  /* ════════════════════════════════════════════════
+     3. CONSTRUIR PDF — devuelve el objeto jsPDF
+  ════════════════════════════════════════════════ */
+  function buildPDF(logoDataURL, logoTextDataURL) {
+    var doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    var W   = 210;
+    var H   = 297;
+
+    /* Fondo oscuro */
+    doc.setFillColor(18, 20, 20);
+    doc.rect(0, 0, W, H, 'F');
+
+    /* Partículas */
+    var particlesURL = renderParticles(840, 1190, 140);
+    doc.addImage(particlesURL, 'PNG', 0, 0, W, H);
+
+    /* Logo */
+    if (logoDataURL)     doc.addImage(logoDataURL,     'PNG', 14, 10, 14, 14);
+    if (logoTextDataURL) doc.addImage(logoTextDataURL, 'PNG', 30, 13, 32,  8);
+    else {
+      doc.setTextColor(170, 206, 201);
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.text('LUMIA', 32, 20);
+    }
+
+    doc.setTextColor(139, 146, 145);
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Festival Internacional de las Luciérnagas 2026', W - 14, 17, { align: 'right' });
+
+    /* Título */
+    doc.setTextColor(226, 226, 226);
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Tu Pase Digital', W / 2, 40, { align: 'center' });
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(193, 200, 198);
+    doc.text('Presenta este código en la entrada principal del parque', W / 2, 48, { align: 'center' });
+
+    /* QR */
+    var qrSize = 60;
+    var qrX    = (W - qrSize) / 2;
+    var qrY    = 56;
+
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(qrX - 5, qrY - 5, qrSize + 10, qrSize + 10, 4, 4, 'F');
+    doc.addImage(qrDataURL, 'PNG', qrX, qrY, qrSize, qrSize);
+
+    doc.setTextColor(107, 114, 128);
+    doc.setFontSize(7);
+    doc.text(QR_URL, W / 2, qrY + qrSize + 8, { align: 'center' });
+
+    /* Divisor */
+    doc.setDrawColor(65, 72, 71);
+    doc.setLineWidth(0.3);
+    doc.line(14, qrY + qrSize + 14, W - 14, qrY + qrSize + 14);
+
+    /* Datos */
+    var sy   = qrY + qrSize + 24;
+    var c1   = 14;
+    var c2   = W / 2 + 4;
+    var rowH = 18;
+
+    function campo(label, val, x, y) {
+      doc.setTextColor(107, 114, 128);
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'normal');
+      doc.text(label.toUpperCase(), x, y);
+      doc.setTextColor(226, 226, 226);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(val, x, y + 6);
+    }
+
+    campo('ID de Reserva', RESERVA.id,         c1, sy);
+    campo('Visitantes',    RESERVA.visitantes,  c2, sy);
+    campo('Fecha',         RESERVA.fecha,       c1, sy + rowH);
+    campo('Hora',          RESERVA.hora,        c2, sy + rowH);
+
+    var parkY = sy + rowH * 2 + 4;
+    doc.setDrawColor(65, 72, 71);
+    doc.line(14, parkY, W - 14, parkY);
+    campo('Parque',    RESERVA.parkName, c1, parkY + 10);
+    campo('Ubicación', RESERVA.parkAddr, c2, parkY + 10);
+
+    /* Consejos */
+    var tipsY = parkY + 28;
+    doc.setFillColor(30, 32, 32);
+    doc.roundedRect(14, tipsY, W - 28, 50, 4, 4, 'F');
+
+    doc.setTextColor(226, 226, 226);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Consejos para tu visita', 22, tipsY + 10);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(193, 200, 198);
+    var tips = [
+      '• Usa ropa oscura y calzado cerrado.',
+      '• Evita linternas o flashes de cámara.',
+      '• Llega 30 minutos antes del registro.',
+      '• Permanece en los senderos marcados.',
+    ];
+    tips.slice(0, 2).forEach(function (t, i) { doc.text(t, 22,       tipsY + 22 + i * 10); });
+    tips.slice(2).forEach(function  (t, i) { doc.text(t, W / 2 + 4, tipsY + 22 + i * 10); });
+
+    /* Footer */
+    doc.setFillColor(10, 15, 14);
+    doc.rect(0, 279, W, 18, 'F');
+    doc.setTextColor(139, 146, 145);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text('© 2026 LUMIA — Festival Internacional de las Luciérnagas', W / 2, 290, { align: 'center' });
+
+    return doc;
+  }
+
+  /* Carga logos y devuelve el doc listo (Promise) */
+  function getPDF() {
+    if (!qrDataURL) return Promise.reject('qr-not-ready');
+    return Promise.all([
+      loadImage('/static/img/logo.png'),
+      loadImage('/static/img/logo-text.png'),
+    ]).then(function (res) {
+      return buildPDF(res[0], res[1]);
+    });
+  }
+
+  /* ════════════════════════════════════════════════
+     4. LISTENERS
+  ════════════════════════════════════════════════ */
+
+  /* Guardar PDF */
+  var btnPDF = document.getElementById('btnPDF');
+  if (btnPDF) {
+    btnPDF.addEventListener('click', function () {
+      getPDF()
+        .then(function (doc) { doc.save('pase-lumia-' + RESERVA.id + '.pdf'); })
+        .catch(function () { alert('El código QR todavía se está generando. Intenta en un momento.'); });
+    });
+  }
+
+  /* Compartir */
+  var btnShare = document.querySelector('.btn-pass--primary');
+  if (btnShare) {
+    btnShare.addEventListener('click', function () {
+
+      var fileName = 'pase-lumia-' + RESERVA.id + '.pdf';
+      var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+      /* ── Móvil: intentar compartir el PDF como archivo ── */
+      if (isMobile && navigator.share) {
+        getPDF()
+          .then(function (doc) {
+            var blob = doc.output('blob');
+            var file = new File([blob], fileName, { type: 'application/pdf' });
+
+            /* Verificar que el navegador acepte archivos PDF */
+            var canShareFile = false;
+            try { canShareFile = navigator.canShare && navigator.canShare({ files: [file] }); }
+            catch (e) {}
+
+            if (canShareFile) {
+              return navigator.share({
+                title: 'Pase Digital — Festival de Luciérnagas 2026',
+                text:  RESERVA.parkName + ' · ' + RESERVA.fecha,
+                files: [file],
+              }).catch(function () {
+                /* Usuario canceló — no hacer nada */
+              });
+            } else {
+              /* El navegador móvil no acepta PDF: descargar directamente */
+              doc.save(fileName);
+            }
+          })
+          .catch(function () {
+            alert('El código QR todavía se está generando. Intenta en un momento.');
+          });
+
+      /* ── Escritorio: descargar el PDF ── */
+      } else {
+        getPDF()
+          .then(function (doc) { doc.save(fileName); })
+          .catch(function () {
+            alert('El código QR todavía se está generando. Intenta en un momento.');
+          });
+      }
+    });
+  }
+
+  /* Calendario */
+  var btnCal = document.getElementById('calendarBtn');
+  if (btnCal) {
+    btnCal.addEventListener('click', function () {
+      var title   = encodeURIComponent('Festival de Luciérnagas 2026 — ' + RESERVA.parkName);
+      var details = encodeURIComponent('Reserva #' + RESERVA.id + '. Llega 30 min antes. ' + RESERVA.parkAddr);
+      window.open(
+        'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + title + '&details=' + details,
+        '_blank', 'noopener,noreferrer'
+      );
+    });
+  }
+
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,49 @@
+/* ═══════════════════════════════════════════════════════════════════
+   TEMA CLARO — Lumia
+   Se activa con  <html data-theme="light">
+   Sobrescribe las variables de styles.css con la paleta "Modo Claro".
+   Enlazar este archivo DESPUÉS de styles.css en base.html.
+═══════════════════════════════════════════════════════════════════ */
+
+html[data-theme="light"] {
+  /* Fondos */
+  --color-bg:               #F7F7F7;
+  --color-surface:          #FFFFFF;
+  --color-surface-high:     #F1E8D6;   /* Beige suave */
+  --color-surface-highest:  #E6E6E6;   /* Gris claro  */
+
+  /* Bordes */
+  --color-border:           rgba(76, 85, 99, 0.16);
+  --color-border-mid:        rgba(76, 85, 99, 0.30);
+
+  /* Textos */
+  --color-text-primary:     #121826;   /* Azul noche   */
+  --color-text-secondary:   #4C5563;   /* Gris azulado */
+  --color-text-muted:       #8A93A0;
+  --color-text-label:       #04474B;   /* Verde petróleo */
+
+  /* Glow suave (sombra en lugar de resplandor) */
+  --glow-green:   0 1px 3px rgba(76, 85, 99, 0.08);
+  --glow-lime:    0 4px 16px rgba(45, 191, 148, 0.22);
+}
+
+/* ─── Ajustes de componentes para modo claro ─── */
+
+/* Footer: borde y fondo legibles sobre claro */
+html[data-theme="light"] .site-footer {
+  border-top: 1px solid var(--color-border);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* Resplandores de fondo más suaves (perfil y configuración) */
+html[data-theme="light"] .perfil__bg,
+html[data-theme="light"] .config__bg {
+  background:
+    radial-gradient(620px 420px at 18% 0%,  rgba(45, 191, 148, 0.10), transparent 70%),
+    radial-gradient(560px 520px at 92% 8%,  rgba(20, 184, 177, 0.08), transparent 72%),
+    radial-gradient(800px 600px at 50% 120%, rgba(183, 228, 199, 0.32), transparent 70%);
+}
+
+/* La navbar se mantiene oscura en ambos modos (mantiene el logo blanco
+   con mix-blend-mode visible). Si más adelante quieres una navbar clara,
+   habrá que usar el logo de "modo claro" de la paleta. */

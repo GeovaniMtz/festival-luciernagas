@@ -1,22 +1,36 @@
-"""
-URL configuration for config project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.contrib.auth import views as auth_views
+from lumia import views as lumia_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    # Ruta raíz → redirige a festival
+    path('', lumia_views.festival_view, name='home'),
+    
+    path('login/', auth_views.LoginView.as_view(
+        template_name='registration/login.html'
+    ), name='login'),
+    
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path("perfil/", lumia_views.perfil, name="perfil"),
+    path("configuracion/", lumia_views.configuracion, name="configuracion"),
+    path("reservaciones/", lumia_views.reservaciones, name="reservaciones"),
+    path("metodos-pago/", lumia_views.metodos_pago, name="metodos_pago"),
+    path('register/', lumia_views.register_view, name='register'),
+    path('explore/', lumia_views.explore_view, name='explore'),
+    path('map/', lumia_views.mapa, name='map'),
+    path('explore/parks/', lumia_views.parques_view, name='parks'),
+    path('explore/parks/<str:park_name>/', lumia_views.park_detail_view, name='park_detail'),
+    path('festival/', lumia_views.festival_view, name='festival'),
+
+    # ── Confirmación de reserva ──────────────────────────────────
+    # POST desde el formulario de park-detail
+    path(
+        'explore/parks/<slug:park_name>/confirm/',
+        lumia_views.confirm_reservation_view,
+        name='confirm_reservation',
+    ),
+
 ]

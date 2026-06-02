@@ -1,0 +1,1453 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ park.name }} — Lumia{% endblock %}
+
+{% block extra_css %}
+<style>
+
+  /* ═══════════════════════════════════════════════
+   PARK DETAIL — Variables
+═══════════════════════════════════════════════ */
+
+  /* ── GALERÍA HERO ── */
+  .park-detail {
+    padding-top: var(--navbar-h);
+  }
+
+  .park-gallery {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 40px 24px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 308px 308px;
+    gap: 12px;
+    height: 628px;
+  }
+
+  /* Imagen principal: ocupa las 2 filas de la columna izquierda */
+  .park-gallery__main {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .park-gallery__main img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .park-gallery__main:hover img { transform: scale(1.03); }
+
+  /* Badge de nombre sobre la foto principal */
+  .park-gallery__badge {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    padding: 14px 24px;
+    background: rgba(0, 0, 0, 0.60);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+  }
+
+  .park-gallery__badge h1 {
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: #E2E2E2;
+  }
+
+  /* Imágenes secundarias: columna derecha */
+  .park-gallery__thumb {
+    grid-column: 2;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .park-gallery__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .park-gallery__thumb:hover img { transform: scale(1.04); }
+
+  /* Última miniatura con overlay "Ver más" */
+  .park-gallery__thumb--more::after {
+    content: attr(data-more);
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-body);
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 16px;
+  }
+
+  /* ── LAYOUT PRINCIPAL ── */
+  .park-layout {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+    display: grid;
+    grid-template-columns: 1fr 394px;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* ── SECCIONES IZQUIERDA ── */
+  .park-section {
+    background: #1E2020;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .park-section + .park-section {
+    margin-top: 24px;
+  }
+
+  .park-section__title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    color: #E2E2E2;
+  }
+
+  .park-section__body {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 26px;
+    color: #C1C8C6;
+  }
+
+  /* ── SERVICIOS ── */
+  .amenities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #414847;
+  }
+
+  .amenity-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #282A2B;
+    border-bottom: 1px solid #414847;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: #E2E2E2;
+  }
+
+  .amenity-row:last-child { border-bottom: none; }
+
+  .amenity-row .material-symbols-outlined {
+    font-size: 20px;
+    color: #AACEC9;
+    flex-shrink: 0;
+  }
+
+  /* ── CALENDARIO DE DISPONIBILIDAD ── */
+  .cal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cal-legend {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .cal-legend__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    color: #E2E2E2;
+  }
+
+  .cal-legend__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .cal-legend__dot--available { background: #22C55E; }
+
+  .cal-legend__dot--full      { background: #EF4444; }
+
+  /* Controles mes */
+  .cal-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 0 12px;
+  }
+
+  .cal-nav__btn {
+    width: 32px;
+    height: 32px;
+    background: #282A2B;
+    border: 1px solid #414847;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: background var(--transition), border-color var(--transition);
+  }
+
+  .cal-nav__btn:hover {
+    background: #333535;
+    border-color: rgba(170,206,201,0.30);
+    color: var(--color-text-primary);
+  }
+
+  .cal-nav__btn .material-symbols-outlined { font-size: 16px; }
+
+  .cal-nav__month {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    color: #E2E2E2;
+    min-width: 140px;
+    text-align: center;
+  }
+
+  /* Grid del calendario */
+  .cal-grid {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .cal-grid::-webkit-scrollbar { height: 4px; }
+.cal-grid::-webkit-scrollbar-track { background: transparent; }
+.cal-grid::-webkit-scrollbar-thumb { background: rgba(65,72,71,0.40); border-radius: 4px; }
+
+  .cal-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 4px;
+  }
+
+  .cal-table th {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    color: #C1C8C6;
+    text-align: center;
+    padding-bottom: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #414847;
+  }
+
+  .cal-day {
+    text-align: center;
+    padding: 10px 6px 12px;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+    min-width: 40px;
+  }
+
+/* Estados del calendario*/
+  .cal-day--empty { cursor: default; }
+
+  .cal-day--past {
+    background: transparent;
+    color: rgba(193, 200, 198, 0.25);
+    cursor: default;
+  }
+
+  .cal-day--available {
+  background: rgba(34,197,94,0.20);
+  border: 1px solid rgba(34,197,94,0.40);
+    color: #E2E2E2;
+  }
+
+  .cal-day--available:hover {
+    background: rgba(34, 197, 94, 0.28);
+    border-color: rgba(34, 197, 94, 0.60);
+    transform: scale(1.06);
+  }
+
+  /* Hover-preview durante selección del rango */
+  .cal-day--hover-range {
+    background: rgba(254, 231, 21, 0.08);
+    border: 1px solid rgba(254, 231, 21, 0.18);
+    color: #E2E2E2;
+  }
+
+  .cal-day--full {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.30);
+    color: rgba(193, 200, 198, 0.45);
+    cursor: not-allowed;
+  }
+
+  /* Inicio y fin del rango */
+  .cal-day--range-start,
+  .cal-day--range-end {
+    background: rgba(254, 231, 21, 0.22);
+    border: 2px solid #FEE715;
+    box-shadow: 0 0 12px rgba(254, 231, 21, 0.30);
+    color: #fff;
+    font-weight: 600;
+    transform: scale(1.06);
+  }
+
+  /* Días dentro del rango */
+  .cal-day--in-range {
+    background: rgba(254, 231, 21, 0.09);
+    border: 1px solid rgba(254, 231, 21, 0.18);
+    color: #E2E2E2;
+    border-radius: 0;
+  }
+
+  .cal-day--range-start {
+    border-radius: 8px;
+  }
+
+  .cal-day--range-end {
+    border-radius: 8px;
+  }
+
+  /* Hint debajo del calendario */
+  .cal-hint {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: #AACEC9;
+    text-align: center;
+    padding-top: 6px;
+    min-height: 18px;
+    transition: color 0.2s;
+  }
+
+  /* ── FECHAS EN BOOKING CARD ── */
+  .booking-dates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .booking-date-btn {
+    background: #1E2020;
+    border: 1px solid #414847;
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s;
+  }
+
+  .booking-date-btn:hover {
+    border-color: rgba(170, 206, 201, 0.40);
+  }
+
+  .booking-date-btn--active {
+    border-color: #FEE715;
+    box-shadow: 0 0 0 2px rgba(254, 231, 21, 0.12);
+  }
+
+  .booking-date-btn__label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6B7280;
+  }
+
+  .booking-date-btn__value {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: #E2E2E2;
+    white-space: nowrap;
+  }
+
+  .booking-date-btn__value--empty {
+    color: #414847;
+  }
+
+  .booking-nights {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: #AACEC9;
+    text-align: center;
+    margin-bottom: 12px;
+    min-height: 16px;
+  }
+
+  /* ── MAPA PREVIEW ── */
+  .location-map-preview {
+    width: 100%;
+    height: 180px;
+    border-radius: 12px;
+    border: 1px solid #414847;
+    overflow: hidden;
+    position: relative;
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .location-map-preview:hover {
+    border-color: rgba(170, 206, 201, 0.40);
+  }
+
+  .location-map-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.55) saturate(0.5);
+    transition: filter 0.3s;
+  }
+
+  .location-map-preview:hover img {
+    filter: brightness(0.65) saturate(0.6);
+  }
+
+  .location-map-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .location-map-overlay .material-symbols-outlined {
+    font-size: 28px;
+    color: #AACEC9;
+  }
+
+  .location-map-overlay__label {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    color: #E2E2E2;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+  }
+
+  /* ── UBICACIÓN ── */
+  .location-map {
+    width: 100%;
+    height: 192px;
+    background: #282A2B;
+    border-radius: 12px;
+    border: 1px solid #414847;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: border-color var(--transition), background var(--transition);
+    text-decoration: none;
+  }
+
+  .location-map:hover {
+    border-color: rgba(170,206,201,0.30);
+    background: #333535;
+  }
+
+  .location-map .material-symbols-outlined {
+    font-size: 28px;
+    color: #AACEC9;
+  }
+
+  .location-map__label {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 400;
+    color: #E2E2E2;
+  }
+
+  .location-address {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: #C1C8C6;
+  }
+
+  .location-address .material-symbols-outlined {
+    font-size: 20px;
+    color: #AACEC9;
+    flex-shrink: 0;
+  }
+
+  /* ── OPINIONES ── */
+  .reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .reviews-rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: #E2E2E2;
+  }
+
+  .reviews-rating .material-symbols-outlined {
+    font-size: 20px;
+    color: #FEE715;
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  .review-item {
+    padding-bottom: 24px;
+    border-bottom: 1px solid #414847;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+.review-item:last-of-type { border-bottom: none; }
+
+  .review-item__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .review-item__author {
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: #E2E2E2;
+  }
+
+  .review-item__date {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    color: #C1C8C6;
+  }
+
+  .review-stars {
+    display: flex;
+    gap: 2px;
+  }
+
+  .review-stars .material-symbols-outlined {
+    font-size: 15px;
+    color: #FEE715;
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  .review-item__text {
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: #C1C8C6;
+    line-height: 24px;
+  }
+
+  .btn-all-reviews {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #414847;
+    background: transparent;
+    text-align: center;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: #AACEC9;
+    cursor: pointer;
+    transition: background var(--transition), border-color var(--transition);
+  }
+
+  .btn-all-reviews:hover {
+    background: #282A2B;
+    border-color: rgba(170, 206, 201, 0.30);
+  }
+
+  /* Partículas fijas cubriendo toda la página */
+  #particlesCanvas {
+    position: fixed !important;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+
+  /* Asegurar que el contenido quede encima */
+  .park-detail {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── COLUMNA DERECHA: BOOKING CARD ── */
+  .booking-card {
+    background: #282A2B;
+    border-radius: 12px;
+    border: 1px solid #414847;
+    padding: 25px;
+    position: sticky;
+    top: calc(var(--navbar-h) + 20px);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .booking-card__title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 400;
+    color: #E2E2E2;
+    margin-bottom: 20px;
+  }
+
+  .booking-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .booking-field__label {
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: #C1C8C6;
+  }
+
+  .booking-field__select {
+    width: 100%;
+    padding: 12px;
+    background: #1E2020;
+    border: 1px solid #8B9291;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: #E2E2E2;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M7 10L12 15L17 10' stroke='%236B7280' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    outline: none;
+    cursor: pointer;
+    transition: border-color var(--transition);
+  }
+
+  .booking-field__select:focus {
+  border-color: rgba(170,206,201,0.50);
+  }
+
+  .booking-guests {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .booking-field__input {
+    width: 100%;
+    padding: 12px;
+    background: #1E2020;
+    border: 1px solid #8B9291;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: #E2E2E2;
+    outline: none;
+    transition: border-color var(--transition);
+  }
+
+  .booking-field__input:focus {
+  border-color: rgba(170,206,201,0.50);
+  }
+
+  /* Desglose de precio */
+  .booking-breakdown {
+    border-top: 1px solid #414847;
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .booking-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: #C1C8C6;
+  }
+
+  .booking-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-top: 8px;
+    border-top: 1px solid rgba(65,72,71,0.30);
+  }
+
+  .booking-total__label,
+  .booking-total__amount {
+    font-family: var(--font-display);
+    font-size: 16px;
+    color: #A3E635;
+    text-shadow: 0 0 10px rgba(163,230,53,0.40);
+  }
+
+  /* Botón confirmar */
+  .btn-confirm {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: #22C55E;
+    border: none;
+    border-radius: 12px;
+    font-family: var(--font-display);
+    font-size: 16px;
+    color: #133633;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(34,197,94,0.30);
+    transition: background var(--transition), transform 0.15s ease, box-shadow 0.15s ease;
+    margin-bottom: 16px;
+  }
+
+  .btn-confirm:hover {
+    background: #16a34a;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 28px rgba(34,197,94,0.45);
+  }
+
+  .booking-secure {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    color: #C1C8C6;
+  }
+
+  .booking-secure .material-symbols-outlined {
+    font-size: 14px;
+    color: #C1C8C6;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1024px) {
+    .park-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .booking-card {
+      position: static;
+    }
+
+    .park-gallery {
+      grid-template-columns: 1fr 1fr;
+      height: auto;
+      grid-template-rows: 260px 260px;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .park-layout {
+      padding-top: 8px;    
+    }
+  }
+
+  @media (max-width: 769px) {
+    .park-gallery {
+      grid-template-columns: 1fr;
+      grid-template-rows: 300px 180px 180px;
+      padding-top: 20px;
+      height: auto;
+      gap: 8px;
+    }
+
+    .park-gallery__main {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .park-gallery__badge h1 { font-size: 28px; }
+
+  .park-layout { padding: 8px 16px 60px; gap: 20px; }
+  .park-gallery { padding: 20px 16px 0; }
+  }
+
+  /* ── Fix móvil: badge visible sobre partículas ── */
+.park-gallery__badge {
+  z-index: 2;
+}
+
+@media (max-width: 769px) {
+  .park-gallery__badge { display: none; }
+}
+
+/* ── Reduce espacio entre galería y contenido ── */
+@media (max-width: 769px) {
+  .park-layout {
+    padding: 0px 16px 60px;  /* ← top reducido, mantiene los laterales y bottom */
+    gap: 20px;
+  }
+}
+
+.park-mobile-title {
+  display: none;
+}
+
+@media (max-width: 769px) {
+  .park-mobile-title {
+    display: block;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 16px 16px 0;
+  }
+
+  .park-mobile-title h1 {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 400;
+    color: #E2E2E2;
+  }
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+{% include "components/particles.html" %}
+<div class="park-detail">
+
+  <!-- ══════════════ GALERÍA ══════════════ -->
+  <div class="park-gallery">
+
+    <!-- Imagen principal -->
+    <div class="park-gallery__main">
+      <img src="{{ park.images.0 }}" alt="{{ park.name }}" />
+      <div class="park-gallery__badge">
+        <h1>{{ park.name }}</h1>
+      </div>
+    </div>
+
+    <!-- Miniatura superior derecha -->
+    <div class="park-gallery__thumb">
+      <img src="{{ park.images.1 }}" alt="{{ park.name }} foto 2" />
+    </div>
+
+    <!-- Miniatura inferior derecha con "Ver más" -->
+    <div class="park-gallery__thumb park-gallery__thumb--more" data-more="+ Ver fotos">
+      <img src="{{ park.images.2 }}" alt="{{ park.name }} foto 3" />
+    </div>
+
+  </div>
+
+    <!-- Título solo visible en móvil -->
+  <div class="park-mobile-title">
+    <h1>{{ park.name }}</h1>
+  </div>
+
+  <!-- ══════════════ LAYOUT ══════════════ -->
+  <div class="park-layout">
+
+    <!-- ──────── COLUMNA IZQUIERDA ──────── -->
+    <div class="park-left">
+
+      <!-- Sobre el parque -->
+      <div class="park-section">
+        <h2 class="park-section__title">Sobre el parque</h2>
+        <p class="park-section__body">{{ park.description }}</p>
+      </div>
+
+      <!-- Servicios y Amenidades -->
+      <div class="park-section">
+        <h2 class="park-section__title">Servicios y Amenidades</h2>
+        <div class="amenities-list">
+          {% for amenity in park.amenities %}
+          <div class="amenity-row">
+            <span class="material-symbols-outlined">{{ amenity.icon }}</span>
+            {{ amenity.name }}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Disponibilidad -->
+      <div class="park-section">
+        <div class="cal-header">
+          <h2 class="park-section__title" style="margin:0">Disponibilidad</h2>
+          <div class="cal-legend">
+            <div class="cal-legend__item">
+              <div class="cal-legend__dot cal-legend__dot--available"></div>
+              Disponible
+            </div>
+            <div class="cal-legend__item">
+              <div class="cal-legend__dot cal-legend__dot--full"></div>
+              Agotado
+            </div>
+          </div>
+        </div>
+
+        <!-- Navegación mes -->
+        <div class="cal-nav">
+          <button class="cal-nav__btn" id="calPrev" type="button" aria-label="Mes anterior">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <span class="cal-nav__month" id="calMonthLabel"></span>
+          <button class="cal-nav__btn" id="calNext" type="button" aria-label="Mes siguiente">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+
+        <div class="cal-grid">
+          <table class="cal-table" id="calTable" aria-label="Calendario de disponibilidad">
+            <thead>
+              <tr>
+                <th>Dom</th>
+                <th>Lun</th>
+                <th>Mar</th>
+                <th>Mié</th>
+                <th>Jue</th>
+                <th>Vie</th>
+                <th>Sáb</th>
+              </tr>
+            </thead>
+            <tbody id="calBody"></tbody>
+          </table>
+        </div>
+        <p class="cal-hint" id="calHint">Selecciona tu fecha de llegada</p>
+      </div>
+
+      <!-- Ubicación -->
+      <div class="park-section">
+        <h2 class="park-section__title">Ubicación</h2>
+        <a href="/map/?park={{ park_name }}" class="location-map">
+          <span class="material-symbols-outlined">map</span>
+          <span class="location-map__label">Ver en mapa interactivo</span>
+        </a>
+        <div class="location-address">
+          <span class="material-symbols-outlined">location_on</span>
+          {{ park.address }}
+        </div>
+      </div>
+
+      <!-- Opiniones -->
+      <div class="park-section">
+        <div class="reviews-header">
+          <h2 class="park-section__title" style="margin:0">Opiniones</h2>
+          <div class="reviews-rating">
+            <span class="material-symbols-outlined">star</span>
+            {{ park.rating }} ({{ park.review_count }} reseñas)
+          </div>
+        </div>
+
+        {% for review in park.reviews %}
+        <div class="review-item">
+          <div class="review-item__meta">
+            <div>
+              <div class="review-item__author">{{ review.author }}</div>
+              <div class="review-item__date">{{ review.date }}</div>
+            </div>
+            <div class="review-stars">
+              {% for i in "12345" %}
+              <span class="material-symbols-outlined">star</span>
+              {% endfor %}
+            </div>
+          </div>
+          <p class="review-item__text">{{ review.text }}</p>
+        </div>
+        {% endfor %}
+
+        <button class="btn-all-reviews" type="button">Leer todas las opiniones</button>
+      </div>
+
+    </div><!-- /park-left -->
+
+    <!-- ──────── COLUMNA DERECHA: BOOKING ──────── -->
+    <div class="park-right">
+      <div class="booking-card">
+
+        <h2 class="booking-card__title">Reserva tu lugar</h2>
+
+        <!-- Fechas seleccionadas -->
+        <div class="booking-dates">
+          <button class="booking-date-btn booking-date-btn--active" id="btnCheckin" type="button">
+            <span class="booking-date-btn__label">Llegada</span>
+            <span class="booking-date-btn__value booking-date-btn__value--empty" id="valCheckin">Añade fecha</span>
+          </button>
+          <button class="booking-date-btn" id="btnCheckout" type="button">
+            <span class="booking-date-btn__label">Salida</span>
+            <span class="booking-date-btn__value booking-date-btn__value--empty" id="valCheckout">Añade fecha</span>
+          </button>
+        </div>
+        <p class="booking-nights" id="nightsBadge"></p>
+
+        <!-- Alojamiento -->
+        <div class="booking-field">
+          <label class="booking-field__label" for="booking-type">Alojamiento</label>
+          <select class="booking-field__select" id="booking-type">
+            {% for opt in park.booking_options %}
+            <option value="{{ opt.value }}">{{ opt.label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Adultos / Niños -->
+        <div class="booking-guests">
+          <div class="booking-field" style="margin-bottom:0">
+            <label class="booking-field__label" for="booking-adults">Adultos</label>
+            <input type="number" id="booking-adults" class="booking-field__input"
+              value="2" min="1" max="20" />
+          </div>
+          <div class="booking-field" style="margin-bottom:0">
+            <label class="booking-field__label" for="booking-kids">Niños</label>
+            <input type="number" id="booking-kids" class="booking-field__input"
+              value="0" min="0" max="10" />
+          </div>
+        </div>
+
+        <!-- Desglose -->
+        <div class="booking-breakdown">
+          <div class="booking-line">
+            <span id="booking-line1-label">Cabaña x 1 noche</span>
+            <span id="booking-line1-amount">$2,450.00</span>
+          </div>
+          <div class="booking-line">
+            <span id="booking-line2-label">Caminata (2 Pers)</span>
+            <span id="booking-line2-amount">$600.00</span>
+          </div>
+          <div class="booking-line">
+            <span>Cuota Conservación</span>
+            <span id="booking-conservation">$150.00</span>
+          </div>
+          <div class="booking-total">
+            <span class="booking-total__label">Total</span>
+            <span class="booking-total__amount" id="booking-total">$3,200.00</span>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <button class="btn-confirm" type="button" id="confirmBtn">
+          Confirmar Reserva
+        </button>
+
+        <div class="booking-secure">
+          <span class="material-symbols-outlined">lock</span>
+          Pago seguro vía Plataforma Festival
+        </div>
+
+      </div>
+    </div><!-- /park-right -->
+
+  </div><!-- /park-layout -->
+
+</div><!-- /park-detail -->
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function () {
+    'use strict';
+
+    var FULL_DATES = [3, 4, 10, 11, 17, 18, 24, 25];
+    var today = new Date();
+    var currentYear = today.getFullYear();
+    var currentMonth = today.getMonth();
+
+    var rangeStart = null;
+    var rangeEnd = null;
+    var pickingEnd = false;
+    var hoverDay = null;
+
+    var MONTHS_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    var SHORT_ES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+      'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+    function key(y, m, d) { return y * 10000 + m * 100 + d; }
+    function keyOf(o) { return key(o.y, o.m, o.d); }
+    function sorted() {
+      if (!rangeStart || !rangeEnd) return { s: rangeStart, e: rangeEnd };
+      return keyOf(rangeStart) <= keyOf(rangeEnd)
+        ? { s: rangeStart, e: rangeEnd }
+        : { s: rangeEnd, e: rangeStart };
+    }
+    function nights(a, b) {
+      return Math.round(Math.abs(
+        new Date(b.y, b.m, b.d) - new Date(a.y, a.m, a.d)
+      ) / 86400000);
+    }
+    function fmt(d) { return d.d + ' ' + SHORT_ES[d.m] + ' ' + d.y; }
+
+    function setHint(txt) {
+      var el = document.getElementById('calHint');
+      if (el) el.textContent = txt;
+    }
+
+    function syncCard() {
+      var elCi = document.getElementById('valCheckin');
+      var elCo = document.getElementById('valCheckout');
+      var badge = document.getElementById('nightsBadge');
+      var btnCi = document.getElementById('btnCheckin');
+      var btnCo = document.getElementById('btnCheckout');
+      if (!elCi || !elCo) return;
+
+      btnCi.classList.remove('booking-date-btn--active');
+      btnCo.classList.remove('booking-date-btn--active');
+
+      if (!rangeStart) {
+        elCi.textContent = 'Añade fecha'; elCi.classList.add('booking-date-btn__value--empty');
+        elCo.textContent = 'Añade fecha'; elCo.classList.add('booking-date-btn__value--empty');
+        if (badge) badge.textContent = '';
+        btnCi.classList.add('booking-date-btn--active');
+
+      } else if (!rangeEnd) {
+        elCi.textContent = fmt(rangeStart); elCi.classList.remove('booking-date-btn__value--empty');
+        elCo.textContent = 'Añade fecha'; elCo.classList.add('booking-date-btn__value--empty');
+        if (badge) badge.textContent = '';
+        btnCo.classList.add('booking-date-btn--active');
+
+      } else {
+        var sr = sorted();
+        elCi.textContent = fmt(sr.s); elCi.classList.remove('booking-date-btn__value--empty');
+        elCo.textContent = fmt(sr.e); elCo.classList.remove('booking-date-btn__value--empty');
+        var n = nights(sr.s, sr.e);
+        if (badge) badge.textContent = n + (n === 1 ? ' noche' : ' noches');
+        recalc(n);
+      }
+    }
+
+    /* ──────────────────────────────────────────────
+      RENDER: construye la tabla UNA vez por mes.
+      Ya NO se vuelve a llamar en cada hover.
+    ────────────────────────────────────────────── */
+    function renderCalendar(year, month) {
+      document.getElementById('calMonthLabel').textContent = MONTHS_ES[month] + ' ' + year;
+      var tbody = document.getElementById('calBody');
+      tbody.innerHTML = '';
+
+      var firstDay = new Date(year, month, 1).getDay();
+      var daysInMonth = new Date(year, month + 1, 0).getDate();
+      var todayKey = key(today.getFullYear(), today.getMonth(), today.getDate());
+
+      var day = 1;
+      for (var row = 0; row < 6; row++) {
+        if (day > daysInMonth) break;
+        var tr = document.createElement('tr');
+
+        for (var col = 0; col < 7; col++) {
+          var td = document.createElement('td');
+
+          if ((row === 0 && col < firstDay) || day > daysInMonth) {
+            td.className = 'cal-day cal-day--empty';
+          } else {
+            var d = day;
+            var k = key(year, month, d);
+            var isPast = k < todayKey;
+            var isFull = FULL_DATES.indexOf(d) !== -1;
+
+            td.textContent = d;
+            // Guardamos el día en el nodo para poder repintar sin recrear
+            td.setAttribute('data-day', d);
+
+            if (isPast) {
+              td.className = 'cal-day cal-day--past';
+            } else if (isFull) {
+              td.className = 'cal-day cal-day--full';
+            } else {
+              td.className = 'cal-day cal-day--available';
+
+              (function (dd, cell) {
+                // Hover: solo repinta clases, NO recrea la tabla
+                cell.addEventListener('mouseenter', function () {
+                  if (pickingEnd) { hoverDay = dd; paintRange(year, month); }
+                });
+                cell.addEventListener('mouseleave', function () {
+                  if (pickingEnd) { hoverDay = null; paintRange(year, month); }
+                });
+                // Clic: selección de inicio / fin
+                cell.addEventListener('click', function () {
+                  if (!rangeStart || (!pickingEnd && rangeEnd)) {
+                    rangeStart = { y: year, m: month, d: dd };
+                    rangeEnd = null;
+                    pickingEnd = true;
+                    hoverDay = null;
+                    setHint('Ahora selecciona tu fecha de salida');
+                  } else {
+                    if (keyOf(rangeStart) === key(year, month, dd)) {
+                      setHint('Elige una fecha de salida diferente');
+                      return;
+                    }
+                    rangeEnd = { y: year, m: month, d: dd };
+                    pickingEnd = false;
+                    hoverDay = null;
+                    setHint('Toca cualquier fecha para cambiar el rango');
+                  }
+                  paintRange(year, month);
+                  syncCard();
+                });
+              })(d, td);
+            }
+
+            day++;
+          }
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
+
+      paintRange(year, month);
+    }
+
+    /* ──────────────────────────────────────────────
+      PAINT: actualiza SOLO las clases de rango sobre
+      las celdas existentes. No toca el DOM estructural,
+      así el clic nunca se pierde.
+    ────────────────────────────────────────────── */
+    function paintRange(year, month) {
+      var tbody = document.getElementById('calBody');
+      if (!tbody) return;
+
+      var effEnd = rangeEnd;
+      if (pickingEnd && rangeStart && hoverDay !== null) {
+        effEnd = { y: year, m: month, d: hoverDay };
+      }
+
+      var ks = rangeStart ? keyOf(rangeStart) : null;
+      var ke = effEnd ? keyOf(effEnd) : null;
+      var lo = (ks && ke) ? Math.min(ks, ke) : ks;
+      var hi = (ks && ke) ? Math.max(ks, ke) : ke;
+
+      var cells = tbody.querySelectorAll('td[data-day]');
+      for (var i = 0; i < cells.length; i++) {
+        var cell = cells[i];
+        // Solo repintamos celdas disponibles (no past, no full)
+        if (cell.className.indexOf('cal-day--past') !== -1 ||
+            cell.className.indexOf('cal-day--full') !== -1) {
+          continue;
+        }
+
+        var d = parseInt(cell.getAttribute('data-day'), 10);
+        var k = key(year, month, d);
+        var cls;
+
+        if (ks && ke && k === lo && lo !== hi) cls = 'cal-day cal-day--range-start';
+        else if (ks && ke && k === hi && lo !== hi) cls = 'cal-day cal-day--range-end';
+        else if (lo && hi && k > lo && k < hi)
+          cls = (pickingEnd && !rangeEnd) ? 'cal-day cal-day--hover-range' : 'cal-day cal-day--in-range';
+        else if (ks && k === ks) cls = 'cal-day cal-day--range-start';
+        else cls = 'cal-day cal-day--available';
+
+        cell.className = cls;
+      }
+    }
+
+    renderCalendar(currentYear, currentMonth);
+    syncCard();
+
+    document.getElementById('calPrev').addEventListener('click', function () {
+      if (--currentMonth < 0) { currentMonth = 11; currentYear--; }
+      hoverDay = null;
+      renderCalendar(currentYear, currentMonth);
+    });
+    document.getElementById('calNext').addEventListener('click', function () {
+      if (++currentMonth > 11) { currentMonth = 0; currentYear++; }
+      hoverDay = null;
+      renderCalendar(currentYear, currentMonth);
+    });
+
+    var btnCi = document.getElementById('btnCheckin');
+    var btnCo = document.getElementById('btnCheckout');
+    if (btnCi) btnCi.addEventListener('click', function () {
+      rangeStart = null; rangeEnd = null; pickingEnd = false; hoverDay = null;
+      renderCalendar(currentYear, currentMonth);
+      syncCard();
+      setHint('Selecciona tu fecha de llegada');
+      document.getElementById('calTable').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    if (btnCo) btnCo.addEventListener('click', function () {
+      if (rangeStart && rangeEnd) {
+        rangeEnd = null; pickingEnd = true; hoverDay = null;
+        renderCalendar(currentYear, currentMonth);
+        syncCard();
+        setHint('Selecciona la nueva fecha de salida');
+        document.getElementById('calTable').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+
+    /* ════════════════════════════════════════
+       BOOKING — recalcular total
+    ════════════════════════════════════════ */
+    var PRICES = { cabana: 2450, camping: 850, sendero: 350 };
+    var WALK_PP = 300;
+    var CONSERVATION = 150;
+
+    var selectType = document.getElementById('booking-type');
+    var inputAdults = document.getElementById('booking-adults');
+    var inputKids = document.getElementById('booking-kids');
+
+    function recalc(n) {
+      n = (n && n > 0) ? n : 1;
+      var type = selectType ? selectType.value || 'cabana' : 'cabana';
+      var adults = parseInt(inputAdults ? inputAdults.value : 2) || 1;
+      var kids = parseInt(inputKids ? inputKids.value : 0) || 0;
+      var persons = adults + kids;
+      var base = (PRICES[type] || 2450) * n;
+      var walk = WALK_PP * persons;
+      var total = base + walk + CONSERVATION;
+      var fmtMX = function (v) { return '$' + v.toLocaleString('es-MX', { minimumFractionDigits: 2 }); };
+      var labels = { cabana: 'Cabaña', camping: 'Camping', sendero: 'Entrada' };
+
+      var el1l = document.getElementById('booking-line1-label');
+      var el1a = document.getElementById('booking-line1-amount');
+      var el2l = document.getElementById('booking-line2-label');
+      var el2a = document.getElementById('booking-line2-amount');
+      var elC = document.getElementById('booking-conservation');
+      var elT = document.getElementById('booking-total');
+
+      if (el1l) el1l.textContent = (labels[type] || 'Alojamiento') + ' x ' + n + (n === 1 ? ' noche' : ' noches');
+      if (el1a) el1a.textContent = fmtMX(base);
+      if (el2l) el2l.textContent = 'Caminata (' + persons + ' personas)';
+      if (el2a) el2a.textContent = fmtMX(walk);
+      if (elC) elC.textContent = fmtMX(CONSERVATION);
+      if (elT) elT.textContent = fmtMX(total);
+    }
+
+    function recalcFromState() {
+      if (rangeStart && rangeEnd) { var sr = sorted(); recalc(nights(sr.s, sr.e)); }
+    }
+    if (selectType) selectType.addEventListener('change', recalcFromState);
+    if (inputAdults) inputAdults.addEventListener('input', recalcFromState);
+    if (inputKids) inputKids.addEventListener('input', recalcFromState);
+
+    /* ── Confirmar reserva ── */
+    document.getElementById('confirmBtn').addEventListener('click', function () {
+      if (!rangeStart || !rangeEnd) {
+        document.getElementById('calTable').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('calTable').style.outline = '2px solid #FEE715';
+        setTimeout(function () { document.getElementById('calTable').style.outline = ''; }, 1800);
+        setHint('⚠ Selecciona primero tus fechas de llegada y salida');
+        return;
+      }
+
+      var sr = sorted();
+      var hasBlocked = false;
+      var cur = new Date(sr.s.y, sr.s.m, sr.s.d);
+      var end = new Date(sr.e.y, sr.e.m, sr.e.d);
+      while (cur < end) {
+        if (FULL_DATES.indexOf(cur.getDate()) !== -1
+            && cur.getMonth() === currentMonth
+            && cur.getFullYear() === currentYear) {
+          hasBlocked = true;
+          break;
+        }
+        cur.setDate(cur.getDate() + 1);
+      }
+
+      if (hasBlocked) {
+        document.getElementById('calTable').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('calTable').style.outline = '2px solid #EF4444';
+        setTimeout(function () { document.getElementById('calTable').style.outline = ''; }, 1800);
+        setHint('⚠ Tu rango incluye fechas agotadas, elige otro período');
+        return;
+      }
+
+      var MONTHS_LONG = ['enero','febrero','marzo','abril','mayo','junio',
+                         'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      function fmtLong(d) { return d.d + ' de ' + MONTHS_LONG[d.m] + ', ' + d.y; }
+ 
+      var lodgeSelect = document.getElementById('booking-type');
+      var lodgeLabel  = lodgeSelect ? lodgeSelect.options[lodgeSelect.selectedIndex].text : '';
+      var adults      = document.getElementById('booking-adults') ? document.getElementById('booking-adults').value : '2';
+      var kids        = document.getElementById('booking-kids')   ? document.getElementById('booking-kids').value   : '0';
+ 
+      var form = document.createElement('form');
+      form.method = 'POST';
+      form.action = window.location.pathname.replace(/\/?$/, '/') + 'confirm/';
+
+            /* Token CSRF inyectado por Django */
+      var csrf   = document.createElement('input');
+      csrf.type  = 'hidden';
+      csrf.name  = 'csrfmiddlewaretoken';
+      csrf.value = '{{ csrf_token }}';
+      form.appendChild(csrf);
+ 
+      var fields = {
+        checkin:    fmtLong(sr.s),
+        checkout:   fmtLong(sr.e),
+        adults:     adults,
+        kids:       kids,
+        lodge_type: lodgeLabel,
+      };
+ 
+      Object.keys(fields).forEach(function (key) {
+        var inp   = document.createElement('input');
+        inp.type  = 'hidden';
+        inp.name  = key;
+        inp.value = fields[key];
+        form.appendChild(inp);
+      });
+ 
+      document.body.appendChild(form);
+      form.submit();
+    });
+
+  })();
+</script>
+{% endblock %}

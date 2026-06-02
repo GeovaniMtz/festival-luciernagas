@@ -1,0 +1,100 @@
+{% load static %}
+<header class="navbar">
+<div class="navbar__inner">
+
+  <!-- ═════════════════════ LOGO ═════════════════════ -->
+  <a href="{% url 'explore' %}" class="navbar__logo">
+    <img src="{% static 'img/logo.png' %}" alt="Lumia logo icon" class="navbar__logo-icon" />
+    <img src="{% static 'img/logo-text.png' %}" alt="Lumia" class="navbar__logo-text" />
+  </a>
+
+  <!-- ═════════════════ NAV LINKS DESKTOP ═════════════════ -->
+  <nav class="navbar__links" aria-label="Navegación principal">
+    <a href="{% url 'explore' %}" class="navbar__link {% block nav_inicio %}{% endblock %}">
+      Explorar
+    </a>
+    <a href="/map/" class="navbar__link {% block nav_mapa %}{% endblock %}">
+      Mapa
+    </a>
+  </nav>
+
+  <!-- ═══════════════════ HAMBURGER ═══════════════════ -->
+  <button class="navbar__hamburger" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">
+    <span class="material-symbols-outlined">menu</span>
+  </button>
+
+</div>
+
+<!-- ═════════════════ MOBILE MENU ═════════════════ -->
+<nav class="navbar__mobile" id="mobileMenu" aria-hidden="true">
+
+  {% if user.is_authenticated %}
+
+    <p class="navbar__mobile-section-label">MI CUENTA</p>
+
+    <a href="/perfil/" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">person</span>
+      {{ user.first_name|default:user.email }}
+    </a>
+
+    <a href="/reservaciones/" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">confirmation_number</span>
+      Mis reservaciones
+    </a>
+
+    <a href="/metodos-pago/" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">credit_card</span>
+      Métodos de pago
+    </a>
+
+    <hr class="navbar__mobile-divider" />
+
+    <a href="/configuracion/" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">settings</span>
+      Configuración
+    </a>
+
+    <a href="/festival/" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">auto_awesome</span>
+      El Festival
+    </a>
+
+    <form method="POST" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="navbar__mobile-link navbar__logout-btn">
+        <span class="material-symbols-outlined navbar__mobile-link-icon">logout</span>
+        Cerrar sesión
+      </button>
+    </form>
+
+  {% else %}
+
+    <a href="{% url 'login' %}" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">login</span>
+      Iniciar sesión
+    </a>
+
+    <a href="{% url 'register' %}" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">how_to_reg</span>
+      Registrarse
+    </a>
+
+    <a href="{% url 'explore' %}" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">travel_explore</span>
+      Explorar
+    </a>
+
+    <a href="/map/" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">map</span>
+      Mapa
+    </a>
+
+    <a href="/festival/" class="navbar__mobile-link">
+      <span class="material-symbols-outlined navbar__mobile-link-icon">auto_awesome</span>
+      El Festival
+    </a>
+
+  {% endif %}
+
+</nav>
+</header>

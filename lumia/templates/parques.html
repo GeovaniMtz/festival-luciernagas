@@ -1,0 +1,1032 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Todos los Parques — Lumia{% endblock %}
+
+{% block extra_css %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap');
+
+/* ══════════════════════════════════════════════
+   HERO COMPACTO
+══════════════════════════════════════════════ */
+.parques-hero {
+  position: relative;
+  padding-top: calc(var(--navbar-h) + 48px);
+  padding-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  overflow: visible;
+  z-index: 2; 
+}
+
+/* Fondo: gradiente radial oscuro con toque teal */
+.parques-hero__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 0%, rgba(21,81,85,0.30) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 20% 100%, rgba(10,46,43,0.35) 0%, transparent 60%),
+    linear-gradient(180deg, #0D1514 0%, #121414 100%);
+  z-index: 0;
+}
+
+/* Canvas de partículas */
+.parques-hero #particlesCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.parques-hero__content {
+  position: relative;
+  z-index: 2;
+  max-width: 896px;
+  width: 100%;
+  padding: 0 40px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.parques-hero__title {
+  font-family: 'Manrope', var(--font-display);
+  font-size: clamp(32px, 5vw, 60px);
+  font-weight: 700;
+  line-height: 1.05;
+  color: #E2E2E2;
+}
+
+.parques-hero__subtitle {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 28px;
+  color: var(--color-text-secondary);
+  max-width: 560px;
+}
+
+/* ── Buscador (mismo que explore) ── */
+.parques-hero__search {
+  width: 100%;
+  max-width: 768px;
+  margin-top: 8px;
+  background: rgba(40, 42, 43, 0.90);
+  border-radius: 16px;
+  border: 1px solid #414847;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+}
+
+.parques-hero__search-field {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-right: 1px solid rgba(65,72,71,0.30);
+  cursor: pointer;
+  min-width: 0;
+}
+.parques-hero__search-field:last-of-type { border-right: none; }
+
+.parques-hero__search-icon {
+  color: var(--color-text-label);
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.parques-hero__search-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.parques-hero__search-label {
+  font-size: 12px; font-weight: 500;
+  text-transform: uppercase; line-height: 16px;
+  color: #8B9291;
+}
+
+.parques-hero__search-value {
+  font-size: 14px; font-weight: 600;
+  letter-spacing: 0.7px; color: #E2E2E2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.parques-hero__date-input {
+  position: absolute; opacity: 0; pointer-events: none;
+}
+
+.parques-hero__search-btn {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+  padding: 16px 32px;
+  background: var(--color-success);
+  border: none; border-radius: 12px;
+  font-family: var(--font-body); font-size: 16px; font-weight: 700;
+  color: #133633; cursor: pointer;
+  transition: background var(--transition), transform 0.15s ease;
+}
+.parques-hero__search-btn:hover { background: #16a34a; transform: translateY(-1px); }
+.parques-hero__search-btn .material-symbols-outlined { font-size: 20px; }
+
+/* Visitors dropdown (igual que explore) */
+.visitors-field { position: relative; }
+.visitors-dropdown {
+  position: absolute; top: calc(100% + 14px); left: 0;
+  width: 320px; background: #1A1C1C;
+  border: 1px solid #414847; border-radius: 20px;
+  padding: 20px; display: none; flex-direction: column; gap: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.35); z-index: 100;
+}
+.visitors-dropdown.is-open { display: flex; }
+.visitors-row { display: flex; align-items: center; justify-content: space-between; }
+.visitors-row__title { font-size: 16px; font-weight: 700; color: #E2E2E2; }
+.visitors-row__subtitle { font-size: 13px; color: var(--color-text-secondary); }
+.visitors-counter { display: flex; align-items: center; gap: 14px; }
+.counter-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid #414847; background: #282A2B;
+  color: #E2E2E2; font-size: 18px; cursor: pointer;
+}
+
+/* ══════════════════════════════════════════════
+   SECCIÓN PRINCIPAL
+══════════════════════════════════════════════ */
+.parques-section {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+/* ── Filtros ── */
+.parques-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 0 8px;
+  flex-wrap: wrap;
+}
+
+.parques-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  border: none;
+  font-family: var(--font-body);
+  font-size: 14px; font-weight: 600;
+  letter-spacing: 0.7px;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+  white-space: nowrap;
+  background: #282A2B;
+  color: var(--color-text-secondary);
+}
+
+.parques-filter-btn .material-symbols-outlined { font-size: 16px; }
+
+.parques-filter-btn:hover {
+  background: #333535;
+  color: var(--color-text-primary);
+}
+
+.parques-filter-btn.is-active {
+  background: #155155;
+  color: #8BC2C6;
+  box-shadow: 0 0 15px rgba(163, 230, 53, 0.15);
+}
+
+/* ── Info bar (contador + ordenar) ── */
+.parques-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0 24px;
+  border-bottom: 1px solid rgba(65,72,71,0.20);
+  margin-bottom: 24px;
+}
+
+.parques-bar__count {
+  font-family: var(--font-body);
+  font-size: 14px; font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.parques-bar__count strong {
+  color: var(--color-text-secondary);
+  font-weight: 700;
+}
+
+/* ── Grid ── */
+.parques-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* ══════════════════════════════════════════════
+   PARK CARD
+══════════════════════════════════════════════ */
+.park-card-v2 {
+  background: #282A2B;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: border-color var(--transition), transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.park-card-v2:hover {
+  border-color: rgba(170,206,201,0.20);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+}
+
+/* Imagen */
+.park-card-v2__img-wrap {
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  height: 219px;
+}
+
+.park-card-v2__img-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.park-card-v2:hover .park-card-v2__img-wrap img {
+  transform: scale(1.05);
+}
+
+/* Gradiente sobre imagen */
+.park-card-v2__overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(4,71,75,0) 0%,
+    rgba(4,71,75,0.90) 100%
+  );
+}
+
+/* Badge de disponibilidad (top right) */
+.park-card-v2__status {
+  position: absolute;
+  top: 16px; right: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  font-family: var(--font-body);
+  font-size: 12px; font-weight: 500;
+  line-height: 16px;
+  color: #fff;
+}
+
+.park-card-v2__status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.park-card-v2__status--available { background: rgba(34,197,94,0.90); }
+.park-card-v2__status--few       { background: rgba(245,158,11,0.90); }
+.park-card-v2__status--full      { background: rgba(239,68,68,0.90); }
+
+/* Rating (bottom left de imagen) */
+.park-card-v2__rating {
+  position: absolute;
+  bottom: 16px; left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgba(0,0,0,0.40);
+  border-radius: 8px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.park-card-v2__star {
+  color: var(--color-yellow-glow);
+  font-size: 14px;
+  display: flex;
+}
+
+.park-card-v2__star svg {
+  width: 14px; height: 14px;
+  fill: var(--color-yellow-glow);
+}
+
+.park-card-v2__score {
+  font-family: var(--font-body);
+  font-size: 14px; font-weight: 600;
+  letter-spacing: 0.7px;
+  color: #fff;
+}
+
+/* Cuerpo de la card */
+.park-card-v2__body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.park-card-v2__info {
+  padding-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.park-card-v2__name {
+  font-family: 'Manrope', var(--font-display);
+  font-size: 24px; font-weight: 600;
+  line-height: 32px;
+  color: #E2E2E2;
+}
+
+.park-card-v2__desc {
+  font-family: var(--font-body);
+  font-size: 16px; font-weight: 400;
+  line-height: 24px;
+  color: var(--color-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Footer de la card */
+.park-card-v2__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid rgba(65,72,71,0.30);
+}
+
+.park-card-v2__amenities {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.park-card-v2__amenity {
+  color: var(--color-text-secondary);
+  font-size: 20px;
+  display: flex;
+  transition: color var(--transition);
+}
+
+.park-card-v2:hover .park-card-v2__amenity {
+  color: var(--color-text-label);
+}
+
+.park-card-v2__price {
+  font-family: var(--font-body);
+  font-size: 14px; font-weight: 700;
+  letter-spacing: 0.7px;
+  color: var(--color-text-label);
+  white-space: nowrap;
+}
+
+/* Card agotada — atenuar imagen */
+.park-card-v2--full .park-card-v2__img-wrap img {
+  filter: saturate(0.4) brightness(0.7);
+}
+
+.park-card-v2--full .park-card-v2__name {
+  color: var(--color-text-muted);
+}
+
+/* ── Sin resultados ── */
+.parques-empty {
+  grid-column: 1 / -1;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 24px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.parques-empty.is-visible { display: flex; }
+
+.parques-empty .material-symbols-outlined {
+  font-size: 48px; opacity: 0.3;
+}
+
+.parques-empty__text {
+  font-size: 16px; font-weight: 500;
+}
+
+/* Partículas fijas cubriendo toda la página */
+#particlesCanvas {
+  position: fixed !important;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+/* Asegurar que el contenido quede encima */
+.parques-hero__bg,
+.parques-hero__content,
+.parques-section {
+  position: relative;
+  z-index: 1;
+}
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .parques-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .parques-hero__content { padding: 0 20px 24px; }
+  .parques-hero__search {
+    flex-direction: column; align-items: stretch;
+  }
+  .parques-hero__search-field {
+    border-right: none;
+    border-bottom: 1px solid rgba(65,72,71,0.30);
+  }
+  .parques-hero__search-btn { width: 100%; justify-content: center; }
+  .parques-section { padding: 24px 16px 60px; }
+  .parques-grid { grid-template-columns: 1fr; }
+  .parques-filters { gap: 8px; }
+  .parques-filter-btn { padding: 8px 14px; font-size: 13px; }
+  .parques-hero__title { font-size: 28px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+{% include "components/particles.html" %}
+<!-- ══════════════ HERO ══════════════ -->
+<section class="parques-hero">
+  <div class="parques-hero__bg"></div>
+
+  <div class="parques-hero__content">
+    <h1 class="parques-hero__title">
+      ¡La magia nocturna del Festival de Luciérnagas te espera!
+    </h1>
+    <p class="parques-hero__subtitle">
+      Descubre la magia de la luz natural en los bosques más profundos del festival.
+    </p>
+
+    <!-- Buscador -->
+    <div class="parques-hero__search" role="search">
+
+      <!-- Campo fecha -->
+      <div class="parques-hero__search-field" id="pDateField">
+        <span class="parques-hero__search-icon material-symbols-outlined">calendar_month</span>
+        <div class="parques-hero__search-info">
+          <span class="parques-hero__search-label">Fecha</span>
+          <span class="parques-hero__search-value" id="pSearchDate">Selecciona fecha</span>
+        </div>
+        <input type="date" id="pFestivalDate" class="parques-hero__date-input" />
+      </div>
+
+      <!-- Campo visitantes -->
+      <div class="parques-hero__search-field visitors-field" id="pVisitorsField">
+        <span class="parques-hero__search-icon material-symbols-outlined">group</span>
+        <div class="parques-hero__search-info">
+          <span class="parques-hero__search-label">Visitantes</span>
+          <span class="parques-hero__search-value" id="pVisitorsText">2 Adultos, 0 Niños</span>
+        </div>
+        <!-- Dropdown visitantes -->
+        <div class="visitors-dropdown" id="pVisitorsDropdown">
+          <div class="visitors-row">
+            <div>
+              <div class="visitors-row__title">Adultos</div>
+              <div class="visitors-row__subtitle">Mayores de 13 años</div>
+            </div>
+            <div class="visitors-counter">
+              <button type="button" class="counter-btn" id="pMinusAdults">-</button>
+              <span id="pAdultCount">2</span>
+              <button type="button" class="counter-btn" id="pPlusAdults">+</button>
+            </div>
+          </div>
+          <div class="visitors-row">
+            <div>
+              <div class="visitors-row__title">Niños</div>
+              <div class="visitors-row__subtitle">Menores de 13 años</div>
+            </div>
+            <div class="visitors-counter">
+              <button type="button" class="counter-btn" id="pMinusKids">-</button>
+              <span id="pKidCount">0</span>
+              <button type="button" class="counter-btn" id="pPlusKids">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="parques-hero__search-btn" type="button" id="pSearchBtn">
+        <span class="material-symbols-outlined">search</span>
+        Buscar
+      </button>
+
+    </div><!-- /search -->
+
+  </div>
+</section>
+
+<!-- ══════════════ SECCIÓN PARQUES ══════════════ -->
+<div class="parques-section">
+
+  <!-- Filtros -->
+  <div class="parques-filters" role="group" aria-label="Filtrar parques">
+    <button class="parques-filter-btn is-active" data-filter="all" type="button">
+      <span class="material-symbols-outlined">forest</span> Todos
+    </button>
+    <button class="parques-filter-btn" data-filter="camping" type="button">
+      <span class="material-symbols-outlined">camping</span> Zonas de camping
+    </button>
+    <button class="parques-filter-btn" data-filter="cabana" type="button">
+      <span class="material-symbols-outlined">cabin</span> Cabañas
+    </button>
+    <button class="parques-filter-btn" data-filter="sendero" type="button">
+      <span class="material-symbols-outlined">hiking</span> Senderos
+    </button>
+  </div>
+
+  <!-- Barra info -->
+  <div class="parques-bar">
+    <p class="parques-bar__count">
+      <strong id="parkCount">9</strong> parques encontrados
+    </p>
+  </div>
+
+  <!-- Grid de tarjetas -->
+  <div class="parques-grid" id="parkGrid">
+
+    <!-- Sin resultados -->
+    <div class="parques-empty" id="parquesEmpty">
+      <span class="material-symbols-outlined">search_off</span>
+      <span class="parques-empty__text">No hay parques que coincidan con ese filtro.</span>
+    </div>
+
+        <!-- ── Card: Bosque Esmeralda ── -->
+    <a href="{% url 'park_detail' 'bosque-esmeralda' %}"
+    class="park-card-v2" data-type="camping" data-status="available">
+    <div class="park-card-v2__img-wrap">
+    <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&q=80"
+          alt="Bosque Esmeralda" loading="lazy" />
+    <div class="park-card-v2__overlay"></div>
+    <span class="park-card-v2__status park-card-v2__status--available">
+      <span class="park-card-v2__status-dot"></span> Disponible
+    </span>
+    <div class="park-card-v2__rating">
+      <span class="park-card-v2__star">
+        <svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg>
+      </span>
+      <span class="park-card-v2__score">4.9</span>
+    </div>
+    </div>
+    <div class="park-card-v2__body">
+    <div class="park-card-v2__info">
+      <h3 class="park-card-v2__name">Bosque Esmeralda</h3>
+      <p class="park-card-v2__desc">Lugar privilegiado con acceso profundo al bosque virgen del festival.</p>
+    </div>
+    <div class="park-card-v2__footer">
+      <div class="park-card-v2__amenities">
+        <span class="park-card-v2__amenity material-symbols-outlined" title="Camping">camping</span>
+        <span class="park-card-v2__amenity material-symbols-outlined" title="Senderismo">hiking</span>
+        <span class="park-card-v2__amenity material-symbols-outlined" title="Estacionamiento">local_parking</span>
+      </div>
+      <span class="park-card-v2__price">$450 MXN</span>
+    </div>
+    </div>
+    </a>
+
+    <!-- ── Card: Parque Central Amecameca ── -->
+    <a href="{% url 'park_detail' 'parque-central-amecameca' %}"
+    class="park-card-v2" data-type="cabana" data-status="available">
+    <div class="park-card-v2__img-wrap">
+    <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80"
+          alt="Parque Central Amecameca" loading="lazy" />
+    <div class="park-card-v2__overlay"></div>
+    <span class="park-card-v2__status park-card-v2__status--available">
+      <span class="park-card-v2__status-dot"></span> Disponible
+    </span>
+    <div class="park-card-v2__rating">
+      <span class="park-card-v2__star">
+        <svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg>
+      </span>
+      <span class="park-card-v2__score">4.7</span>
+    </div>
+    </div>
+    <div class="park-card-v2__body">
+    <div class="park-card-v2__info">
+      <h3 class="park-card-v2__name">Parque Central Amecameca</h3>
+      <p class="park-card-v2__desc">Zona tranquila ideal para entusiastas de la fotografía nocturna.</p>
+    </div>
+    <div class="park-card-v2__footer">
+      <div class="park-card-v2__amenities">
+        <span class="park-card-v2__amenity material-symbols-outlined" title="Cabañas">cabin</span>
+        <span class="park-card-v2__amenity material-symbols-outlined" title="WiFi">wifi</span>
+        <span class="park-card-v2__amenity material-symbols-outlined" title="Estacionamiento">local_parking</span>
+      </div>
+      <span class="park-card-v2__price">$350 MXN</span>
+    </div>
+    </div>
+    </a>
+
+    <!-- ── Card: Rancho del Valle ── -->
+    <a href="{% url 'park_detail' 'rancho-del-valle' %}"
+    class="park-card-v2 park-card-v2--few" data-type="cabana" data-status="few">
+    <div class="park-card-v2__img-wrap">
+    <img src="https://images.unsplash.com/photo-1511497584788-876760111969?w=600&q=80"
+          alt="Rancho del Valle" loading="lazy" />
+    <div class="park-card-v2__overlay"></div>
+    <span class="park-card-v2__status park-card-v2__status--few">Pocos Lugares</span>
+    <div class="park-card-v2__rating">
+      <span class="park-card-v2__star">
+        <svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg>
+      </span>
+      <span class="park-card-v2__score">4.8</span>
+    </div>
+    </div>
+    <div class="park-card-v2__body">
+    <div class="park-card-v2__info">
+      <h3 class="park-card-v2__name">Rancho del Valle</h3>
+      <p class="park-card-v2__desc">Cabañas familiares cerca de la orilla del lago con espacios para acampar.</p>
+    </div>
+    <div class="park-card-v2__footer">
+      <div class="park-card-v2__amenities">
+        <span class="park-card-v2__amenity material-symbols-outlined" title="Cabañas">cabin</span>
+        <span class="park-card-v2__amenity material-symbols-outlined" title="Estacionamiento">local_parking</span>
+        <span class="park-card-v2__amenity material-symbols-outlined" title="Restaurante">restaurant</span>
+      </div>
+      <span class="park-card-v2__price">$410 MXN</span>
+    </div>
+    </div>
+    </a>
+
+    <!-- ── Card 1: Santuario El Rosario ── -->
+    <a href="{% url 'park_detail' 'santuario-el-rosario' %}"
+       class="park-card-v2" data-type="camping" data-status="available">
+      <div class="park-card-v2__img-wrap">
+        <img
+          src="{% static 'img/El-rosario.jpeg' %}"
+          alt="Santuario El Rosario"
+          loading="lazy"
+        />
+        <div class="park-card-v2__overlay"></div>
+        <span class="park-card-v2__status park-card-v2__status--available">
+          <span class="park-card-v2__status-dot"></span> Disponible
+        </span>
+        <div class="park-card-v2__rating">
+          <span class="park-card-v2__star">
+            <svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg>
+          </span>
+          <span class="park-card-v2__score">4.9</span>
+        </div>
+      </div>
+      <div class="park-card-v2__body">
+        <div class="park-card-v2__info">
+          <h3 class="park-card-v2__name">Santuario El Rosario</h3>
+          <p class="park-card-v2__desc">El santuario más grande de la región, ofreciendo una experiencia inmersiva única.</p>
+        </div>
+        <div class="park-card-v2__footer">
+          <div class="park-card-v2__amenities">
+            <span class="park-card-v2__amenity material-symbols-outlined" title="WiFi">wifi</span>
+            <span class="park-card-v2__amenity material-symbols-outlined" title="Estacionamiento">local_parking</span>
+            <span class="park-card-v2__amenity material-symbols-outlined" title="Restaurante">restaurant</span>
+          </div>
+          <span class="park-card-v2__price">$450 MXN</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- ── Card 2: Parque Ecoturístico Chalma ── -->
+    <a href="{% url 'park_detail' 'parque-chalma' %}"
+       class="park-card-v2" data-type="sendero" data-status="available">
+      <div class="park-card-v2__img-wrap">
+        <img
+          src="{% static 'img/chalma.webp' %}"
+          alt="Parque Ecoturístico Chalma"
+          loading="lazy"
+        />
+        <div class="park-card-v2__overlay"></div>
+        <span class="park-card-v2__status park-card-v2__status--available">
+          <span class="park-card-v2__status-dot"></span> Disponible
+        </span>
+        <div class="park-card-v2__rating">
+          <span class="park-card-v2__star">
+            <svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg>
+          </span>
+          <span class="park-card-v2__score">4.7</span>
+        </div>
+      </div>
+      <div class="park-card-v2__body">
+        <div class="park-card-v2__info">
+          <h3 class="park-card-v2__name">Parque Ecoturístico Chalma</h3>
+          <p class="park-card-v2__desc">Famoso por su densa vegetación y avistamientos garantizados en senderos marcados.</p>
+        </div>
+        <div class="park-card-v2__footer">
+          <div class="park-card-v2__amenities">
+            <span class="park-card-v2__amenity material-symbols-outlined" title="WiFi">wifi</span>
+            <span class="park-card-v2__amenity material-symbols-outlined" title="Estacionamiento">local_parking</span>
+            <span class="park-card-v2__amenity material-symbols-outlined" title="Cabañas">cabin</span>
+          </div>
+          <span class="park-card-v2__price">$380 MXN</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- ── Card 3: Piedra Canteada (AGOTADO) ── -->
+    <a href="{% url 'park_detail' 'piedra-canteada' %}"
+       class="park-card-v2 park-card-v2--full" data-type="cabana" data-status="full">
+      <div class="park-card-v2__img-wrap">
+        <img
+          src="{% static 'img/piedra-canteada.jpg' %}"
+          alt="Piedra Canteada"
+          loading="lazy"
+        />
+        <div class="park-card-v2__overlay"></div>
+        <span class="park-card-v2__status park-card-v2__status--full">
+          Agotado
+        </span>
+        <div class="park-card-v2__rating">
+          <span class="park-card-v2__star">
+            <svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg>
+          </span>
+          <span class="park-card-v2__score">4.8</span>
+        </div>
+      </div>
+      <div class="park-card-v2__body">
+        <div class="park-card-v2__info">
+          <h3 class="park-card-v2__name">Piedra Canteada</h3>
+          <p class="park-card-v2__desc">Un paraíso rústico ideal para fotógrafos y quienes buscan desconexión total en la naturaleza.</p>
+        </div>
+        <div class="park-card-v2__footer">
+          <div class="park-card-v2__amenities">
+            <span class="park-card-v2__amenity material-symbols-outlined" title="Estacionamiento">local_parking</span>
+            <span class="park-card-v2__amenity material-symbols-outlined" title="Senderismo">hiking</span>
+            <span class="park-card-v2__amenity material-symbols-outlined" title="Fotografía">photo_camera</span>
+          </div>
+          <span class="park-card-v2__price">$520 MXN</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- ── Card 4: Parque Nacional Molino ── -->
+    <a href="{% url 'park_detail' 'parque-nacional-molino' %}"
+       class="park-card-v2" data-type="camping" data-status="available">
+      <div class="park-card-v2__img-wrap">
+        <img
+          src="https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=600&q=80"
+          alt="Parque Nacional Molino"
+          loading="lazy"
+        />
+        <div class="park-card-v2__overlay"></div>
+        <span class="park-card-v2__status park-card-v2__status--available">
+          <span class="park-card-v2__status-dot"></span> Disponible
+        </span>
+        <div class="park-card-v2__rating">
+          <span class="park-card-v2__star">
+            <svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg>
+          </span>
+          <span class="park-card-v2__score">4.5</span>
+        </div>
+      </div>
+      <div class="park-card-v2__body">
+        <div class="park-card-v2__info">
+          <h3 class="park-card-v2__name">Parque Nacional Molino</h3>
+          <p class="park-card-v2__desc">Ambiente familiar con actividades educativas y zonas de picnic autorizadas para todos.</p>
+        </div>
+        <div class="park-card-v2__footer">
+          <div class="park-card-v2__amenities">
+            <span class="park-card-v2__amenity material-symbols-outlined" title="WiFi">wifi</span>
+            <span class="park-card-v2__amenity material-symbols-outlined" title="Estacionamiento">local_parking</span>
+            <span class="park-card-v2__amenity material-symbols-outlined" title="Accesible">accessible</span>
+          </div>
+          <span class="park-card-v2__price">$320 MXN</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- ── Card 5: Bosque del Silencio ── -->
+    <a href="{% url 'park_detail' 'texcoco' %}"
+       class="park-card-v2" data-type="sendero" data-status="available">
+      <div class="park-card-v2__img-wrap">
+        <img
+          src="{% static 'img/Texcoco.webp' %}"
+          alt="Texcoco"
+          loading="lazy"
+          style="object-position: center 40%"
+        />
+        <div class="park-card-v2__overlay"></div>
+        <span class="park-card-v2__status park-card-v2__status--available">
+          <span class="park-card-v2__status-dot"></span> Disponible
+        </span>
+        <div class="park-card-v2__rating">
+          <span class="park-card-v2__star">
+            <svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg>
+          </span>
+          <span class="park-card-v2__score">4.9</span>
+        </div>
+      </div>
+      <div class="park-card-v2__body">
+        <div class="park-card-v2__info">
+          <h3 class="park-card-v2__name">Texcoco</h3>
+          <p class="park-card-v2__desc">Ruta exclusiva limitada a 20 personas por noche para garantizar la preservación del ecosistema.</p>
+        </div>
+        <div class="park-card-v2__footer">
+          <div class="park-card-v2__amenities">
+            <span class="park-card-v2__amenity material-symbols-outlined" title="Senderismo">hiking</span>
+            <span class="park-card-v2__amenity material-symbols-outlined" title="Eco tour">eco</span>
+            <span class="park-card-v2__amenity material-symbols-outlined" title="Fotografía">photo_camera</span>
+          </div>
+          <span class="park-card-v2__price">$600 MXN</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- ── Card 6: Villa Paraíso (AGOTADO) ── -->
+    <a href="{% url 'park_detail' 'chalco' %}"
+       class="park-card-v2 park-card-v2--full" data-type="cabana" data-status="full">
+      <div class="park-card-v2__img-wrap">
+        <img
+          src="{% static 'img/chalco.webp' %}"
+          alt="Chalco"
+          loading="lazy"
+        />
+        <div class="park-card-v2__overlay"></div>
+        <span class="park-card-v2__status park-card-v2__status--full">
+          Agotado
+        </span>
+        <div class="park-card-v2__rating">
+          <span class="park-card-v2__star">
+            <svg viewBox="0 0 10 10"><path d="M5 0L6.12 3.45H9.76L6.82 5.59L7.94 9.04L5 6.9L2.06 9.04L3.18 5.59L0.24 3.45H3.88L5 0Z"/></svg>
+          </span>
+          <span class="park-card-v2__score">4.6</span>
+        </div>
+      </div>
+      <div class="park-card-v2__body">
+        <div class="park-card-v2__info">
+          <h3 class="park-card-v2__name">Chalco</h3>
+          <p class="park-card-v2__desc">Excelente opción para grupos grandes con cabañas equipadas y vistas panorámicas del bosque.</p>
+        </div>
+        <div class="park-card-v2__footer">
+          <div class="park-card-v2__amenities">
+            <span class="park-card-v2__amenity material-symbols-outlined" title="Grupos">groups</span>
+            <span class="park-card-v2__amenity material-symbols-outlined" title="Estacionamiento">local_parking</span>
+            <span class="park-card-v2__amenity material-symbols-outlined" title="Restaurante">restaurant</span>
+          </div>
+          <span class="park-card-v2__price">$410 MXN</span>
+        </div>
+      </div>
+    </a>
+
+  </div><!-- /parkGrid -->
+
+</div><!-- /parques-section -->
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+
+(function () {
+
+  var params = new URLSearchParams(window.location.search);
+  var fecha = params.get('fecha');
+  var adultos = parseInt(params.get('adultos')) || 0;
+  var ninos = parseInt(params.get('ninos')) || 0;
+
+  if (fecha) {
+    var dateInput2 = document.getElementById('pFestivalDate');
+    var searchDate2 = document.getElementById('pSearchDate');
+    if (dateInput2) dateInput2.value = fecha;
+    if (searchDate2) {
+      var d = new Date(fecha + 'T12:00:00');
+      searchDate2.textContent = d.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+  }
+
+  if (adultos > 0) {
+    var adultEl = document.getElementById('pAdultCount');
+    var kidEl = document.getElementById('pKidCount');
+    var visEl = document.getElementById('pVisitorsText');
+    if (adultEl) adultEl.textContent = adultos;
+    if (kidEl) kidEl.textContent = ninos;
+    if (visEl) visEl.textContent = adultos + ' Adulto' + (adultos !== 1 ? 's' : '') + ', ' + ninos + ' Niño' + (ninos !== 1 ? 's' : '');
+  }
+
+  /* ── FECHA ── */
+  var dateField  = document.getElementById('pDateField');
+  var dateInput  = document.getElementById('pFestivalDate');
+  var searchDate = document.getElementById('pSearchDate');
+
+  if (dateField && dateInput) {
+    var today = new Date();
+    var yyyy = today.getFullYear();
+    var mm   = String(today.getMonth() + 1).padStart(2, '0');
+    var dd   = String(today.getDate()).padStart(2, '0');
+    dateInput.min = yyyy + '-' + mm + '-' + dd;
+
+    dateField.addEventListener('click', function () { dateInput.showPicker(); });
+
+    dateInput.addEventListener('change', function () {
+      if (!dateInput.value) return;
+      var fecha = new Date(dateInput.value + 'T12:00:00');
+      searchDate.textContent = fecha.toLocaleDateString('es-MX', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      });
+    });
+  }
+
+  /* ── VISITANTES ── */
+  var visitorsField    = document.getElementById('pVisitorsField');
+  var visitorsDropdown = document.getElementById('pVisitorsDropdown');
+  var visitorsText     = document.getElementById('pVisitorsText');
+  var urlParams = new URLSearchParams(window.location.search);
+  var adults = parseInt(urlParams.get('adultos')) || 1;
+  var kids = parseInt(urlParams.get('ninos')) || 0;
+
+  function updateVisitors() {
+    document.getElementById('pAdultCount').textContent = adults;
+    document.getElementById('pKidCount').textContent   = kids;
+    visitorsText.textContent =
+      adults + ' ' + (adults === 1 ? 'Adulto' : 'Adultos') + ', ' +
+      kids   + ' ' + (kids   === 1 ? 'Niño'   : 'Niños');
+  }
+
+  visitorsField.addEventListener('click', function (e) {
+    if (!visitorsDropdown.contains(e.target)) {
+      visitorsDropdown.classList.toggle('is-open');
+    }
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!visitorsField.contains(e.target)) {
+      visitorsDropdown.classList.remove('is-open');
+    }
+  });
+
+  document.getElementById('pPlusAdults').addEventListener('click',  function () { adults++; updateVisitors(); });
+  document.getElementById('pMinusAdults').addEventListener('click', function () { if (adults > 1) { adults--; updateVisitors(); } });
+  document.getElementById('pPlusKids').addEventListener('click',    function () { if (adults >= 1) { kids++; updateVisitors(); } });
+  document.getElementById('pMinusKids').addEventListener('click',   function () { if (kids > 0) { kids--; updateVisitors(); } });
+
+  updateVisitors();
+
+  /* ── FILTROS ── */
+  var filterBtns = document.querySelectorAll('.parques-filter-btn');
+  var parkCards  = document.querySelectorAll('.park-card-v2');
+  var countEl    = document.getElementById('parkCount');
+  var emptyEl    = document.getElementById('parquesEmpty');
+
+  function filterParks(filter) {
+    var visible = 0;
+    parkCards.forEach(function (card) {
+      var show = filter === 'all' || card.dataset.type === filter;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    countEl.textContent = visible;
+    emptyEl.classList.toggle('is-visible', visible === 0);
+  }
+
+  filterBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      filterBtns.forEach(function (b) { b.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+      filterParks(btn.dataset.filter);
+    });
+  });
+
+})();
+</script>
+{% endblock %}

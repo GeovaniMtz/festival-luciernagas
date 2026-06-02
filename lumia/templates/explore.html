@@ -1,0 +1,1304 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Explorar Parques — Lumia{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ═══════════════════════════════════════════════
+   EXPLORAR — página principal
+═══════════════════════════════════════════════ */
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding-top: var(--navbar-h);
+}
+
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.60;
+}
+
+.hero__bg-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    0deg,
+    #121414 0%,
+    rgba(18,20,20,0) 50%,
+    rgba(18,20,20,0) 100%
+  );
+}
+
+.hero__content {
+  position: relative;
+  z-index: 2;
+  max-width: 896px;
+  width: 100%;
+  padding: 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+  padding-bottom: 80px;
+}
+
+.hero__title {
+  font-family: 'Montserrat', var(--font-display);
+  font-size: clamp(36px, 6vw, 60px);
+  font-weight: 700;
+  line-height: 1;
+  color: #E2E2E2;
+}
+
+.hero__subtitle {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 28px;
+  color: var(--color-text-secondary);
+  max-width: 560px;
+}
+
+/* Buscador hero */
+.hero__search {
+  width: 100%;
+  max-width: 768px;
+  background: rgba(40, 42, 43, 0.90);
+  border-radius: 16px;
+  border: 1px solid #414847;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+}
+
+.hero__search-field {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-right: 1px solid rgba(65,72,71,0.30);
+  cursor: pointer;
+  min-width: 0;
+}
+
+.hero__search-field:last-of-type {
+  border-right: none;
+}
+
+.hero__search-icon {
+  color: var(--color-text-label);
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.hero__search-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.hero__search-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  line-height: 16px;
+  color: #8B9291;
+}
+
+.hero__search-value {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.7px;
+  color: #E2E2E2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero__search-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 32px;
+  background: var(--color-success);
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  color: #133633;
+  cursor: pointer;
+  transition: background var(--transition), transform 0.15s ease;
+}
+
+.hero__search-btn:hover {
+  background: #16a34a;
+  transform: translateY(-1px);
+}
+
+.hero__search-btn .material-symbols-outlined {
+  font-size: 22px;
+}
+
+/* ── DATE INPUT ── */
+
+.hero__date-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── SECCIÓN GENERAL ── */
+.section {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 80px 40px;
+}
+
+.section--dark {
+  background: #121414;;
+  max-width: 100%;
+}
+
+.section--dark .section__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 80px 40px;
+}
+
+/* ── PARQUES OFICIALES ── */
+.parks__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 48px;
+  gap: 16px;
+}
+
+.parks__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-title {
+  font-family: 'Montserrat', var(--font-display);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+  color: #E2E2E2;
+}
+
+.section-subtitle {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--color-text-secondary);
+}
+
+.parks__ver-todos {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-text-label);
+  white-space: nowrap;
+  transition: opacity var(--transition);
+}
+
+.parks__ver-todos:hover { opacity: 0.75; }
+
+/* Grid de parques */
+.parks__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 24px;
+}
+
+/* Card grande (featured) */
+.park-card--featured {
+  grid-row: 1 / 3;
+  position: relative;
+  height: 450px;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid #414847;
+  cursor: pointer;
+}
+
+.park-card--featured img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.park-card--featured:hover img {
+  transform: scale(1.04);
+}
+
+.park-card--featured__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    0deg,
+    rgba(0,0,0,0.90) 0%,
+    rgba(0,0,0,0.20) 50%,
+    rgba(0,0,0,0) 100%
+  );
+}
+
+.park-card--featured__body {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.park-card--featured__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.park-badge {
+  display: inline-flex;
+  padding: 4px 12px;
+  background: rgba(163,230,53,0.20);
+  border: 1px solid rgba(163,230,53,0.30);
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: #A3E635;
+  margin-bottom: 8px;
+  width: fit-content;
+}
+
+.park-card--featured__name {
+  font-family: 'Montserrat', var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+  color: #fff;
+}
+
+.park-card--featured__location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.7px;
+  color: var(--color-text-secondary);
+}
+
+.park-card--featured__location .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.park-card--featured__price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.park-price-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--color-text-secondary);
+}
+
+.park-price-value {
+  font-family: var(--font-body);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+  color: var(--color-text-label);
+}
+
+/* Card pequeña */
+.park-card {
+  background: #1E2020;
+  border-radius: 24px;
+  border: 1px solid #414847;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.park-card:hover {
+  border-color: rgba(170,206,201,0.30);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.30);
+}
+
+.park-card__img-wrap {
+  height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.park-card__img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.park-card:hover .park-card__img-wrap img {
+  transform: scale(1.05);
+}
+
+.park-card__name {
+  font-family: 'Montserrat', var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  color: #E2E2E2;
+  margin-bottom: 4px;
+}
+
+.park-card__location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.7px;
+  color: var(--color-text-secondary);
+}
+
+.park-card__location .material-symbols-outlined {
+  font-size: 14px;
+}
+
+.park-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid rgba(65,72,71,0.30);
+  margin-top: 16px;
+}
+
+.park-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.7px;
+}
+
+.park-status__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.park-status--available .park-status__dot { background: var(--color-success); }
+.park-status--available { color: var(--color-success); }
+
+.park-status--few .park-status__dot { background: var(--color-warning); }
+.park-status--few { color: var(--color-warning); }
+
+.park-status--full .park-status__dot { background: var(--color-error); }
+.park-status--full { color: var(--color-error); }
+
+.park-card__price {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  color: var(--color-text-label);
+}
+
+/* ── MAPA SECTION ── */
+.mapa-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.mapa-section__text {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mapa-section__title {
+  font-family: 'Montserrat', var(--font-display);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+  color: #E2E2E2;
+}
+
+.mapa-section__desc {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 28px;
+  color: var(--color-text-secondary);
+}
+
+.mapa-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.mapa-feature__icon {
+  width: 40px;
+  height: 40px;
+  background: #0A2E2B;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-text-label);
+}
+
+.mapa-feature__icon .material-symbols-outlined { font-size: 20px; }
+
+.mapa-feature__title {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  color: #E2E2E2;
+}
+
+.mapa-feature__desc {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.7px;
+  line-height: 20px;
+  color: var(--color-text-secondary);
+}
+
+.btn-map {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 32px;
+  background: var(--color-success);
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  color: #121414;
+  cursor: pointer;
+  transition: background var(--transition), transform 0.15s ease;
+  width: fit-content;
+  text-decoration: none;
+}
+
+.btn-map:hover {
+  background: #16a34a;
+  transform: translateY(-1px);
+}
+
+/* Preview mapa */
+.mapa-preview {
+  position: relative;
+  height: 500px;
+  border-radius: 32px;
+  overflow: hidden;
+  border: 4px solid #282A2B;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+}
+
+.mapa-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.40;
+}
+
+.mapa-preview__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(170,206,201,0.05);
+}
+
+/* Card flotante en preview */
+.mapa-preview__card {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  background: #121414;
+  border-radius: 12px;
+  border: 1px solid #414847;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.10);
+  min-width: 200px;
+}
+
+.mapa-preview__card-icon {
+  width: 40px;
+  height: 40px;
+  background: #155155;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8BC2C6;
+  flex-shrink: 0;
+}
+
+.mapa-preview__card-name {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.7px;
+  color: #E2E2E2;
+}
+
+.mapa-preview__card-zone {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+/* Marcadores animados */
+.mapa-preview__marker {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-success);
+  animation: markerPulse 2s ease-in-out infinite;
+}
+
+.mapa-preview__marker::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: rgba(34,197,94,0.25);
+  animation: markerRing 2s ease-in-out infinite;
+}
+
+.mapa-preview__marker:nth-child(2) { top: 45%; left: 55%; animation-delay: 0.5s; background: #A3E635; }
+.mapa-preview__marker:nth-child(2)::after { background: rgba(163,230,53,0.20); }
+.mapa-preview__marker:nth-child(3) { top: 65%; left: 35%; animation-delay: 1s; }
+.mapa-preview__marker:nth-child(4) { top: 30%; left: 70%; animation-delay: 1.5s; background: #FEE715; }
+.mapa-preview__marker:nth-child(4)::after { background: rgba(254,231,21,0.20); }
+
+@keyframes markerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+@keyframes markerRing {
+  0% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; }
+  100% { opacity: 0; transform: scale(2); }
+}
+
+/* ── REGLAMENTO ── */
+.reglamento__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 64px;
+  text-align: center;
+}
+
+.reglamento__desc {
+  max-width: 576px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--color-text-secondary);
+}
+
+.reglamento__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.regla-card {
+  background: #1E2020;
+  border-radius: 24px;
+  border: 1px solid #414847;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  transition: border-color var(--transition), transform 0.2s ease;
+}
+
+.regla-card:hover {
+  border-color: rgba(170,206,201,0.25);
+  transform: translateY(-4px);
+}
+
+.regla-card__icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.regla-card__title {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  color: #E2E2E2;
+}
+
+.regla-card__desc {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.7px;
+  line-height: 20px;
+  color: var(--color-text-secondary);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .parks__grid {
+    grid-template-columns: 1fr;
+  }
+  .park-card--featured {
+    grid-row: auto;
+    height: 320px;
+  }
+  .mapa-section {
+    grid-template-columns: 1fr;
+  }
+  .mapa-preview {
+    height: 320px;
+  }
+  .reglamento__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .section { padding: 60px 20px; }
+  .section--dark .section__inner { padding: 60px 20px; }
+  .hero__content { padding: 0 20px 60px; }
+  .hero__search {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hero__search-field {
+    border-right: none;
+    border-bottom: 1px solid rgba(65,72,71,0.30);
+  }
+  .hero__search-btn { width: 100%; justify-content: center; }
+  .parks__header { flex-direction: column; align-items: flex-start; }
+  .reglamento__grid { grid-template-columns: 1fr 1fr; }
+  .section-title { font-size: 26px; }
+  .hero__title { font-size: 32px; }
+}
+
+@media (max-width: 480px) {
+  .reglamento__grid { grid-template-columns: 1fr; }
+}
+
+/* ── VISITORS ── */
+
+.visitors-field {
+  position: relative;
+}
+
+.visitors-dropdown {
+
+  position: absolute;
+
+  top: calc(100% + 14px);
+  left: 0;
+
+  width: 320px;
+
+  background: #1A1C1C;
+
+  border: 1px solid #414847;
+
+  border-radius: 20px;
+
+  padding: 20px;
+
+  display: none;
+  flex-direction: column;
+  gap: 20px;
+
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.35);
+
+  z-index: 30;
+}
+
+.visitors-dropdown.is-open {
+  display: flex;
+}
+
+.visitors-row {
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.visitors-row__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #E2E2E2;
+}
+
+.visitors-row__subtitle {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.visitors-counter {
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.counter-btn {
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: 50%;
+
+  border: 1px solid #414847;
+
+  background: #282A2B;
+
+  color: #E2E2E2;
+
+  font-size: 18px;
+
+  cursor: pointer;
+}
+
+/* Fuente Montserrat para títulos */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap');
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════ HERO ══════════════════ -->
+<section class="hero">
+  <div class="hero__bg">
+    <img
+      src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=1600&q=80"
+      alt="Bosque nocturno"
+      loading="eager"
+    />
+    <div class="hero__bg-gradient"></div>
+  </div>
+
+  <div class="hero__content">
+    <h1 class="hero__title">
+      ¡La magia nocturna del<br/>
+      Festival de Luciérnagas<br/>
+      te espera!
+    </h1>
+    <p class="hero__subtitle">
+      Reserva tu lugar en los parques oficiales y vive una gran experiencia.
+    </p>
+
+    <!-- Buscador -->
+    <div class="hero__search" role="search">
+      <div class="hero__search-field" id="dateField">
+        <span class="hero__search-icon material-symbols-outlined">
+          calendar_month
+        </span>
+
+        <div class="hero__search-info">
+          <span class="hero__search-label">Fecha</span>
+
+          <span class="hero__search-value" id="searchDate">
+            Selecciona fecha
+          </span>
+        </div>
+
+        <input
+          type="date"
+          id="festivalDate"
+          class="hero__date-input"
+        />
+
+      </div>
+      <div
+        class="hero__search-field visitors-field"
+        id="visitorsField"
+      >
+
+        <span class="hero__search-icon material-symbols-outlined">
+          group
+        </span>
+
+        <div class="hero__search-info">
+
+          <span class="hero__search-label">
+            Visitantes
+          </span>
+
+          <span
+            class="hero__search-value"
+            id="visitorsText"
+          >
+            1 Adulto, 0 Niños
+          </span>
+
+        </div>
+
+        <!-- Dropdown -->
+        <div
+          class="visitors-dropdown"
+          id="visitorsDropdown"
+        >
+
+          <!-- Adultos -->
+          <div class="visitors-row">
+
+            <div>
+              <div class="visitors-row__title">
+                Adultos
+              </div>
+
+              <div class="visitors-row__subtitle">
+                Mayores de 13 años
+              </div>
+            </div>
+
+            <div class="visitors-counter">
+
+              <button
+                type="button"
+                class="counter-btn"
+                id="minusAdults"
+              >
+                -
+              </button>
+
+              <span id="adultCount">1</span>
+
+              <button
+                type="button"
+                class="counter-btn"
+                id="plusAdults"
+              >
+                +
+              </button>
+
+            </div>
+
+          </div>
+
+          <!-- Niños -->
+          <div class="visitors-row">
+
+            <div>
+              <div class="visitors-row__title">
+                Niños
+              </div>
+
+              <div class="visitors-row__subtitle">
+                Menores de 13 años
+              </div>
+            </div>
+
+            <div class="visitors-counter">
+
+              <button
+                type="button"
+                class="counter-btn"
+                id="minusKids"
+              >
+                -
+              </button>
+
+              <span id="kidCount">0</span>
+
+              <button
+                type="button"
+                class="counter-btn"
+                id="plusKids"
+              >
+                +
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+      <button class="hero__search-btn" type="button" id="searchBtn">
+        <span class="material-symbols-outlined">search</span>
+        Buscar
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ PARQUES OFICIALES ══════════════════ -->
+<section class="section">
+  <div class="parks__header">
+    <div class="parks__heading">
+      <h2 class="section-title">Parques Oficiales</h2>
+      <p class="section-subtitle">Espacios protegidos y certificados para el festival.</p>
+    </div>
+    <a href="/explore/parks/" class="parks__ver-todos">
+      Ver todos
+      <span class="material-symbols-outlined" style="font-size:20px;">arrow_forward</span>
+    </a>
+  </div>
+
+  <div class="parks__grid">
+
+    <!-- Card grande: Parque Central Amecameca -->
+    <a href="/explore/parks/parque-central-amecameca/" class="park-card--featured">
+      <img
+        src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=900&q=80"
+        alt="Parque Central de Amecameca"
+      />
+      <div class="park-card--featured__overlay"></div>
+      <div class="park-card--featured__body">
+        <div class="park-card--featured__info">
+          <span class="park-badge">MÁS POPULAR</span>
+          <h3 class="park-card--featured__name">Parque Central de Amecameca</h3>
+          <div class="park-card--featured__location">
+            <span class="material-symbols-outlined">location_on</span>
+            Amecameca de Juárez
+          </div>
+        </div>
+        <div class="park-card--featured__price">
+          <span class="park-price-label">Desde</span>
+          <span class="park-price-value">$350 MXN</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Card pequeña: Bosque Esmeralda -->
+    <a href="/explore/parks/bosque-esmeralda/" class="park-card">
+      <div class="park-card__img-wrap">
+        <img
+          src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&q=80"
+          alt="Bosque Esmeralda"
+        />
+      </div>
+      <div>
+        <h3 class="park-card__name">Bosque Esmeralda</h3>
+        <div class="park-card__location">
+          <span class="material-symbols-outlined">location_on</span>
+          Bosque virgen
+        </div>
+      </div>
+      <div class="park-card__footer">
+        <div class="park-status park-status--available">
+          <div class="park-status__dot"></div>
+          Disponible
+        </div>
+        <span class="park-card__price">$450 MXN</span>
+      </div>
+    </a>
+
+    <!-- Card pequeña: Rancho del Valle -->
+    <a href="/explore/parks/rancho-del-valle/" class="park-card">
+      <div class="park-card__img-wrap">
+        <img
+          src="https://images.unsplash.com/photo-1511497584788-876760111969?w=600&q=80"
+          alt="Rancho del Valle"
+        />
+      </div>
+      <div>
+        <h3 class="park-card__name">Rancho del Valle</h3>
+        <div class="park-card__location">
+          <span class="material-symbols-outlined">location_on</span>
+          Cabañas familiares cerca de la orilla del lago.
+        </div>
+      </div>
+      <div class="park-card__footer">
+        <div class="park-status park-status--few">
+          <div class="park-status__dot"></div>
+          Pocos lugares
+        </div>
+        <span class="park-card__price">$410 MXN</span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- ══════════════════ MAPA EN TIEMPO REAL ══════════════════ -->
+<div class="section--dark">
+  <div class="section__inner">
+    <div class="mapa-section">
+
+      <div class="mapa-section__text">
+        <h2 class="mapa-section__title">Explora el Bosque en Tiempo Real</h2>
+        <p class="mapa-section__desc">
+          Utiliza nuestro mapa interactivo para localizar los puntos de
+          acceso, zonas de estacionamiento y servicios médicos en cada
+          santuario.
+        </p>
+        <div style="display:flex;flex-direction:column;gap:24px;">
+          <div class="mapa-feature">
+            <div class="mapa-feature__icon">
+              <span class="material-symbols-outlined">route</span>
+            </div>
+            <div>
+              <div class="mapa-feature__title">Rutas de Senderismo</div>
+              <div class="mapa-feature__desc">Caminos trazados para evitar dañar el ecosistema.</div>
+            </div>
+          </div>
+          <div class="mapa-feature">
+            <div class="mapa-feature__icon">
+              <span class="material-symbols-outlined">local_parking</span>
+            </div>
+            <div>
+              <div class="mapa-feature__title">Estacionamientos Seguros</div>
+              <div class="mapa-feature__desc">Zonas vigiladas las 24 horas del día.</div>
+            </div>
+          </div>
+        </div>
+        <a href="/map/" class="btn-map">Abrir Mapa Interactivo</a>
+      </div>
+
+      <!-- Preview mapa -->
+      <div class="mapa-preview">
+        <img
+          src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=600&q=80"
+          alt="Vista de mapa"
+        />
+        <div class="mapa-preview__overlay"></div>
+
+        <!-- Marcadores animados -->
+        <div class="mapa-preview__marker" style="top:40%;left:30%;"></div>
+        <div class="mapa-preview__marker"></div>
+        <div class="mapa-preview__marker"></div>
+        <div class="mapa-preview__marker"></div>
+
+        <!-- Card flotante -->
+        <div class="mapa-preview__card">
+          <div class="mapa-preview__card-icon">
+            <span class="material-symbols-outlined" style="font-size:20px;">forest</span>
+          </div>
+          <div>
+            <div class="mapa-preview__card-name">Campamento El Sol</div>
+            <div class="mapa-preview__card-zone">Zona A-12</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+
+  /* ─────────────────────────────
+     FECHA
+  ───────────────────────────── */
+
+  const dateField = document.getElementById('dateField');
+  const dateInput = document.getElementById('festivalDate');
+  const searchDate = document.getElementById('searchDate');
+
+  if (dateField && dateInput) {
+
+    const today = new Date();
+
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+
+    dateInput.min = `${yyyy}-${mm}-${dd}`;
+
+    dateField.addEventListener('click', () => {
+      dateInput.showPicker();
+    });
+
+    dateInput.addEventListener('change', () => {
+
+      if (!dateInput.value) return;
+
+      const fecha = new Date(dateInput.value);
+
+      const opciones = {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      };
+
+      searchDate.textContent =
+        fecha.toLocaleDateString('es-MX', opciones);
+    });
+  }
+
+  /* ─────────────────────────────
+     VISITANTES
+  ───────────────────────────── */
+
+  const visitorsField =
+    document.getElementById('visitorsField');
+
+  const dropdown =
+    document.getElementById('visitorsDropdown');
+
+  const visitorsText =
+    document.getElementById('visitorsText');
+
+  let adults = 1;
+  let kids = 0;
+
+  function updateVisitors() {
+
+    document.getElementById('adultCount').textContent = adults;
+    document.getElementById('kidCount').textContent = kids;
+
+    const adultText =
+      adults === 1 ? 'Adulto' : 'Adultos';
+
+    const kidText =
+      kids === 1 ? 'Niño' : 'Niños';
+
+    visitorsText.textContent =
+      `${adults} ${adultText}, ${kids} ${kidText}`;
+  }
+
+  visitorsField.addEventListener('click', function (e) {
+
+    if (!dropdown.contains(e.target)) {
+      dropdown.classList.toggle('is-open');
+    }
+  });
+
+  document.addEventListener('click', function (e) {
+
+    if (!visitorsField.contains(e.target)) {
+      dropdown.classList.remove('is-open');
+    }
+  });
+
+  document.getElementById('plusAdults')
+    .addEventListener('click', () => {
+
+      adults++;
+      updateVisitors();
+    });
+
+  document.getElementById('minusAdults')
+    .addEventListener('click', () => {
+
+      if (adults > 1) {
+
+        adults--;
+
+        if (adults === 0) {
+          kids = 0;
+        }
+
+        updateVisitors();
+      }
+    });
+
+  document.getElementById('plusKids')
+    .addEventListener('click', () => {
+
+      if (adults >= 1) {
+
+        kids++;
+        updateVisitors();
+      }
+    });
+
+  document.getElementById('minusKids')
+    .addEventListener('click', () => {
+
+      if (kids > 0) {
+
+        kids--;
+        updateVisitors();
+      }
+    });
+
+  updateVisitors();
+
+  document.getElementById('searchBtn').addEventListener('click', function () {
+    var date = document.getElementById('festivalDate').value;
+    var adults = document.getElementById('adultCount').textContent;
+    var kids = document.getElementById('kidCount').textContent;
+    var url = '/explore/parks/?fecha=' + date + '&adultos=' + adults + '&ninos=' + kids;
+    window.location.href = url;
+  });
+
+})();
+</script>
+{% endblock %}
